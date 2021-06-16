@@ -43,7 +43,7 @@ setup(name='pypm',
       url='https://cee-gitlab.sandia.gov/adapd/pypm',
       platforms=["any"],
       description='A python library for process matching',
-      long_description=read('README.txt'),
+      #long_description=read('README.md'),
       classifiers=[
         #'Development Status :: 5 - Production/Stable',
         'Intended Audience :: End Users/Desktop',
