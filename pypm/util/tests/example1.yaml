@@ -1,0 +1,24 @@
+resources:
+- (Unknown)
+- ResourceA
+- ResourceB
+- ResourceC
+
+activities:
+
+- dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 5
+  resources:
+  - ResourceB
+  - ResourceC
+  name: Activity1
+
+- dependencies:
+  - Activity1
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+  name: Activity2

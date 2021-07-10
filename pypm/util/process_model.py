@@ -67,12 +67,12 @@ class ProcessModel(object):
         activity['id'] = i
         self._names[ activity['name'] ] = i
         self._activities[ i ] = activity
-        if activity['resources'] is None:
+        if activity.get('resources',None) is None:
             activity['resources'] = []
         #
         # WEH - Should we adopt the term 'predecessor'?
         #
-        if activity['dependencies'] is None:
+        if activity.get('dependencies',None) is None:
             activity['dependencies'] = []
 
     def _initialize(self):

@@ -34,6 +34,8 @@ requires = [
     'Pyomo',
     #'parameterized',
     #'scipy',
+    'pyutilib',
+    'simpy',
     'munch'
     ]
 packages = _find_packages('pypm')

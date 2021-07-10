@@ -14,7 +14,5 @@ def load_data(filename=None, dirname=None, data=None):
             yamldata=yaml.safe_load(INPUT)
     else:
         yamldata=yaml.safe_load(data)
-    import pprint
-    pprint.pprint(yamldata)
     return ProcessModel(data=yamldata)
 
