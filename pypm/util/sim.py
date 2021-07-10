@@ -7,28 +7,26 @@ from .process_model import ProcessModel
 
 class Simulator(object):
 
-    def __init__(self, *, pm, env=None, data=[], maxdelay=0):
+    def __init__(self, *, pm, env=None, data=[]):
         if env is None:
             self.env = simpy.Environment()
         else:                               #pragma: no cover
             self.env = env
         self.pm = pm
         self.data = data
-        self.maxdelay = maxdelay
 
-    def _delay_start(self):
-        yield self.env.timeout(random.randint(0, self.maxdelay))
+    def _delay_start(self, maxdelay):
+        yield self.env.timeout(random.randint(0, maxdelay))
 
     def _sink(self, pred=[]):
         for p in pred:
             yield p
     
-    def _execute_activity(self, *, minlen, maxlen, name, pred):
-        if len(pred) == 0:
-            yield self.sim_delay
-        else:
-            for p in pred:
-                yield p
+    def _execute_activity(self, *, minlen, maxlen, maxdelay, name, pred):
+        for p in pred:
+            yield p
+        if maxdelay > 0:
+            yield self.env.process( self._delay_start(maxdelay) )
         for i in range(random.randint(minlen,maxlen)):
             self.data.append((self.env.now, name)) # Collect data
             yield self.env.timeout(1)
@@ -50,15 +48,12 @@ class Simulator(object):
                 self._execute_activity( 
                         minlen=activity['duration']['min_hours'], 
                         maxlen=activity['duration']['max_hours'], 
+                        maxdelay=activity['max_delay'],
                         name=activity['name'],
                         pred=pred) )
 
     def create(self, seed):
         random.seed(seed)
-        #
-        # The first activity starts after a given delay
-        #
-        self.sim_delay = self.env.process( self._delay_start() )
         #
         # Create simulation processes for each activity in the graph
         #
@@ -80,4 +75,24 @@ class Simulator(object):
         self.data.clear()
         self.env.run( self.create(seed) )
 
+    def organize_observations(self, data, ntimes=0):
+        """
+        Organize the data observations into a dictionary indexed by
+        resource name.  For each resource, an array of length ntimes 
+        contains 0/1 values indicating whether the resource was observed.
+        """
+        mini = 0
+        maxi = ntimes
+        activities = set()
+        for obs in data:
+            i,a = obs
+            activities.add(a)
+            if i+1>maxi:
+                maxi = i+1
+        observations = {a:[0]*maxi for a in activities}
+        for obs in data:
+            i,a = obs
+            observations[a][i] = 1
+        return observations
+        
 

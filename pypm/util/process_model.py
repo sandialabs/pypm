@@ -66,6 +66,8 @@ class ProcessModel(object):
         i = len(self._names)
         activity['id'] = i
         self._names[ activity['name'] ] = i
+        if activity.get('max_delay',None) is None:
+            activity['max_delay'] = 0
         self._activities[ i ] = activity
         if activity.get('resources',None) is None:
             activity['resources'] = []
