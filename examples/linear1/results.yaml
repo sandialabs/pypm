@@ -1,128 +1,129 @@
-alignment:
-  0: {start: 4, stop: 13}
-  1: {start: 23, stop: 27}
-  2: {start: 33, stop: 37}
 datafile: linear1_sim.yaml
 index: 0
 model: model1
-objective: 35.0
-variables:
-  a:
-    ? !!python/tuple [0, 4]
-    : 1.0
-    ? !!python/tuple [0, 5]
-    : 1.0
-    ? !!python/tuple [0, 6]
-    : 1.0
-    ? !!python/tuple [0, 7]
-    : 1.0
-    ? !!python/tuple [0, 8]
-    : 1.0
-    ? !!python/tuple [0, 9]
-    : 1.0
-    ? !!python/tuple [0, 10]
-    : 1.0
-    ? !!python/tuple [0, 11]
-    : 1.0
-    ? !!python/tuple [0, 12]
-    : 1.0
-    ? !!python/tuple [0, 13]
-    : 1.0
-    ? !!python/tuple [1, 23]
-    : 1.0
-    ? !!python/tuple [1, 24]
-    : 1.0
-    ? !!python/tuple [1, 25]
-    : 1.0
-    ? !!python/tuple [1, 26]
-    : 1.0
-    ? !!python/tuple [1, 27]
-    : 1.0
-    ? !!python/tuple [2, 33]
-    : 1.0
-    ? !!python/tuple [2, 34]
-    : 1.0
-    ? !!python/tuple [2, 35]
-    : 1.0
-    ? !!python/tuple [2, 36]
-    : 1.0
-    ? !!python/tuple [2, 37]
-    : 1.0
-  r:
-    ? !!python/tuple [0, rB, 4]
-    : 1.0
-    ? !!python/tuple [0, rB, 5]
-    : 1.0
-    ? !!python/tuple [0, rB, 6]
-    : 1.0
-    ? !!python/tuple [0, rB, 7]
-    : 1.0
-    ? !!python/tuple [0, rB, 8]
-    : 1.0
-    ? !!python/tuple [0, rB, 9]
-    : 1.0
-    ? !!python/tuple [0, rB, 10]
-    : 1.0
-    ? !!python/tuple [0, rB, 11]
-    : 1.0
-    ? !!python/tuple [0, rB, 12]
-    : 1.0
-    ? !!python/tuple [0, rB, 13]
-    : 1.0
-    ? !!python/tuple [0, rC, 4]
-    : 1.0
-    ? !!python/tuple [0, rC, 5]
-    : 1.0
-    ? !!python/tuple [0, rC, 6]
-    : 1.0
-    ? !!python/tuple [0, rC, 7]
-    : 1.0
-    ? !!python/tuple [0, rC, 8]
-    : 1.0
-    ? !!python/tuple [0, rC, 9]
-    : 1.0
-    ? !!python/tuple [0, rC, 10]
-    : 1.0
-    ? !!python/tuple [0, rC, 11]
-    : 1.0
-    ? !!python/tuple [0, rC, 12]
-    : 1.0
-    ? !!python/tuple [0, rC, 13]
-    : 1.0
-    ? !!python/tuple [1, rA, 23]
-    : 1.0
-    ? !!python/tuple [1, rA, 24]
-    : 1.0
-    ? !!python/tuple [1, rA, 25]
-    : 1.0
-    ? !!python/tuple [1, rA, 26]
-    : 1.0
-    ? !!python/tuple [1, rA, 27]
-    : 1.0
-    ? !!python/tuple [1, rB, 23]
-    : 1.0
-    ? !!python/tuple [1, rB, 24]
-    : 1.0
-    ? !!python/tuple [1, rB, 25]
-    : 1.0
-    ? !!python/tuple [1, rB, 26]
-    : 1.0
-    ? !!python/tuple [1, rB, 27]
-    : 1.0
-    ? !!python/tuple [2, rA, 33]
-    : 1.0
-    ? !!python/tuple [2, rA, 34]
-    : 1.0
-    ? !!python/tuple [2, rA, 35]
-    : 1.0
-    ? !!python/tuple [2, rA, 36]
-    : 1.0
-    ? !!python/tuple [2, rA, 37]
-    : 1.0
-  x:
-    ? !!python/tuple [0, 4]
-    : 1.0
-    ? !!python/tuple [1, 23]
-    : 1.0
-    ? !!python/tuple [2, 33]
-    : 1.0
+results:
+- alignment:
+    0: {start: 4, stop: 13}
+    1: {start: 23, stop: 27}
+    2: {start: 33, stop: 37}
+  objective: 35.0
+  variables:
+    a:
+      ? !!python/tuple [0, 4]
+      : 1.0
+      ? !!python/tuple [0, 5]
+      : 1.0
+      ? !!python/tuple [0, 6]
+      : 1.0
+      ? !!python/tuple [0, 7]
+      : 1.0
+      ? !!python/tuple [0, 8]
+      : 1.0
+      ? !!python/tuple [0, 9]
+      : 1.0
+      ? !!python/tuple [0, 10]
+      : 1.0
+      ? !!python/tuple [0, 11]
+      : 1.0
+      ? !!python/tuple [0, 12]
+      : 1.0
+      ? !!python/tuple [0, 13]
+      : 1.0
+      ? !!python/tuple [1, 23]
+      : 1.0
+      ? !!python/tuple [1, 24]
+      : 1.0
+      ? !!python/tuple [1, 25]
+      : 1.0
+      ? !!python/tuple [1, 26]
+      : 1.0
+      ? !!python/tuple [1, 27]
+      : 1.0
+      ? !!python/tuple [2, 33]
+      : 1.0
+      ? !!python/tuple [2, 34]
+      : 1.0
+      ? !!python/tuple [2, 35]
+      : 1.0
+      ? !!python/tuple [2, 36]
+      : 1.0
+      ? !!python/tuple [2, 37]
+      : 1.0
+    r:
+      ? !!python/tuple [0, rB, 4]
+      : 1.0
+      ? !!python/tuple [0, rB, 5]
+      : 1.0
+      ? !!python/tuple [0, rB, 6]
+      : 1.0
+      ? !!python/tuple [0, rB, 7]
+      : 1.0
+      ? !!python/tuple [0, rB, 8]
+      : 1.0
+      ? !!python/tuple [0, rB, 9]
+      : 1.0
+      ? !!python/tuple [0, rB, 10]
+      : 1.0
+      ? !!python/tuple [0, rB, 11]
+      : 1.0
+      ? !!python/tuple [0, rB, 12]
+      : 1.0
+      ? !!python/tuple [0, rB, 13]
+      : 1.0
+      ? !!python/tuple [0, rC, 4]
+      : 1.0
+      ? !!python/tuple [0, rC, 5]
+      : 1.0
+      ? !!python/tuple [0, rC, 6]
+      : 1.0
+      ? !!python/tuple [0, rC, 7]
+      : 1.0
+      ? !!python/tuple [0, rC, 8]
+      : 1.0
+      ? !!python/tuple [0, rC, 9]
+      : 1.0
+      ? !!python/tuple [0, rC, 10]
+      : 1.0
+      ? !!python/tuple [0, rC, 11]
+      : 1.0
+      ? !!python/tuple [0, rC, 12]
+      : 1.0
+      ? !!python/tuple [0, rC, 13]
+      : 1.0
+      ? !!python/tuple [1, rA, 23]
+      : 1.0
+      ? !!python/tuple [1, rA, 24]
+      : 1.0
+      ? !!python/tuple [1, rA, 25]
+      : 1.0
+      ? !!python/tuple [1, rA, 26]
+      : 1.0
+      ? !!python/tuple [1, rA, 27]
+      : 1.0
+      ? !!python/tuple [1, rB, 23]
+      : 1.0
+      ? !!python/tuple [1, rB, 24]
+      : 1.0
+      ? !!python/tuple [1, rB, 25]
+      : 1.0
+      ? !!python/tuple [1, rB, 26]
+      : 1.0
+      ? !!python/tuple [1, rB, 27]
+      : 1.0
+      ? !!python/tuple [2, rA, 33]
+      : 1.0
+      ? !!python/tuple [2, rA, 34]
+      : 1.0
+      ? !!python/tuple [2, rA, 35]
+      : 1.0
+      ? !!python/tuple [2, rA, 36]
+      : 1.0
+      ? !!python/tuple [2, rA, 37]
+      : 1.0
+    x:
+      ? !!python/tuple [0, 4]
+      : 1.0
+      ? !!python/tuple [1, 23]
+      : 1.0
+      ? !!python/tuple [2, 33]
+      : 1.0

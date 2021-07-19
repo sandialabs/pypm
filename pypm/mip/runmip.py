@@ -50,6 +50,7 @@ def runmip_from_datafile(*, datafile, index, model=None, tee=None, solver=None):
 
         variables = variables=get_nonzero_variables(M)
         alignment = summarize_alignment(variables)
-        res = dict(datafile=datafile, index=index, model=model, objective=pe.value(M.o), variables=variables, alignment=alignment)
+        res = dict(datafile=datafile, index=index, model=model, 
+                    results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])
 
     return res
