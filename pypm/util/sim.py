@@ -7,13 +7,19 @@ from .process_model import ProcessModel
 
 class Simulator(object):
 
-    def __init__(self, *, pm, env=None, data=[]):
+    def __init__(self, *, pm, env=None, data=[], ground_truth={}, observe_activities=False):
         if env is None:
             self.env = simpy.Environment()
         else:                               #pragma: no cover
             self.env = env
         self.pm = pm
         self.data = data
+        self.ground_truth = ground_truth
+        #
+        # If False, then observe resources used by activities.  Otherwise, observe 
+        # activities themselves.
+        #
+        self.observe_activities = observe_activities
 
     def _delay_start(self, maxdelay):
         yield self.env.timeout(random.randint(0, maxdelay))
@@ -27,8 +33,14 @@ class Simulator(object):
             yield p
         if maxdelay > 0:
             yield self.env.process( self._delay_start(maxdelay) )
-        for i in range(random.randint(minlen,maxlen)):
-            self.data.append((self.env.now, name)) # Collect data
+        activity_len = random.randint(minlen,maxlen)
+        self.ground_truth[name] = dict(start=self.env.now, stop=self.env.now+activity_len-1)
+        for i in range(activity_len):
+            if self.observe_activities:
+                self.data.append((self.env.now, name)) # Collect data
+            else:
+                for resource in self.pm[name]['resources']:
+                    self.data.append((self.env.now, resource)) # Collect data
             yield self.env.timeout(1)
 
     def build_graph(self, g, activity):

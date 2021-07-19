@@ -1,5 +1,7 @@
 import argparse
+import yaml
 from pypm.util import runsim
+from pypm.mip import runmip_from_datafile
 
 
 def main():
@@ -21,7 +23,8 @@ def main():
     parser_sim.set_defaults(func='sim')
 
     parser_mip = subparsers.add_parser('mip', help='Run a MIP solver')
-    parser_mip.add_argument('--baz', choices='XYZ', help='baz help')
+    parser_mip.add_argument('datafile', help='YAML problem file')
+    parser_mip.add_argument('index', help='Index of problem to run', default=0)
     parser_mip.set_defaults(func='mip')
 
     args = parser.parse_args()
@@ -29,7 +32,10 @@ def main():
     if args.func == 'sim':
         runsim(configfile=args.config_file, processfile=args.process_file)
     elif args.func == 'mip':
-        print("TODO")
+        results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
+        with open('results.yaml', 'w') as OUTPUT:
+            print("Writing file: results.yaml")
+            OUTPUT.write(yaml.dump(results, default_flow_style=None))
 
 if __name__ == "__main__":
     main()

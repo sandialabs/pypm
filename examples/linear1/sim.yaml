@@ -1,0 +1,17 @@
+comments:
+- Length of window ensures that the process terminates before the window ends
+ntrials: 10
+seeds:
+- 28349837
+- 8098374
+- 98374937
+- 749872309
+- 1239470
+- 98709327
+- 19827364
+- 5683469
+- 34956820897
+- 192304728
+timesteps: 100
+resource_probability: 0.0
+detection_failure: 0.0

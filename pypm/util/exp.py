@@ -10,8 +10,10 @@ def runsim(*, configfile, processfile):
     with open(configfile, 'r') as INPUT:
         yamldata=yaml.safe_load(INPUT)
     prefix = processfile[:-5]
+    observe_activities = bool(yamldata.get('observe_activities',False))
     ntrials = int(yamldata.get('ntrials',1))
     timesteps = int(yamldata.get('timesteps',0))
+    sigma = int(yamldata.get('sigma',0))
     seeds = yamldata.get('seeds',[])
     assert timesteps > 0, "Configuration file must specify 'timesteps' greater than zero"
     assert len(seeds) >= ntrials, "Configuration does not specify {} seeds".format(ntrials)
@@ -19,17 +21,25 @@ def runsim(*, configfile, processfile):
     trials = []
     pm = load_data(processfile)
     for i in range(ntrials):
-        summary = dict(comments=yamldata.get('comments',[]),
-                        trial=i,
-                        seed=seeds[i],
-                        config=configfile,
-                        process=processfile)
         data = []
-        sim = Simulator(pm=pm, data=data)
+        ground_truth = {}
+        sim = Simulator(pm=pm, data=data, ground_truth=ground_truth, observe_activities=observe_activities)
         sim.run(seeds[i])
-        obs = sim.organize_observations(data, timesteps)
-        trials.append( dict(summary=summary, observations=obs) )
+        trials.append( dict(    trial=i, 
+                                seed=seeds[i], 
+                                observations=sim.organize_observations(data, timesteps),
+                                ground_truth=ground_truth) )
 
+    contents = dict( _options=dict(comments=yamldata.get('comments',[]),
+                                    timesteps=timesteps,
+                                    config=configfile,
+                                    process=processfile,
+                                    solver='glpk',
+                                    model='model1',
+                                    tee=False),
+                      data=trials)
+    if sigma > 0:
+        contents['_options']['sigma'] = sigma
     with open(prefix+"_sim.yaml", 'w') as OUTPUT:
         print("Writing file: {}_sim.yaml".format(prefix))
-        OUTPUT.write(yaml.dump(trials, default_flow_style=None))
+        OUTPUT.write(yaml.dump(contents, default_flow_style=None))
