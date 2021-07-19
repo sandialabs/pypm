@@ -35,6 +35,7 @@ requires = [
     #'parameterized',
     #'scipy',
     'pyutilib',
+    'pyyaml',
     'simpy',
     'munch'
     ]
@@ -69,4 +70,8 @@ setup(name='pypm',
       keywords=['optimization'],
       install_requires=requires,
       python_requires='>=3.7',
+      entry_points="""
+        [console_scripts]
+        pypm = pypm.pypm:main
+        """
       )
