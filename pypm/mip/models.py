@@ -30,7 +30,7 @@ def add_rdef_constraints_unsupervised(*, M, K, J_K, T, O, U):
     M.rdef2 = pe.Constraint(J_K, T, rule=rdef2_)
 
     def rdef3_(m, k):
-        return sum(m.m[k,u] for u in U) == 1
+        return sum(m.m[k,u] for u in U) <= 1
     M.rdef3 = pe.Constraint(K, rule=rdef3_)
 
 def add_xdef_constraints(*, M, T, J, p, E):
