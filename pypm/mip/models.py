@@ -20,6 +20,19 @@ def add_rdef_constraints_supervised(*, M, J_K, T, O):
         return m.r[j,k,t] <= O[k][t]
     M.rdef2 = pe.Constraint(J_K, T, rule=rdef2_)
 
+def add_rdef_constraints_unsupervised(*, M, K, J_K, T, O, U):
+    def rdef1_(m, j, k, t):
+        return m.r[j,k,t] <= m.a[j,t]
+    M.rdef1 = pe.Constraint(J_K, T, rule=rdef1_)
+
+    def rdef2_(m, j, k, t):
+        return m.r[j,k,t] <= sum(m.m[k,u]*O[u][t] for u in U)
+    M.rdef2 = pe.Constraint(J_K, T, rule=rdef2_)
+
+    def rdef3_(m, k):
+        return sum(m.m[k,u] for u in U) == 1
+    M.rdef3 = pe.Constraint(K, rule=rdef3_)
+
 def add_xdef_constraints(*, M, T, J, p, E):
     def start_once_(m,j):
         return sum(m.x[j,t] for t in T) <= 1
@@ -76,18 +89,72 @@ def create_pyomo_model1(*, K, Tmax, Jmax, E, p, O, S, sigma=None):
 
 
 def create_model1(*, observations, pm, timesteps, sigma=None):
+    # Supervised
     # Fixed-length activities
     # No gaps within or between activities
-    K = {j:set(pm[j]['resources']) for j in pm}
     E = [(pm[dep]['id'],i) for i in pm for dep in pm[i]['dependencies']]
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    K = {j:set(pm[j]['resources']) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
 
     return create_pyomo_model1(K=K, Tmax=timesteps, Jmax=len(pm), 
                                E=E, p=p, O=observations, S=S, sigma=sigma)
 
 
-def create_model2(Tmax, Jmax, E, pmin, pmax, O):
+def create_pyomo_model2(*, K, Tmax, Jmax, E, p, U, O, S, sigma=None):
+    """
+    Supervised Process Matching
+
+    Tmax - Number of timesteps
+    Jmax - Number of activities
+    Kmax - Number of resources
+    E - set of (i,j) pairs that represent precedence constraints
+    p[j] - The length of activity j
+    O[k][t] - The observation data for resource k at time t
+    """
+    T = list(range(Tmax))
+    J = list(range(Jmax))
+    Kall = []
+    for Kj in K.values():
+        Kall += Kj
+    Kall = list(sorted(set(Kall)))
+    J_K = [(j,k) for j in J for k in K[j]]
+    
+    M = pe.ConcreteModel()
+
+    M.x = pe.Var(J, T, within=pe.Binary)
+    M.a = pe.Var(J, T, bounds=(0,1))
+    M.r = pe.Var(J_K, T, bounds=(0,1))
+    M.m = pe.Var(Kall, U, bounds=(0,1))
+
+    add_objective(M=M, J=J, T=T, S=S, K=K)
+    add_xdef_constraints(M=M, T=T, p=p, J=J, E=E)
+    add_adef_constraints(M=M, J=J, T=T, p=p)
+    add_rdef_constraints_unsupervised(M=M, K=Kall, J_K=J_K, T=T, O=O, U=U)
+    if not sigma is None:
+        add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T)
+
+    #M.solns = pe.ConstraintList()
+
+    return M
+
+
+def create_model2(*, observations, pm, timesteps, sigma=None):
+    # Unsupervised
+    # Fixed-length activities
+    # No gaps within or between activities
+    U = list(sorted(observations.keys()))
+    E = [(pm[dep]['id'],i) for i in pm for dep in pm[i]['dependencies']]
+    p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    K = {j:set(pm[j]['resources']) for j in pm}
+    Kall = set.union(*[v for v in K.values()])
+    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
+
+    return create_pyomo_model2(K=K, Tmax=timesteps, Jmax=len(pm), 
+                               E=E, p=p, U=U, O=observations, S=S, sigma=sigma)
+
+
+def Xcreate_model2(Tmax, Jmax, E, pmin, pmax, O):
     """
     Tmax - Number of timesteps
     Jmax - Number of activities

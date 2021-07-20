@@ -18,6 +18,8 @@ def main():
                                         help='sub-command help')
 
     parser_sim = subparsers.add_parser('sim', help='Run simulations to generate observational data')
+    parser_sim.add_argument('--unsupervised', '-u', dest='unsupervised', action='store_true',
+                            default=False, help='Anonmize observation results')
     parser_sim.add_argument('config_file', help='YAML configuration file')
     parser_sim.add_argument('process_file', help='YAML process model file')
     parser_sim.set_defaults(func='sim')
@@ -30,7 +32,7 @@ def main():
     args = parser.parse_args()
 
     if args.func == 'sim':
-        runsim(configfile=args.config_file, processfile=args.process_file)
+        runsim(configfile=args.config_file, processfile=args.process_file, supervised=not args.unsupervised)
     elif args.func == 'mip':
         results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
         with open('results.yaml', 'w') as OUTPUT:

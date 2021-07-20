@@ -3,7 +3,7 @@
 import yaml
 import pprint
 from pypm.util.load import load_data
-from pypm.mip.models import create_model1
+from pypm.mip.models import create_model1, create_model2
 import pyomo.environ as pe
 
 
@@ -40,11 +40,18 @@ def runmip_from_datafile(*, datafile, index, model=None, tee=None, solver=None):
     pm = load_data(data['_options']['process'])
     observations = data['data'][index]['observations']
 
-    if model == 'model1':
-        M = create_model1(observations=observations,
+    if model == 'model1' or model == 'model2':
+        if model == 'model1':
+            M = create_model1(observations=observations,
                             pm=pm, 
                             timesteps=data['_options']['timesteps'],
                             sigma=data['_options'].get('sigma',None))
+        elif model == 'model2':
+            M = create_model2(observations=observations,
+                            pm=pm, 
+                            timesteps=data['_options']['timesteps'],
+                            sigma=data['_options'].get('sigma',None))
+
         opt = pe.SolverFactory(solver)
         results = opt.solve(M, tee=tee)
 
