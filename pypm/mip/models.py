@@ -22,7 +22,7 @@ def add_rdef_constraints_supervised(*, M, J_K, T, O):
 
 def add_xdef_constraints(*, M, T, J, p, E):
     def start_once_(m,j):
-        return sum(m.x[j,t] for t in T) == 1
+        return sum(m.x[j,t] for t in T) <= 1
     M.start_once = pe.Constraint(J, rule=start_once_)
 
     def precedence_(m, i, j):
@@ -56,7 +56,6 @@ def create_pyomo_model1(*, K, Tmax, Jmax, E, p, O, S, sigma=None):
     T = list(range(Tmax))
     J = list(range(Jmax))
     J_K = [(j,k) for j in J for k in K[j]]
-    J1 = list(range(Jmax+1))
     
     M = pe.ConcreteModel()
 
@@ -77,12 +76,15 @@ def create_pyomo_model1(*, K, Tmax, Jmax, E, p, O, S, sigma=None):
 
 
 def create_model1(*, observations, pm, timesteps, sigma=None):
+    # Fixed-length activities
+    # No gaps within or between activities
     K = {j:set(pm[j]['resources']) for j in pm}
     E = [(pm[dep]['id'],i) for i in pm for dep in pm[i]['dependencies']]
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
 
-    return create_pyomo_model1(K=K, Tmax=timesteps, Jmax=len(pm), E=E, p=p, O=observations, S=S, sigma=sigma)
+    return create_pyomo_model1(K=K, Tmax=timesteps, Jmax=len(pm), 
+                               E=E, p=p, O=observations, S=S, sigma=sigma)
 
 
 def create_model2(Tmax, Jmax, E, pmin, pmax, O):
