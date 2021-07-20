@@ -173,3 +173,26 @@ activities:
     with pytest.raises(AssertionError):
         pm = load_data(data=data)
 
+def test_error_bad5():
+    data="""
+resources:
+- (Unknown)
+- ResourceA
+- ResourceB
+
+activities:
+
+- dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 5
+  resources:
+    ResourceB
+  name: Activity1
+- name: Activity2
+
+"""
+    # Bad resources specification.  Must be a list
+    with pytest.raises(AssertionError):
+        pm = load_data(data=data)
+

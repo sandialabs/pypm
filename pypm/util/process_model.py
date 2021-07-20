@@ -71,6 +71,8 @@ class ProcessModel(object):
         self._activities[ i ] = activity
         if activity.get('resources',None) is None:
             activity['resources'] = []
+        else:
+            assert type(activity['resources']) is list
         #
         # WEH - Should we adopt the term 'predecessor'?
         #

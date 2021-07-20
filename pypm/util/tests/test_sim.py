@@ -34,7 +34,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-    rA
+  - rA
   name: a2
 """
     pm = load_data(data=data)
@@ -45,6 +45,11 @@ activities:
     sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (5, 'a2'), (6, 'a2'), (7, 'a2'), (8, 'a2')]
+
+    data = []
+    sim = Simulator(pm=pm, data=data)
+    sim.run(10)
+    assert data == [(0, 'rB'), (0, 'rC'), (1, 'rB'), (1, 'rC'), (2, 'rB'), (2, 'rC'), (3, 'rB'), (3, 'rC'), (4, 'rA'), (5, 'rA'), (6, 'rA'), (7, 'rA'), (8, 'rA')]
 
 def test_ex2():
     """
@@ -75,7 +80,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-    rA
+  - rA
   name: a2
 
 - dependencies:
@@ -84,7 +89,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
   name: a3
 """
     pm = load_data(data=data)
@@ -95,6 +100,11 @@ activities:
     sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a3'), (5, 'a2'), (5, 'a3'), (6, 'a2'), (6, 'a3'), (7, 'a2'), (8, 'a2')]
+
+    data = []
+    sim = Simulator(pm=pm, data=data)
+    sim.run(10)
+    assert data == [(0, 'rB'), (0, 'rC'), (1, 'rB'), (1, 'rC'), (2, 'rB'), (2, 'rC'), (3, 'rB'), (3, 'rC'), (4, 'rA'), (4, 'rA'), (5, 'rA'), (5, 'rA'), (6, 'rA'), (6, 'rA'), (7, 'rA'), (8, 'rA')]
 
 def test_ex3():
     """
@@ -126,7 +136,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-    rA
+  - rA
   name: a2
 
 - dependencies:
@@ -134,7 +144,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
   name: a3
 """
     pm = load_data(data=data)
@@ -145,6 +155,11 @@ activities:
     sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (0, 'a3'), (1, 'a1'), (1, 'a3'), (2, 'a1'), (2, 'a3'), (3, 'a1'), (4, 'a2'), (5, 'a2'), (6, 'a2'), (7, 'a2'), (8, 'a2')]
+
+    data = []
+    sim = Simulator(pm=pm, data=data)
+    sim.run(10)
+    assert data == [(0, 'rB'), (0, 'rC'), (0, 'rA'), (1, 'rB'), (1, 'rC'), (1, 'rA'), (2, 'rB'), (2, 'rC'), (2, 'rA'), (3, 'rB'), (3, 'rC'), (4, 'rA'), (5, 'rA'), (6, 'rA'), (7, 'rA'), (8, 'rA')]
 
 def test_ex4():
     """
@@ -175,7 +190,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-    rA
+  - rA
   name: a2
 
 - dependencies:
@@ -185,7 +200,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
   name: a3
 
 - dependencies:
@@ -194,7 +209,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
   name: a4
 """
     pm = load_data(data=data)
@@ -211,6 +226,16 @@ activities:
                     'a2':[0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
                     'a3':[0,0,0,0,0,0,0,0,0,1,1,1,0,0,0],
                     'a4':[0,0,0,0,1,1,1,0,0,0,0,0,0,0,0] }
+
+    data = []
+    sim = Simulator(pm=pm, data=data)
+    sim.run(10)
+    assert data == [(0, 'rB'), (0, 'rC'), (1, 'rB'), (1, 'rC'), (2, 'rB'), (2, 'rC'), (3, 'rB'), (3, 'rC'), (4, 'rA'), (4, 'rA'), (5, 'rA'), (5, 'rA'), (6, 'rA'), (6, 'rA'), (7, 'rA'), (8, 'rA'), (9, 'rA'), (10, 'rA'), (11, 'rA')]
+
+    obs = sim.organize_observations(data, 15)
+    assert obs == {'rA': [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+                   'rB': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   'rC': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
 
 def test_ex5():
     """
@@ -244,7 +269,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-    rA
+  - rA
 
 - name: a3
   dependencies:
@@ -254,7 +279,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
 
 - name: a4
   max_delay: 5
@@ -264,7 +289,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
 """
     pm = load_data(data=data)
 
@@ -280,6 +305,16 @@ activities:
                     'a2':[0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
                     'a3':[0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0],
                     'a4':[0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0] }
+
+    data = []
+    sim = Simulator(pm=pm, data=data)
+    sim.run(10)
+    #assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a4'), (5, 'a2'), (5, 'a4'), (6, 'a2'), (6, 'a4'), (7, 'a2'), (8, 'a2'), (9, 'a3'), (10, 'a3'), (11, 'a3')]
+
+    obs = sim.organize_observations(data, 20)
+    assert obs == {'rA': [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+                   'rB': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   'rC': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
 
 def test_ex6():
     """
@@ -314,7 +349,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-    rA
+  - rA
 
 - name: a3
   dependencies:
@@ -324,7 +359,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
 
 - name: a4
   max_delay: 5
@@ -334,7 +369,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-    rA
+  - rA
 """
     pm = load_data(data=data)
 
@@ -350,5 +385,15 @@ activities:
                     'a2':[0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0],
                     'a3':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0],
                     'a4':[0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0] }
+
+    data = []
+    sim = Simulator(pm=pm, data=data)
+    sim.run(10)
+    #assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a4'), (5, 'a2'), (5, 'a4'), (6, 'a2'), (6, 'a4'), (7, 'a2'), (8, 'a2'), (9, 'a3'), (10, 'a3'), (11, 'a3')]
+
+    obs = sim.organize_observations(data, 20)
+    assert obs == {'rA': [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+                   'rB': [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   'rC': [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
 
 
