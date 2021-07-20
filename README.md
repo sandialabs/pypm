@@ -14,3 +14,7 @@ Python software package for Process Matching.
 * pypm sim sim.yaml linear1.yaml
 * pypm mip linear1\_sim.yaml 0
 
+## Testing
+
+* pytest
+* pytest --cov=pypm --cov-report term-missing
