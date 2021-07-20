@@ -42,7 +42,7 @@ activities:
     assert len(pm) == 2
 
     data = []
-    sim = Simulator(pm=pm, data=data)
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (5, 'a2'), (6, 'a2'), (7, 'a2'), (8, 'a2')]
 
@@ -92,7 +92,7 @@ activities:
     assert len(pm) == 3
 
     data = []
-    sim = Simulator(pm=pm, data=data)
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a3'), (5, 'a2'), (5, 'a3'), (6, 'a2'), (6, 'a3'), (7, 'a2'), (8, 'a2')]
 
@@ -142,7 +142,7 @@ activities:
     assert len(pm) == 3
 
     data = []
-    sim = Simulator(pm=pm, data=data)
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (0, 'a3'), (1, 'a1'), (1, 'a3'), (2, 'a1'), (2, 'a3'), (3, 'a1'), (4, 'a2'), (5, 'a2'), (6, 'a2'), (7, 'a2'), (8, 'a2')]
 
@@ -202,7 +202,7 @@ activities:
     assert len(pm) == 4
 
     data = []
-    sim = Simulator(pm=pm, data=data)
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a4'), (5, 'a2'), (5, 'a4'), (6, 'a2'), (6, 'a4'), (7, 'a2'), (8, 'a2'), (9, 'a3'), (10, 'a3'), (11, 'a3')]
 
@@ -271,7 +271,7 @@ activities:
     assert len(pm) == 4
 
     data = []
-    sim = Simulator(pm=pm, data=data)
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     #assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a4'), (5, 'a2'), (5, 'a4'), (6, 'a2'), (6, 'a4'), (7, 'a2'), (8, 'a2'), (9, 'a3'), (10, 'a3'), (11, 'a3')]
 
@@ -341,7 +341,7 @@ activities:
     assert len(pm) == 4
 
     data = []
-    sim = Simulator(pm=pm, data=data)
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
     sim.run(10)
     #assert data == [(0, 'a1'), (1, 'a1'), (2, 'a1'), (3, 'a1'), (4, 'a2'), (4, 'a4'), (5, 'a2'), (5, 'a4'), (6, 'a2'), (6, 'a4'), (7, 'a2'), (8, 'a2'), (9, 'a3'), (10, 'a3'), (11, 'a3')]
 
