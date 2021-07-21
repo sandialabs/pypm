@@ -1,5 +1,5 @@
 import pytest
-from pypm.util.load import load_data
+from pypm.util.load import load_process
 from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
@@ -32,7 +32,7 @@ activities:
   resources:
   name: Activity2
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 2
 
@@ -51,7 +51,7 @@ activities:
 
 def test_pm_simple_file():
     filename="example1.yaml"
-    pm = load_data(filename=filename, dirname=currdir)
+    pm = load_process(filename=filename, dirname=currdir)
 
     assert len(pm) == 2
 
@@ -94,7 +94,7 @@ activities:
   resources:
   name: Activity2
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     with pytest.raises(KeyError):
         pm['Activity3']
@@ -124,7 +124,7 @@ activities:
 
 """
     with pytest.raises(AssertionError):
-        pm = load_data(data=data)
+        pm = load_process(data=data)
 
 def test_error_bad3():
     data="""
@@ -148,7 +148,7 @@ activities:
 
 """
     with pytest.raises(AssertionError):
-        pm = load_data(data=data)
+        pm = load_process(data=data)
 
 def test_error_bad4():
     data="""
@@ -171,7 +171,7 @@ activities:
 
 """
     with pytest.raises(AssertionError):
-        pm = load_data(data=data)
+        pm = load_process(data=data)
 
 def test_error_bad5():
     data="""
@@ -194,5 +194,5 @@ activities:
 """
     # Bad resources specification.  Must be a list
     with pytest.raises(AssertionError):
-        pm = load_data(data=data)
+        pm = load_process(data=data)
 

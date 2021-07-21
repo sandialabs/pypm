@@ -27,18 +27,23 @@ class Activity(object):
 
 class ProcessModel(object):
     """
-    Represent the data in a process model.
+    An object that represents the data in a process model.
+
+    Args
+    ----
+    data : dict, Default: {}
+        A dictionary that is used to initialize this object.
     """
 
-    def __init__(self, data=None):
+    def __init__(self, data={}):
         self.resources = Resources()
         self._activities = {}       # activities: int_id -> activity
         self._names = {}            # names: name -> int_id
-        if data:
+        if len(data) > 0:
             self.load(data)
 
     def load(self, data):
-        """Load the process model from yaml/json data."""
+        """Load the process model from YAML/JSON data."""
         assert (set(data.keys()) == set(['resources','activities'])), "Expected data with 'resources' and 'activities'"
         self.resources.load(data['resources'])
         for activity in data['activities']:
@@ -50,17 +55,18 @@ class ProcessModel(object):
         return len(self._activities)
 
     def __iter__(self):
+        """Return a generator for the activity ids."""
         for key in self._activities:
             yield key
 
     def __getitem__(self, name_or_id):
-        """Return the activity given its name or id."""
+        """Return an activity given its name or id."""
         if isinstance(name_or_id, int):
             return self._activities[name_or_id]
         return self._activities[self._names[name_or_id]]
 
     def _add_activity(self, activity):
-        """Add the activity to the process model."""
+        """Add the activity object to the process model."""
         assert ('name' in activity), "Missing 'name' in activity"
         assert (activity['name'] not in self._names), "Activity name {} already defined".format(activity['name'])
         i = len(self._names)

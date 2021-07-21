@@ -1,6 +1,6 @@
 import pytest
 
-from pypm.util.load import load_data
+from pypm.util.load import load_process
 #from pypm.util.fileutils import this_file_dir
 #currdir = this_file_dir()
 from pypm.util.sim import Simulator
@@ -37,7 +37,7 @@ activities:
   - rA
   name: a2
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 2
 
@@ -92,7 +92,7 @@ activities:
   - rA
   name: a3
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 3
 
@@ -147,7 +147,7 @@ activities:
   - rA
   name: a3
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 3
 
@@ -212,7 +212,7 @@ activities:
   - rA
   name: a4
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 4
 
@@ -291,7 +291,7 @@ activities:
   resources:
   - rA
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 4
 
@@ -371,7 +371,7 @@ activities:
   resources:
   - rA
 """
-    pm = load_data(data=data)
+    pm = load_process(data=data)
 
     assert len(pm) == 4
 

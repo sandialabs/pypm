@@ -10,6 +10,16 @@ def this_file(stack_offset=1):
     This function is more reliable than __file__ on platforms like
     Windows and in situations where the program has called
     ``os.chdir()``.
+
+    Args
+    ----
+    stack_offset : int, Default: 1
+        Specify the offset from the current stack, to identify the caller frame
+        that was executed from a file import
+
+    Returns
+    -------
+    The filename of the file that Python imported.
     """
     # __file__ fails if script is called in different ways on Windows
     # __file__ fails if someone does os.chdir() before

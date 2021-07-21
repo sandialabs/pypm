@@ -2,11 +2,29 @@
 
 import yaml
 import os.path
-from pypm.util.load import load_data
+from pypm.util.load import load_process
 from pypm.util.sim import Simulator
 
 
 def runsim(*, configfile, processfile, supervised=True):
+    """
+    Run simulations specified by a configuration file and process file.
+
+    This function creates a YAML file for the simulation results.  If the 
+    processfile has the name **<prefix>.yaml**, then this function creates the
+    file **<prefix>_sim.yaml**.
+
+    Args
+    ----
+    configfile : str
+        The name of a YAML file that specifies the simulation configuration options.
+    processfile : str
+        The name of a YAML file that specifies the process activities.
+    supervised : bool, Default: True
+        If this is True, then configure the results for a supervised process matching problem.
+        Otherwise, configure for unsupervised process matching with anonymized resource
+        labels.
+    """
     with open(configfile, 'r') as INPUT:
         yamldata=yaml.safe_load(INPUT)
     prefix = processfile[:-5]
@@ -20,7 +38,7 @@ def runsim(*, configfile, processfile, supervised=True):
 
     model = 'model1' if supervised else 'model2'
     trials = []
-    pm = load_data(processfile)
+    pm = load_process(processfile)
     for i in range(ntrials):
         data = []
         ground_truth = {}
