@@ -2,7 +2,7 @@
 
 import yaml
 import pprint
-from pypm.util.load import load_data
+from pypm.util.load import load_process
 from pypm.mip.models import create_model1, create_model2
 import pyomo.environ as pe
 
@@ -37,7 +37,7 @@ def runmip_from_datafile(*, datafile, index, model=None, tee=None, solver=None):
     tee = data['_options'].get('tee', False) if tee is None else tee
     model = data['_options'].get('model', 'model1') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
-    pm = load_data(data['_options']['process'])
+    pm = load_process(data['_options']['process'])
     observations = data['data'][index]['observations']
 
     if model == 'model1' or model == 'model2':
