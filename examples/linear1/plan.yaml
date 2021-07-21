@@ -1,0 +1,44 @@
+resources:
+- 14TCrane
+- 7TForklift
+- Old Glory
+
+activities:
+
+- name: Receive Canister
+  max_delay: 50
+  dependencies:
+  duration:
+    max_hours: 20
+    min_hours: 5
+  resources:
+  - Old Glory
+  - 14TCrane
+
+- name: Remove Cover1
+  dependencies:
+  - Receive Canister
+  duration:
+    max_hours: 4
+    min_hours: 1
+  resources:
+  - 7TForklift
+
+- name: Position Support Rings
+  dependencies:
+  - Remove Cover1
+  duration:
+    max_hours: 4
+    min_hours: 1
+  resources:
+  - 14TCrane
+  - 7TForklift
+
+- name: Position Canister on Rings
+  dependencies:
+  - Position Support Rings
+  duration:
+    max_hours: 10
+    min_hours: 2
+  resources:
+  - Old Glory
