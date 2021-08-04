@@ -9,7 +9,6 @@ def test_ex1():
     """
     data="""
 resources:
-- (Unknown)
 - rA
 - rB
 - rC

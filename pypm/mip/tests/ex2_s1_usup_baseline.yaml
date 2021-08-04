@@ -1,0 +1,67 @@
+datafile: null
+index: 0
+model: model2
+results:
+- alignment:
+    0: {start: 6, stop: 9}
+    1: {start: 13, stop: 17}
+  objective: 13.0
+  variables:
+    a:
+      ? !!python/tuple [0, 6]
+      : 1.0
+      ? !!python/tuple [0, 7]
+      : 1.0
+      ? !!python/tuple [0, 8]
+      : 1.0
+      ? !!python/tuple [0, 9]
+      : 1.0
+      ? !!python/tuple [1, 13]
+      : 1.0
+      ? !!python/tuple [1, 14]
+      : 1.0
+      ? !!python/tuple [1, 15]
+      : 1.0
+      ? !!python/tuple [1, 16]
+      : 1.0
+      ? !!python/tuple [1, 17]
+      : 1.0
+    m:
+      ? !!python/tuple [rA, u0]
+      : 1.0
+      ? !!python/tuple [rB, u1]
+      : 1.0
+      ? !!python/tuple [rC, u1]
+      : 1.0
+    r:
+      ? !!python/tuple [0, rB, 6]
+      : 1.0
+      ? !!python/tuple [0, rB, 7]
+      : 1.0
+      ? !!python/tuple [0, rB, 8]
+      : 1.0
+      ? !!python/tuple [0, rB, 9]
+      : 1.0
+      ? !!python/tuple [0, rC, 6]
+      : 1.0
+      ? !!python/tuple [0, rC, 7]
+      : 1.0
+      ? !!python/tuple [0, rC, 8]
+      : 1.0
+      ? !!python/tuple [0, rC, 9]
+      : 1.0
+      ? !!python/tuple [1, rA, 13]
+      : 1.0
+      ? !!python/tuple [1, rA, 14]
+      : 1.0
+      ? !!python/tuple [1, rA, 15]
+      : 1.0
+      ? !!python/tuple [1, rA, 16]
+      : 1.0
+      ? !!python/tuple [1, rA, 17]
+      : 1.0
+    x:
+      ? !!python/tuple [0, 6]
+      : 1.0
+      ? !!python/tuple [1, 13]
+      : 1.0

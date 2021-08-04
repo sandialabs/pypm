@@ -4,7 +4,7 @@ from pypm.util import runsim
 from pypm.mip import runmip_from_datafile
 
 
-def main():
+def main():                     # pragma: nocover
     parser = argparse.ArgumentParser(description='inference models')
     parser.add_argument('-c', '--catch-errors', action='store_true', default=False,
                     help='Catch exceptions')
@@ -40,5 +40,5 @@ def main():
             print("Writing file: results.yaml")
             OUTPUT.write(yaml.dump(results, default_flow_style=None))
 
-if __name__ == "__main__":
+if __name__ == "__main__":      # pragma: nocover
     main()

@@ -2,11 +2,9 @@
 
 class Resources(object):
 
-    def __init__(self, data=None):
+    def __init__(self):
         self._names = {}    # names: name -> id
         self._ids = {}      # ids: id -> name
-        if data:
-            self.load(data)
 
     def load(self, data):
         for name in data:
@@ -15,14 +13,14 @@ class Resources(object):
             self._names[name] = i
             self._ids[i] = name
 
-    def id(self, name):
-        return self._names[names]
+    #def id(self, name):
+    #    return self._names[names]
 
 
-class Activity(object):
-
-    def __init__(self, data):
-        self.data = data
+#class Activity(object):
+#
+#    def __init__(self, data):
+#        self.data = data
 
 
 class ProcessModel(object):

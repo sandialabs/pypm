@@ -81,6 +81,5 @@ def runsim(*, configfile=None, processfile=None, config=None, process=None, supe
         with open(outputfile, 'w') as OUTPUT:
             print("Writing file: {}".format(outputfile))
             OUTPUT.write(yaml.dump(contents, default_flow_style=None))
-    else:
-        return contents
+    return contents
 

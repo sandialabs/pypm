@@ -8,10 +8,9 @@ currdir = this_file_dir()
 def test_pm_simple_string():
     data="""
 resources:
-- (Unknown)
-- ResourceA
-- ResourceB
-- ResourceC
+- rA
+- rB
+- rC
 
 activities:
 
@@ -20,32 +19,32 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - ResourceB
-  - ResourceC
-  name: Activity1
+  - rB
+  - rC
+  name: a1
 
 - dependencies:
-  - Activity1
+  - a1
   duration:
     max_hours: 5
     min_hours: 5
   resources:
-  name: Activity2
+  name: a2
 """
     pm = load_process(data=data)
 
     assert len(pm) == 2
 
-    assert pm['Activity1']['id'] == 0
-    assert pm['Activity1']['name'] == 'Activity1'
-    assert pm['Activity1']['resources'] == ['ResourceB', 'ResourceC']
-    assert pm['Activity1']['dependencies'] == []
+    assert pm['a1']['id'] == 0
+    assert pm['a1']['name'] == 'a1'
+    assert pm['a1']['resources'] == ['rB', 'rC']
+    assert pm['a1']['dependencies'] == []
     assert pm[0]['id'] == 0
 
-    assert pm['Activity2']['id'] == 1
-    assert pm['Activity2']['name'] == 'Activity2'
-    assert pm['Activity2']['resources'] == []
-    assert pm['Activity2']['dependencies'] == ['Activity1']
+    assert pm['a2']['id'] == 1
+    assert pm['a2']['name'] == 'a2'
+    assert pm['a2']['resources'] == []
+    assert pm['a2']['dependencies'] == ['a1']
     assert pm[1]['id'] == 1
 
 
@@ -55,25 +54,24 @@ def test_pm_simple_file():
 
     assert len(pm) == 2
 
-    assert pm['Activity1']['id'] == 0
-    assert pm['Activity1']['name'] == 'Activity1'
-    assert pm['Activity1']['resources'] == ['ResourceB', 'ResourceC']
-    assert pm['Activity1']['dependencies'] == []
+    assert pm['a1']['id'] == 0
+    assert pm['a1']['name'] == 'a1'
+    assert pm['a1']['resources'] == ['rB', 'rC']
+    assert pm['a1']['dependencies'] == []
     assert pm[0]['id'] == 0
 
-    assert pm['Activity2']['id'] == 1
-    assert pm['Activity2']['name'] == 'Activity2'
-    assert pm['Activity2']['resources'] == []
-    assert pm['Activity2']['dependencies'] == ['Activity1']
+    assert pm['a2']['id'] == 1
+    assert pm['a2']['name'] == 'a2'
+    assert pm['a2']['resources'] == []
+    assert pm['a2']['dependencies'] == ['a1']
     assert pm[1]['id'] == 1
 
 def test_error_bad1():
     data="""
 resources:
-- (Unknown)
-- ResourceA
-- ResourceB
-- ResourceC
+- rA
+- rB
+- rC
 
 activities:
 
@@ -82,34 +80,33 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - ResourceB
-  - ResourceC
-  name: Activity1
+  - rB
+  - rC
+  name: a1
 
 - dependencies:
-  - Activity1
+  - a1
   duration:
     max_hours: 5
     min_hours: 5
   resources:
-  name: Activity2
+  name: a2
 """
     pm = load_process(data=data)
 
     with pytest.raises(KeyError):
-        pm['Activity3']
+        pm['a3']
     with pytest.raises(KeyError):
         pm[2]
     with pytest.raises(KeyError):
-        pm['Activity1']['bad']
+        pm['a1']['bad']
 
 def test_error_bad2():
     data="""
 resources:
-- (Unknown)
-- ResourceA
-- ResourceB
-- ResourceA
+- rA
+- rB
+- rA
 
 activities:
 
@@ -118,9 +115,9 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - ResourceB
-  - ResourceA
-  name: Activity1
+  - rB
+  - rA
+  name: a1
 
 """
     with pytest.raises(AssertionError):
@@ -131,9 +128,8 @@ def test_error_bad3():
 bad:
 
 resources:
-- (Unknown)
-- ResourceA
-- ResourceB
+- rA
+- rB
 
 activities:
 
@@ -142,9 +138,9 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - ResourceB
-  - ResourceA
-  name: Activity1
+  - rB
+  - rA
+  name: a1
 
 """
     with pytest.raises(AssertionError):
@@ -153,9 +149,8 @@ activities:
 def test_error_bad4():
     data="""
 resources:
-- (Unknown)
-- ResourceA
-- ResourceB
+- rA
+- rB
 
 activities:
 
@@ -164,10 +159,10 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - ResourceB
-  - ResourceA
-  name: Activity1
-- name: Activity1
+  - rB
+  - rA
+  name: a1
+- name: a1
 
 """
     with pytest.raises(AssertionError):
@@ -176,9 +171,8 @@ activities:
 def test_error_bad5():
     data="""
 resources:
-- (Unknown)
-- ResourceA
-- ResourceB
+- rA
+- rB
 
 activities:
 
@@ -187,9 +181,9 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-    ResourceB
-  name: Activity1
-- name: Activity2
+    rB
+  name: a1
+- name: a2
 
 """
     # Bad resources specification.  Must be a list

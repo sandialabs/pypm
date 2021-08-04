@@ -1,0 +1,5 @@
+ntrials: 1
+seeds:
+- 0
+sigma: 1
+timesteps: 30

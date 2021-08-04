@@ -30,9 +30,11 @@ def summarize_alignment(v):
                 ans[j]['stop'] = t        
     return ans
  
-def runmip_from_datafile(*, datafile, index, model=None, tee=None, solver=None):
-    with open(datafile, 'r') as INPUT:
-        data = yaml.safe_load(INPUT)
+def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None):
+    if data is None:
+        assert datafile is not None
+        with open(datafile, 'r') as INPUT:
+            data = yaml.safe_load(INPUT)
 
     tee = data['_options'].get('tee', False) if tee is None else tee
     model = data['_options'].get('model', 'model1') if model is None else model

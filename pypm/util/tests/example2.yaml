@@ -7,9 +7,10 @@ activities:
 
 - name: a1
   dependencies:
+  max_delay: 10
   duration:
-    max_hours: 10
-    min_hours: 5
+    max_hours: 8
+    min_hours: 4
   resources:
   - rB
   - rC
@@ -18,6 +19,7 @@ activities:
   dependencies:
   - a1
   duration:
-    max_hours: 5
+    max_hours: 10 
     min_hours: 5
   resources:
+  - rA
