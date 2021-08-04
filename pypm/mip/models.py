@@ -73,7 +73,7 @@ def create_pyomo_model1(*, K, Tmax, Jmax, E, p, O, S, sigma=None):
     M = pe.ConcreteModel()
 
     M.x = pe.Var(J, T, within=pe.Binary)
-    M.a = pe.Var(J, T, bounds=(0,1))
+    M.a = pe.Var(J, T, within=pe.Binary)
     M.r = pe.Var(J_K, T, bounds=(0,1))
 
     add_objective(M=M, J=J, T=T, S=S, K=K)
@@ -123,7 +123,7 @@ def create_pyomo_model2(*, K, Tmax, Jmax, E, p, U, O, S, sigma=None):
     M = pe.ConcreteModel()
 
     M.x = pe.Var(J, T, within=pe.Binary)
-    M.a = pe.Var(J, T, bounds=(0,1))
+    M.a = pe.Var(J, T, within=pe.Binary)
     M.r = pe.Var(J_K, T, bounds=(0,1))
     M.m = pe.Var(Kall, U, bounds=(0,1))
 
