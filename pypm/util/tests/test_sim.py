@@ -1,8 +1,5 @@
 import pytest
-
 from pypm.util.load import load_process
-#from pypm.util.fileutils import this_file_dir
-#currdir = this_file_dir()
 from pypm.util.sim import Simulator
 
 
@@ -227,6 +224,12 @@ activities:
                     'a3':[0,0,0,0,0,0,0,0,0,1,1,1,0,0,0],
                     'a4':[0,0,0,0,1,1,1,0,0,0,0,0,0,0,0] }
 
+    obs = sim.organize_observations(data)
+    assert obs == { 'a1':[1,1,1,1,0,0,0,0,0,0,0,0],
+                    'a2':[0,0,0,0,1,1,1,1,1,0,0,0],
+                    'a3':[0,0,0,0,0,0,0,0,0,1,1,1],
+                    'a4':[0,0,0,0,1,1,1,0,0,0,0,0] }
+
     data = []
     sim = Simulator(pm=pm, data=data)
     sim.run(10)
@@ -236,6 +239,11 @@ activities:
     assert obs == {'rA': [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
                    'rB': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                    'rC': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+
+    obs = sim.organize_observations(data)
+    assert obs == {'rA': [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                   'rB': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                   'rC': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]}
 
 def test_ex5():
     """

@@ -30,8 +30,8 @@ def load_process(filename=None, dirname=None, data={}):
             filename = os.path.join(dirname, filename)
         print("Opening file:", filename)
         with open(filename, 'r') as INPUT:
-            yamldata=yaml.safe_load(INPUT)
-    else:
-        yamldata=yaml.safe_load(data)
-    return ProcessModel(data=yamldata)
+            data=yaml.safe_load(INPUT)
+    elif type(data) is str:
+        data=yaml.safe_load(data)
+    return ProcessModel(data=data)
 
