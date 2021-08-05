@@ -5,22 +5,28 @@ class Resources(object):
     def __init__(self):
         self._names = {}    # names: name -> id
         self._ids = {}      # ids: id -> name
+        self._count = {}      # ids: id -> name
 
     def load(self, data):
+        assert type(data) is dict
         for name in data:
             assert (name not in self._names), "Resource {} already defined".format(name)
             i = len(self._names)
             self._names[name] = i
             self._ids[i] = name
+            self._count[i] = None if data[name] is None else int(data[name])
 
-    #def id(self, name):
-    #    return self._names[names]
+    def __len__(self):
+        """Return the number of resources in the model."""
+        return len(self._names)
 
+    def __iter__(self):
+        """Return a generator for the resource names."""
+        for key in self._names:
+            yield key
 
-#class Activity(object):
-#
-#    def __init__(self, data):
-#        self.data = data
+    def count(self, name):
+        return self._count[self._names[name]]
 
 
 class ProcessModel(object):
@@ -53,8 +59,8 @@ class ProcessModel(object):
         return len(self._activities)
 
     def __iter__(self):
-        """Return a generator for the activity ids."""
-        for key in self._activities:
+        """Return a generator for the activity names."""
+        for key in self._names:
             yield key
 
     def __getitem__(self, name_or_id):
@@ -62,6 +68,9 @@ class ProcessModel(object):
         if isinstance(name_or_id, int):
             return self._activities[name_or_id]
         return self._activities[self._names[name_or_id]]
+
+    def id(self, name):
+        return self._names[name]
 
     def _add_activity(self, activity):
         """Add the activity object to the process model."""

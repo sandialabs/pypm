@@ -1,16 +1,15 @@
 resources:
   rA:
-  rB:
+  rB: 
   rC:
 
 activities:
 
 - name: a1
-  max_delay: 50
   dependencies:
   duration:
-    max_hours: 20
-    min_hours: 10
+    max_hours: 10
+    min_hours: 5
   resources:
   - rB
   - rC
@@ -20,16 +19,26 @@ activities:
   - a1
   duration:
     max_hours: 5
-    min_hours: 5
+    min_hours: 3
   resources:
-  - rB
   - rA
 
 - name: a3
   dependencies:
-  - a2
+  - a1
   duration:
-    max_hours: 10
-    min_hours: 5
+    max_hours: 5
+    min_hours: 3
   resources:
   - rA
+  - rB
+
+- name: a4
+  dependencies:
+  - a2
+  - a3
+  duration:
+    max_hours: 5
+    min_hours: 3
+  resources:
+  - rC

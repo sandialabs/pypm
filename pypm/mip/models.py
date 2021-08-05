@@ -52,27 +52,31 @@ def add_fixed_length_tasks(*, M, T, J, p):
         return sum(m.a[j,t] for t in T) == p[j]
     M.fixed_length = pe.Constraint(J, rule=fixed_length_)
 
-def add_simultenaity_constraints(*, M, J, sigma, T):
-    def activity_default_(m, t):
-        return sum(m.a[j,t] for j in J) <= sigma
-    M.activity_default = pe.Constraint(T, rule=activity_default_)
+def add_simultenaity_constraints(*, M, J, sigma, T, Kall, count, J_K):
+    if not sigma is None:
+        def activity_default_(m, t):
+            return sum(m.a[j,t] for j in J) <= sigma
+        M.activity_default = pe.Constraint(T, rule=activity_default_)
+
+    def parallel_resources_(m, k, t):
+        if count[k] is None:
+            return Constraint.Skip
+        return sum(m.a[j,t] for j in J_K) <= count[k]
+    #M.parallel_resources = pe.Constraint(Kall, T, rule=parallel_resources_)
 
 
 
-
-def create_pyomo_model1(*, K, Tmax, Jmax, E, p, O, S, sigma=None):
+def create_pyomo_model1(*, K, Tmax, J, E, p, O, S, count, sigma=None):
     """
     Supervised Process Matching
 
     Tmax - Number of timesteps
-    Jmax - Number of activities
-    Kmax - Number of resources
     E - set of (i,j) pairs that represent precedence constraints
     p[j] - The length of activity j
     O[k][t] - The observation data for resource k at time t
     """
     T = list(range(Tmax))
-    J = list(range(Jmax))
+    Kall = list(sorted(count.keys()))
     J_K = [(j,k) for j in J for k in K[j]]
     
     M = pe.ConcreteModel()
@@ -86,8 +90,7 @@ def create_pyomo_model1(*, K, Tmax, Jmax, E, p, O, S, sigma=None):
     add_adef_constraints(M=M, J=J, T=T, p=p)
     add_fixed_length_tasks(M=M, T=T, J=J, p=p)
     add_rdef_constraints_supervised(M=M, J_K=J_K, T=T, O=O)
-    if not sigma is None:
-        add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T)
+    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_K=J_K)
 
     #M.solns = pe.ConstraintList()
 
@@ -98,32 +101,28 @@ def create_model1(*, observations, pm, timesteps, sigma=None):
     # Supervised
     # Fixed-length activities
     # No gaps within or between activities
-    E = [(pm[dep]['id'],i) for i in pm for dep in pm[i]['dependencies']]
+    E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    J = list(sorted(pm))
     K = {j:set(pm[j]['resources']) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
+    count = {name:pm.resources.count(name) for name in pm.resources}
 
-    return create_pyomo_model1(K=K, Tmax=timesteps, Jmax=len(pm), 
-                               E=E, p=p, O=observations, S=S, sigma=sigma)
+    return create_pyomo_model1(K=K, Tmax=timesteps, J=J, 
+                               E=E, p=p, O=observations, S=S, sigma=sigma, count=count)
 
 
-def create_pyomo_model2(*, K, Tmax, Jmax, E, p, U, O, S, sigma=None):
+def create_pyomo_model2(*, K, Tmax, J, E, p, U, O, S, count, sigma=None):
     """
     Supervised Process Matching
 
     Tmax - Number of timesteps
-    Jmax - Number of activities
-    Kmax - Number of resources
     E - set of (i,j) pairs that represent precedence constraints
     p[j] - The length of activity j
     O[k][t] - The observation data for resource k at time t
     """
     T = list(range(Tmax))
-    J = list(range(Jmax))
-    Kall = []
-    for Kj in K.values():
-        Kall += Kj
-    Kall = list(sorted(set(Kall)))
+    Kall = list(sorted(count.keys()))
     J_K = [(j,k) for j in J for k in K[j]]
     
     M = pe.ConcreteModel()
@@ -138,8 +137,7 @@ def create_pyomo_model2(*, K, Tmax, Jmax, E, p, U, O, S, sigma=None):
     add_adef_constraints(M=M, J=J, T=T, p=p)
     add_fixed_length_tasks(M=M, T=T, J=J, p=p)
     add_rdef_constraints_unsupervised(M=M, K=Kall, J_K=J_K, T=T, O=O, U=U)
-    if not sigma is None:
-        add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T)
+    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_K=J_K)
 
     #M.solns = pe.ConstraintList()
 
@@ -151,13 +149,15 @@ def create_model2(*, observations, pm, timesteps, sigma=None):
     # Fixed-length activities
     # No gaps within or between activities
     U = list(sorted(observations.keys()))
-    E = [(pm[dep]['id'],i) for i in pm for dep in pm[i]['dependencies']]
+    E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    J = list(sorted(pm))
     K = {j:set(pm[j]['resources']) for j in pm}
     Kall = set.union(*[v for v in K.values()])
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
+    count = {name:pm.resources.count(name) for name in pm.resources}
 
-    return create_pyomo_model2(K=K, Tmax=timesteps, Jmax=len(pm), 
-                               E=E, p=p, U=U, O=observations, S=S, sigma=sigma)
+    return create_pyomo_model2(K=K, Tmax=timesteps, J=J, 
+                               E=E, p=p, U=U, O=observations, S=S, sigma=sigma, count=count)
 
 

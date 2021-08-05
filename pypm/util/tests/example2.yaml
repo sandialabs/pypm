@@ -1,7 +1,7 @@
 resources:
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 

@@ -13,10 +13,9 @@ def test_ex1a():
     """
     process="""
 resources:
-- (Unknown)
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 

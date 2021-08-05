@@ -1,7 +1,11 @@
+import os
+import yaml
 import pytest
 from pypm.util.load import load_process
 from pypm.util.sim import Simulator
+from pypm.util.fileutils import this_file_dir
 
+currdir = this_file_dir()
 
 def test_ex1():
     """
@@ -9,9 +13,9 @@ def test_ex1():
     """
     data="""
 resources:
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -54,10 +58,9 @@ def test_ex2():
     """
     data="""
 resources:
-- (Unknown)
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -109,10 +112,9 @@ def test_ex3():
     """
     data="""
 resources:
-- (Unknown)
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -164,10 +166,9 @@ def test_ex4():
     """
     data="""
 resources:
-- (Unknown)
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -253,10 +254,9 @@ def test_ex5():
     """
     data="""
 resources:
-- (Unknown)
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -332,10 +332,9 @@ def test_ex6():
     """
     data="""
 resources:
-- (Unknown)
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -402,5 +401,28 @@ activities:
     assert obs == {'rA': [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
                    'rB': [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                    'rC': [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+
+
+def test_ex7():
+    """
+    Example3 has parallel activities that are run simultaneously.
+    """
+    pm = load_process(filename=os.path.join(currdir,"example3.yaml"))
+
+    assert len(pm) == 4
+
+    data = []
+    sim = Simulator(pm=pm, data=data, observe_activities=True)
+    sim.run(1)
+
+    obs = sim.organize_observations(data, 20)
+    #open('bar.yaml','w').write(yaml.dump(data, default_flow_style=None))
+    #open('foo.yaml','w').write(yaml.dump(obs, default_flow_style=None))
+    assert obs == {
+        'a1': [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'a2': [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'a3': [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'a4': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+        }
 
 

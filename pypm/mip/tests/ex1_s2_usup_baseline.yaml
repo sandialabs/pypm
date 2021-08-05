@@ -3,30 +3,30 @@ index: 0
 model: model2
 results:
 - alignment:
-    0: {start: 0, stop: 4}
-    1: {start: 5, stop: 9}
+    a1: {start: 0, stop: 4}
+    a2: {start: 5, stop: 9}
   objective: 10.0
   variables:
     a:
-      ? !!python/tuple [0, 0]
+      ? !!python/tuple [a1, 0]
       : 1.0
-      ? !!python/tuple [0, 1]
+      ? !!python/tuple [a1, 1]
       : 1.0
-      ? !!python/tuple [0, 2]
+      ? !!python/tuple [a1, 2]
       : 1.0
-      ? !!python/tuple [0, 3]
+      ? !!python/tuple [a1, 3]
       : 1.0
-      ? !!python/tuple [0, 4]
+      ? !!python/tuple [a1, 4]
       : 1.0
-      ? !!python/tuple [1, 5]
+      ? !!python/tuple [a2, 5]
       : 1.0
-      ? !!python/tuple [1, 6]
+      ? !!python/tuple [a2, 6]
       : 1.0
-      ? !!python/tuple [1, 7]
+      ? !!python/tuple [a2, 7]
       : 1.0
-      ? !!python/tuple [1, 8]
+      ? !!python/tuple [a2, 8]
       : 1.0
-      ? !!python/tuple [1, 9]
+      ? !!python/tuple [a2, 9]
       : 1.0
     m:
       ? !!python/tuple [rB, u0]
@@ -34,28 +34,28 @@ results:
       ? !!python/tuple [rC, u0]
       : 1.0
     r:
-      ? !!python/tuple [0, rB, 0]
+      ? !!python/tuple [a1, rB, 0]
       : 1.0
-      ? !!python/tuple [0, rB, 1]
+      ? !!python/tuple [a1, rB, 1]
       : 1.0
-      ? !!python/tuple [0, rB, 2]
+      ? !!python/tuple [a1, rB, 2]
       : 1.0
-      ? !!python/tuple [0, rB, 3]
+      ? !!python/tuple [a1, rB, 3]
       : 1.0
-      ? !!python/tuple [0, rB, 4]
+      ? !!python/tuple [a1, rB, 4]
       : 1.0
-      ? !!python/tuple [0, rC, 0]
+      ? !!python/tuple [a1, rC, 0]
       : 1.0
-      ? !!python/tuple [0, rC, 1]
+      ? !!python/tuple [a1, rC, 1]
       : 1.0
-      ? !!python/tuple [0, rC, 2]
+      ? !!python/tuple [a1, rC, 2]
       : 1.0
-      ? !!python/tuple [0, rC, 3]
+      ? !!python/tuple [a1, rC, 3]
       : 1.0
-      ? !!python/tuple [0, rC, 4]
+      ? !!python/tuple [a1, rC, 4]
       : 1.0
     x:
-      ? !!python/tuple [0, 0]
+      ? !!python/tuple [a1, 0]
       : 1.0
-      ? !!python/tuple [1, 5]
+      ? !!python/tuple [a2, 5]
       : 1.0

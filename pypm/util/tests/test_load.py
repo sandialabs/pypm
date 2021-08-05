@@ -8,9 +8,9 @@ currdir = this_file_dir()
 def test_pm_simple_string():
     data="""
 resources:
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -69,9 +69,9 @@ def test_pm_simple_file():
 def test_error_bad1():
     data="""
 resources:
-- rA
-- rB
-- rC
+  rA:
+  rB:
+  rC:
 
 activities:
 
@@ -101,12 +101,11 @@ activities:
     with pytest.raises(KeyError):
         pm['a1']['bad']
 
-def test_error_bad2():
+def Xtest_error_bad2():
     data="""
 resources:
-- rA
-- rB
-- rA
+  rA:
+  rB:
 
 activities:
 
@@ -128,8 +127,8 @@ def test_error_bad3():
 bad:
 
 resources:
-- rA
-- rB
+  rA:
+  rB:
 
 activities:
 
@@ -149,8 +148,8 @@ activities:
 def test_error_bad4():
     data="""
 resources:
-- rA
-- rB
+  rA:
+  rB:
 
 activities:
 
@@ -171,8 +170,8 @@ activities:
 def test_error_bad5():
     data="""
 resources:
-- rA
-- rB
+  rA:
+  rB:
 
 activities:
 
