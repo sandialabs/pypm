@@ -17,4 +17,4 @@ Python software package for Process Matching.
 ## Testing
 
 * pytest
-* pytest --cov=pypm --cov-report term-missing --ignore-glob=tests
+* pytest --cov=pypm --cov-report term-missing --ignore-glob=*tests*
