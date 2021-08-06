@@ -11,23 +11,23 @@ def add_objective(*, M, J, T, S, K):
         return sum(sum(S[j,k]*m.r[j,k,t] for j in J for k in K[j]) for t in T)
     M.o = pe.Objective(sense=pe.maximize, rule=o_)
 
-def add_rdef_constraints_supervised(*, M, J_K, T, O):
+def add_rdef_constraints_supervised(*, M, JK, T, O):
     def rdef1_(m, j, k, t):
         return m.r[j,k,t] <= m.a[j,t]
-    M.rdef1 = pe.Constraint(J_K, T, rule=rdef1_)
+    M.rdef1 = pe.Constraint(JK, T, rule=rdef1_)
 
     def rdef2_(m, j, k, t):
         return m.r[j,k,t] <= O[k][t]
-    M.rdef2 = pe.Constraint(J_K, T, rule=rdef2_)
+    M.rdef2 = pe.Constraint(JK, T, rule=rdef2_)
 
-def add_rdef_constraints_unsupervised(*, M, K, J_K, T, O, U):
+def add_rdef_constraints_unsupervised(*, M, K, JK, T, O, U):
     def rdef1_(m, j, k, t):
         return m.r[j,k,t] <= m.a[j,t]
-    M.rdef1 = pe.Constraint(J_K, T, rule=rdef1_)
+    M.rdef1 = pe.Constraint(JK, T, rule=rdef1_)
 
     def rdef2_(m, j, k, t):
         return m.r[j,k,t] <= sum(m.m[k,u]*O[u][t] for u in U)
-    M.rdef2 = pe.Constraint(J_K, T, rule=rdef2_)
+    M.rdef2 = pe.Constraint(JK, T, rule=rdef2_)
 
     def rdef3_(m, k):
         return sum(m.m[k,u] for u in U) <= 1
@@ -52,7 +52,7 @@ def add_fixed_length_tasks(*, M, T, J, p):
         return sum(m.a[j,t] for t in T) == p[j]
     M.fixed_length = pe.Constraint(J, rule=fixed_length_)
 
-def add_simultenaity_constraints(*, M, J, sigma, T, Kall, count, J_K):
+def add_simultenaity_constraints(*, M, J, sigma, T, Kall, count, J_k):
     if not sigma is None:
         def activity_default_(m, t):
             return sum(m.a[j,t] for j in J) <= sigma
@@ -61,7 +61,7 @@ def add_simultenaity_constraints(*, M, J, sigma, T, Kall, count, J_K):
     def parallel_resources_(m, k, t):
         if count[k] is None:
             return Constraint.Skip
-        return sum(m.a[j,t] for j in J_K) <= count[k]
+        return sum(m.a[j,t] for j in J_k[k]) <= count[k]
     #M.parallel_resources = pe.Constraint(Kall, T, rule=parallel_resources_)
 
 
@@ -77,20 +77,24 @@ def create_pyomo_model1(*, K, Tmax, J, E, p, O, S, count, sigma=None):
     """
     T = list(range(Tmax))
     Kall = list(sorted(count.keys()))
-    J_K = [(j,k) for j in J for k in K[j]]
+    JK = [(j,k) for j in J for k in K[j]]
+    J_k = {k:[] for k in Kall}
+    for j in J:
+        for k in K[j]:
+            J_k[k].append(j)
     
     M = pe.ConcreteModel()
 
     M.x = pe.Var(J, T, within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
-    M.r = pe.Var(J_K, T, bounds=(0,1))
+    M.r = pe.Var(JK, T, bounds=(0,1))
 
     add_objective(M=M, J=J, T=T, S=S, K=K)
     add_xdef_constraints(M=M, T=T, p=p, J=J, E=E)
     add_adef_constraints(M=M, J=J, T=T, p=p)
     add_fixed_length_tasks(M=M, T=T, J=J, p=p)
-    add_rdef_constraints_supervised(M=M, J_K=J_K, T=T, O=O)
-    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_K=J_K)
+    add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O)
+    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k)
 
     #M.solns = pe.ConstraintList()
 
@@ -123,21 +127,25 @@ def create_pyomo_model2(*, K, Tmax, J, E, p, U, O, S, count, sigma=None):
     """
     T = list(range(Tmax))
     Kall = list(sorted(count.keys()))
-    J_K = [(j,k) for j in J for k in K[j]]
+    JK = [(j,k) for j in J for k in K[j]]
+    J_k = {k:[] for k in Kall}
+    for j in J:
+        for k in K[j]:
+            J_k[k].append(j)
     
     M = pe.ConcreteModel()
 
     M.x = pe.Var(J, T, within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
-    M.r = pe.Var(J_K, T, bounds=(0,1))
+    M.r = pe.Var(JK, T, bounds=(0,1))
     M.m = pe.Var(Kall, U, bounds=(0,1))
 
     add_objective(M=M, J=J, T=T, S=S, K=K)
     add_xdef_constraints(M=M, T=T, p=p, J=J, E=E)
     add_adef_constraints(M=M, J=J, T=T, p=p)
     add_fixed_length_tasks(M=M, T=T, J=J, p=p)
-    add_rdef_constraints_unsupervised(M=M, K=Kall, J_K=J_K, T=T, O=O, U=U)
-    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_K=J_K)
+    add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U)
+    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k)
 
     #M.solns = pe.ConstraintList()
 
