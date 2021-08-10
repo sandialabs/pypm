@@ -16,21 +16,35 @@ def get_nonzero_variables(M):
                 ans[v.name][index] = pe.value(v[index])
     return ans
 
-def summarize_alignment(v):
+def summarize_alignment(v, model):
     ans = {}
-    a = v['a']
-    for key,value in a.items():
-        j,t = key
-        if not j in ans:
-            ans[j] = {'start':t, 'stop':t}
-        else:
-            if t < ans[j]['start']:
-                ans[j]['start'] = t        
-            if t > ans[j]['stop']:
-                ans[j]['stop'] = t        
+    if model in ['model1', 'model2']:
+        a = v['a']
+        for key,val in a.items():
+            j,t = key
+            if not j in ans:
+                ans[j] = {'start':t, 'stop':t}
+            else:
+                if t < ans[j]['start']:
+                    ans[j]['start'] = t        
+                if t > ans[j]['stop']:
+                    ans[j]['stop'] = t        
+    else:
+        x = v['x']
+        y = v['y']
+        for key,val in x.items():
+            if val < 1-1e-7:
+                continue
+            j,t = key
+            ans[j] = {'start':t}
+        for key,val in y.items():
+            if val < 1-1e-7:
+                continue
+            j,t = key
+            ans[j]['stop'] = t
     return ans
  
-def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None):
+def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False):
     if data is None:
         assert datafile is not None
         with open(datafile, 'r') as INPUT:
@@ -70,9 +84,12 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
 
         opt = pe.SolverFactory(solver)
         results = opt.solve(M, tee=tee)
+        if debug:
+            M.pprint()
+            M.display()
 
         variables = variables=get_nonzero_variables(M)
-        alignment = summarize_alignment(variables)
+        alignment = summarize_alignment(variables, model)
         res = dict(datafile=datafile, index=index, model=model, 
                     results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])
 

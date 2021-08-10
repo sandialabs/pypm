@@ -86,5 +86,5 @@ results:
     y:
       ? !!python/tuple [a1, 12]
       : 1.0
-      ? !!python/tuple [a2, 21]
+      ? !!python/tuple [a2, 17]
       : 1.0

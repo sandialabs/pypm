@@ -8,12 +8,13 @@ from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
 
-def run(testname):
+def run(testname, debug=False):
     configfile = processfile = '{}.yaml'.format(testname)
     with open(join(currdir, processfile), 'r') as INPUT:
         data = yaml.safe_load(INPUT)
+    assert testname+".yaml" == data['_options']['process']
 
-    results = runmip_from_datafile(data=data, model=data['_options']['model'], dirname=currdir)
+    results = runmip_from_datafile(data=data, model=data['_options']['model'], dirname=currdir, debug=debug, tee=debug)
     output = yaml.dump(results, default_flow_style=None) 
     outputfile = join(currdir, "{}_results.yaml".format(testname))
     with open(outputfile, "w") as OUTPUT:
@@ -27,11 +28,11 @@ def run(testname):
 
 
 def test1():
-    run('test1')
+    run('test1', debug=False)
 
 def test2():
     run('test2')
 
 def test3():
-    run('test3')
+    run('test3', debug=False)
 

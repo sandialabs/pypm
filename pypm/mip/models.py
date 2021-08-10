@@ -75,9 +75,17 @@ def add_adefxy_constraints(*, M, J, T, Tmax, q, gamma):
         return sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) >= m.a[j,t]
     M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
+    def x_if_a_(m,j,t):
+        return sum(m.a[j,tau] for tau in range(t+1)) >= m.x[j,t]
+    M.x_if_a = pe.Constraint(J, T, rule=x_if_a_)
+
     def activity_stop_(m, j, t):
         return sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax) >= m.a[j,t]
     M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
+
+    def y_if_a_(m,j,t):
+        return sum(m.a[j,tau] for tau in range(t,Tmax)) >= m.y[j,t]
+    M.y_if_a = pe.Constraint(J, T, rule=y_if_a_)
 
 def add_fixed_length_activities(*, M, T, J, p):
     def fixed_length_(m, j):
@@ -242,8 +250,6 @@ def create_pyomo_model3(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=
     add_variable_length_activities(M=M, T=T, J=J, p=p, q=q)
     add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O)
     add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k)
-
-    #M.pprint()
 
     return M
 
