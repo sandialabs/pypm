@@ -49,7 +49,7 @@ def runsim(*, configfile=None, processfile=None, config=None, process=None, supe
     else:
         pm = load_process(processfile)
 
-    model = 'model1' if supervised else 'model2'
+    model = 'model1' if supervised else 'model4'
     trials = []
     for i in range(ntrials):
         data = []
