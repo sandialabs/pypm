@@ -12,7 +12,7 @@ currdir = this_file_dir()
 def run(model, example, sim, supervised):
     processfile = join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(example))
     configfile =  join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(sim))
-    data = runsim(processfile=processfile, configfile=configfile, supervised=supervised=='sup')
+    data = runsim(processfile=processfile, configfile=configfile, model=model, supervised=supervised=='sup')
     open(join(currdir, "{}_{}_{}_{}_sim.yaml".format(example, sim, model, supervised)), 'w').write(yaml.dump(data, default_flow_style=None))
     results = runmip_from_datafile(data=data, model=model)
     output = yaml.dump(results, default_flow_style=None) 

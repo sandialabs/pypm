@@ -1,7 +1,7 @@
 _options:
   comments: []
   config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim1.yaml
-  model: model2
+  model: model4
   process: /home/wehart/dev/adapd/pypm/pypm/util/tests/example2.yaml
   solver: glpk
   tee: false

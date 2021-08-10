@@ -51,7 +51,7 @@ timesteps: 30
 """_options:
   comments: []
   config: null
-  model: model1
+  model: model3
   process: null
   solver: glpk
   tee: false
@@ -82,7 +82,7 @@ def test_ex1b():
 """_options:
   comments: []
   config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim1.yaml
-  model: model1
+  model: model3
   process: /home/wehart/dev/adapd/pypm/pypm/util/tests/example2.yaml
   solver: glpk
   tee: false
@@ -115,7 +115,7 @@ def test_ex1c():
 """_options:
   comments: []
   config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim2.yaml
-  model: model2
+  model: model4
   process: /home/wehart/dev/adapd/pypm/pypm/util/tests/example2.yaml
   sigma: 1
   solver: glpk

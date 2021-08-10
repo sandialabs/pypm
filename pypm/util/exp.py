@@ -6,7 +6,7 @@ from pypm.util.load import load_process
 from pypm.util.sim import Simulator
 
 
-def runsim(*, configfile=None, processfile=None, config=None, process=None, supervised=True, outputfile=None):
+def runsim(*, configfile=None, processfile=None, config=None, process=None, supervised=True, model=None, outputfile=None):
     """
     Run simulations specified by a configuration file and process file.
 
@@ -24,6 +24,8 @@ def runsim(*, configfile=None, processfile=None, config=None, process=None, supe
         The YAML string that specifies the simulation configuration options.
     processfile : str (Default: None)
         The YAML string that specifies the process activities.
+    model : string, Default: None
+        If this is specified, then use the specified model for process matching
     supervised : bool, Default: True
         If this is True, then configure the results for a supervised process matching problem.
         Otherwise, configure for unsupervised process matching with anonymized resource
@@ -49,7 +51,8 @@ def runsim(*, configfile=None, processfile=None, config=None, process=None, supe
     else:
         pm = load_process(processfile)
 
-    model = 'model1' if supervised else 'model4'
+    if model is None:
+        model = 'model3' if supervised else 'model4'
     trials = []
     for i in range(ntrials):
         data = []
