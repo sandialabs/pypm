@@ -37,7 +37,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             data = yaml.safe_load(INPUT)
 
     tee = data['_options'].get('tee', False) if tee is None else tee
-    model = data['_options'].get('model', 'model1') if model is None else model
+    model = data['_options'].get('model', 'model3') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
     pm = load_process(data['_options']['process'])
     observations = data['data'][index]['observations']
