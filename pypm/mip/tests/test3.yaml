@@ -1,6 +1,6 @@
 _options:
   comments: 
-    - Mimicing example1_sim1_model3_sup
+    - Mimicing test1 with delay before a1
   model: model3
   process: test1.yaml
   solver: glpk
@@ -30,13 +30,15 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
+  - rA
 
 data:
 - ground_truth:
-    a1: {start: 0, stop: 7}
-    a2: {start: 8, stop: 12}
+    a1: {start: 5, stop: 11}
+    a2: {start: 12, stop: 17}
   observations:
-    rB: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rC: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

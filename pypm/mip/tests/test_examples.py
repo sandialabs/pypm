@@ -29,3 +29,9 @@ def run(testname):
 def test1():
     run('test1')
 
+def test2():
+    run('test2')
+
+def test3():
+    run('test3')
+
