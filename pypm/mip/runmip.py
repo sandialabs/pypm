@@ -3,7 +3,7 @@
 import yaml
 import pprint
 from pypm.util.load import load_process
-from pypm.mip.models import create_model1, create_model2
+from pypm.mip.models import create_model1, create_model2, create_model3, create_model4
 import pyomo.environ as pe
 
 
@@ -42,7 +42,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     pm = load_process(data['_options']['process'])
     observations = data['data'][index]['observations']
 
-    if model == 'model1' or model == 'model2':
+    if model in ['model1', 'model2', 'model3', 'model4']:
         if model == 'model1':
             M = create_model1(observations=observations,
                             pm=pm, 
@@ -53,6 +53,20 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
                             pm=pm, 
                             timesteps=data['_options']['timesteps'],
                             sigma=data['_options'].get('sigma',None))
+        elif model == 'model3':
+            M = create_model3(observations=observations,
+                            pm=pm, 
+                            timesteps=data['_options']['timesteps'],
+                            sigma=data['_options'].get('sigma',None), 
+                            gamma=data['_options'].get('gamma',0),
+                            max_delay=data['_options'].get('max_delay',0))
+        elif model == 'model4':
+            M = create_model4(observations=observations,
+                            pm=pm, 
+                            timesteps=data['_options']['timesteps'],
+                            sigma=data['_options'].get('sigma',None),
+                            gamma=data['_options'].get('gamma',0),
+                            max_delay=data['_options'].get('max_delay',0))
 
         opt = pe.SolverFactory(solver)
         results = opt.solve(M, tee=tee)

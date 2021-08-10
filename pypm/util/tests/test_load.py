@@ -101,27 +101,6 @@ activities:
     with pytest.raises(KeyError):
         pm['a1']['bad']
 
-def Xtest_error_bad2():
-    data="""
-resources:
-  rA:
-  rB:
-
-activities:
-
-- dependencies:
-  duration:
-    max_hours: 10
-    min_hours: 5
-  resources:
-  - rB
-  - rA
-  name: a1
-
-"""
-    with pytest.raises(AssertionError):
-        pm = load_process(data=data)
-
 def test_error_bad3():
     data="""
 bad:

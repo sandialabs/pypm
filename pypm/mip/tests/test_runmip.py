@@ -9,138 +9,71 @@ from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
 
-#
-# Supervised
-#
-
-def test_ex1_s1_sup():
-    """
-    example1 with sim1
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example1.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim1.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=True)
-    open(join(currdir, "ex1_s1_sup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
+def run(model, example, sim, supervised):
+    processfile = join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(example))
+    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(sim))
+    data = runsim(processfile=processfile, configfile=configfile, supervised=supervised=='sup')
+    open(join(currdir, "{}_{}_{}_{}_sim.yaml".format(example, sim, model, supervised)), 'w').write(yaml.dump(data, default_flow_style=None))
+    results = runmip_from_datafile(data=data, model=model)
     output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex1_s1_sup_results.yaml")
+    outputfile = join(currdir, "{}_{}_{}_{}_results.yaml".format(example, sim, model, supervised))
     with open(outputfile, "w") as OUTPUT:
         OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex1_s1_sup_baseline.yaml") )[0] == False
+    tmp = pyutilib.misc.compare_file( outputfile, join(currdir, "{}_{}_{}_{}_baseline.yaml".format(example, sim, model, supervised)) , tolerance=1e-7)
+    assert tmp[0] == False
     os.remove(outputfile)
 
-def test_ex2_s1_sup():
-    """
-    example2 with sim1
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example2.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim1.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=True)
-    open(join(currdir, "ex2_s1_sup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex2_s1_sup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex2_s1_sup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
 
-def test_ex1_s2_sup():
-    """
-    example1 with sim2
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example1.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim2.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=True)
-    open(join(currdir, "ex1_s2_sup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex1_s2_sup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex1_s2_sup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
 
-def test_ex2_s2_sup():
-    """
-    example2 with sim2
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example2.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim2.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=True)
-    open(join(currdir, "ex2_s2_sup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex2_s2_sup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex2_s2_sup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
 
-#
-# Unsupervised
-#
+def test_model1_example1_sim1_sup():
+    run('model1', 'example1', 'sim1', 'sup')
 
-def test_ex1_s1_usup():
-    """
-    example1 with sim1
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example1.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim1.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=False)
-    open(join(currdir, "ex1_s1_usup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex1_s1_usup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex1_s1_usup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
+def test_model1_example2_sim1_sup():
+    run('model1', 'example2', 'sim1', 'sup')
 
-def test_ex2_s1_usup():
-    """
-    example2 with sim1
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example2.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim1.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=False)
-    open(join(currdir, "ex2_s1_usup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex2_s1_usup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex2_s1_usup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
+def test_model1_example1_sim2_sup():
+    run('model1', 'example1', 'sim2', 'sup')
 
-def test_ex1_s2_usup():
-    """
-    example1 with sim2
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example1.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim2.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=False)
-    open(join(currdir, "ex1_s2_usup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex1_s2_usup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex1_s2_usup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
+def test_model1_example2_sim2_sup():
+    run('model1', 'example2', 'sim2', 'sup')
 
-def test_ex2_s2_usup():
-    """
-    example2 with sim2
-    """
-    processfile = join(dirname(dirname(currdir)), 'util', 'tests', 'example2.yaml')
-    configfile =  join(dirname(dirname(currdir)), 'util', 'tests', 'sim2.yaml')
-    data = runsim(processfile=processfile, configfile=configfile, supervised=False)
-    open(join(currdir, "ex2_s2_usup_sim.yaml"), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data)
-    output = yaml.dump(results, default_flow_style=None) 
-    outputfile = join(currdir, "ex2_s2_usup_results.yaml")
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
-    assert pyutilib.misc.compare_file( outputfile, join(currdir, "ex2_s2_usup_baseline.yaml") )[0] == False
-    os.remove(outputfile)
+
+def test_model2_example1_sim1_usup():
+    run('model2', 'example1', 'sim1', 'usup')
+
+def test_model2_example2_sim1_usup():
+    run('model2', 'example2', 'sim1', 'usup')
+
+def test_model2_example1_sim2_usup():
+    run('model2', 'example1', 'sim2', 'usup')
+
+def test_model2_example2_sim2_usup():
+    run('model2', 'example2', 'sim2', 'usup')
+
+
+def test_model3_example1_sim1_sup():
+    run('model3', 'example1', 'sim1', 'sup')
+
+def test_model3_example2_sim1_sup():
+    run('model3', 'example2', 'sim1', 'sup')
+
+def test_model3_example1_sim2_sup():
+    run('model3', 'example1', 'sim2', 'sup')
+
+def test_model3_example2_sim2_sup():
+    run('model3', 'example2', 'sim2', 'sup')
+
+
+def test_model4_example1_sim1_usup():
+    run('model4', 'example1', 'sim1', 'usup')
+
+def test_model4_example2_sim1_usup():
+    run('model4', 'example2', 'sim1', 'usup')
+
+def test_model4_example1_sim2_usup():
+    run('model4', 'example1', 'sim2', 'usup')
+
+def test_model4_example2_sim2_usup():
+    run('model4', 'example2', 'sim2', 'usup')
+
