@@ -1,0 +1,44 @@
+_options:
+  comments: 
+    - Mimicing example1_sim1_model1_sup
+  model: model1
+  process: test1.yaml
+  solver: glpk
+  tee: false
+  timesteps: 30
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 5
+  resources:
+  - rB
+  - rC
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+
+data:
+- ground_truth:
+    a1: {start: 0, stop: 7}
+    a2: {start: 8, stop: 12}
+  observations:
+    rB: [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0]
+    rC: [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0]
+  seed: 0
+  trial: 0

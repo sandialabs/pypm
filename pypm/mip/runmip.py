@@ -30,7 +30,7 @@ def summarize_alignment(v):
                 ans[j]['stop'] = t        
     return ans
  
-def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None):
+def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None):
     if data is None:
         assert datafile is not None
         with open(datafile, 'r') as INPUT:
@@ -39,7 +39,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     tee = data['_options'].get('tee', False) if tee is None else tee
     model = data['_options'].get('model', 'model3') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
-    pm = load_process(data['_options']['process'])
+    pm = load_process(data['_options']['process'], dirname=dirname)
     observations = data['data'][index]['observations']
 
     if model in ['model1', 'model2', 'model3', 'model4']:

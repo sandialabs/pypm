@@ -1,0 +1,56 @@
+datafile: null
+index: 0
+model: model1
+results:
+- alignment:
+    a1: {start: 0, stop: 4}
+    a2: {start: 14, stop: 18}
+  objective: 10.0
+  variables:
+    a:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+      ? !!python/tuple [a2, 16]
+      : 1.0
+      ? !!python/tuple [a2, 17]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0
+    r:
+      ? !!python/tuple [a1, rB, 0]
+      : 1.0
+      ? !!python/tuple [a1, rB, 1]
+      : 1.0
+      ? !!python/tuple [a1, rB, 2]
+      : 1.0
+      ? !!python/tuple [a1, rB, 3]
+      : 1.0
+      ? !!python/tuple [a1, rB, 4]
+      : 1.0
+      ? !!python/tuple [a1, rC, 0]
+      : 1.0
+      ? !!python/tuple [a1, rC, 1]
+      : 1.0
+      ? !!python/tuple [a1, rC, 2]
+      : 1.0
+      ? !!python/tuple [a1, rC, 3]
+      : 1.0
+      ? !!python/tuple [a1, rC, 4]
+      : 1.0
+    x:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0

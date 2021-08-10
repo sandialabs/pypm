@@ -103,9 +103,7 @@ activities:
 
 def test_error_bad3():
     data="""
-bad:
-
-resources:
+bad_resources:
   rA:
   rB:
 

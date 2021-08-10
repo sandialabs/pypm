@@ -48,7 +48,8 @@ class ProcessModel(object):
 
     def load(self, data):
         """Load the process model from YAML/JSON data."""
-        assert (set(data.keys()) == set(['resources','activities'])), "Expected data with 'resources' and 'activities'"
+        tmp = set(['resources','activities'])
+        assert (tmp.issubset( set(data.keys()) )), "Expected data with 'resources' and 'activities'"
         self.resources.load(data['resources'])
         for activity in data['activities']:
             self._add_activity(activity)
