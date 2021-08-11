@@ -68,6 +68,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
         observations_ = observations
 
+    print("Creating model")
     if model in ['model1', 'model2', 'model3', 'model4']:
         if model == 'model1':
             M = create_model1(observations=observations_,
@@ -94,6 +95,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0))
 
+        print("Optimizing model")
         opt = pe.SolverFactory(solver)
         results = opt.solve(M, tee=tee)
         if debug:           #pragma:nocover

@@ -263,7 +263,6 @@ def create_model3(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     q = {j:pm[j]['duration']['max_hours'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
-    print("HERE",K)
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
     count = {name:pm.resources.count(name) for name in pm.resources}
 
