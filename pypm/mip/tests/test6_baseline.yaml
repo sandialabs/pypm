@@ -1,0 +1,69 @@
+datafile: null
+index: 0
+model: model3
+results:
+- alignment:
+    a1: {start: 7, stop: 11}
+    a2: {start: 14, stop: 18}
+  objective: 13.999999999999993
+  variables:
+    a:
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a1, 10]
+      : 1.0
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+      ? !!python/tuple [a2, 16]
+      : 1.0
+      ? !!python/tuple [a2, 17]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0
+    r:
+      ? !!python/tuple [a1, rB, 7]
+      : 1.0
+      ? !!python/tuple [a1, rB, 8]
+      : 1.0
+      ? !!python/tuple [a1, rB, 9]
+      : 1.0
+      ? !!python/tuple [a1, rB, 10]
+      : 1.0
+      ? !!python/tuple [a1, rB, 11]
+      : 1.0
+      ? !!python/tuple [a1, rC, 7]
+      : 1.0
+      ? !!python/tuple [a1, rC, 8]
+      : 1.0
+      ? !!python/tuple [a1, rC, 9]
+      : 1.0
+      ? !!python/tuple [a1, rC, 10]
+      : 1.0
+      ? !!python/tuple [a1, rC, 11]
+      : 1.0
+      ? !!python/tuple [a2, rA, 15]
+      : 0.999999999999999
+      ? !!python/tuple [a2, rA, 16]
+      : 0.999999999999999
+      ? !!python/tuple [a2, rA, 17]
+      : 0.999999999999999
+      ? !!python/tuple [a2, rA, 18]
+      : 0.999999999999999
+    x:
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+    y:
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0

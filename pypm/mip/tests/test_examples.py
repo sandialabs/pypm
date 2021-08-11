@@ -28,11 +28,20 @@ def run(testname, debug=False):
 
 
 def test1():
-    run('test1', debug=False)
+    run('test1')
 
 def test2():
     run('test2')
 
 def test3():
-    run('test3', debug=False)
+    run('test3')
+
+def test4():
+    run('test4')
+
+def test5():
+    run('test5')
+
+def test6():
+    run('test6')
 
