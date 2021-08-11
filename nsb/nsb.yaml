@@ -1,0 +1,434 @@
+Resources
+- Semi
+- Forklift
+- Material Moving Cart
+- Panel Van
+- Delivery Boxes
+- Helium Bottles
+- AC Cooling System Usage
+- Scientist Activity
+- Convoy
+- DP Activity
+- Metal Forms
+- Grout Pump Truck
+- Piping
+
+activities:
+
+- name: Receive Vessel
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Semi
+  - Forklift
+  - Material Moving Cart
+            
+- name: Receive Cabling (HV Cables)
+  max_delay: 144
+  dependencies: 
+  - Receive Vessel
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Panel Van
+  - Delivery Boxes
+  - Forklift
+    
+- name: Remove Fibers and Cables from Lid
+  max_delay: 96
+  dependencies: 
+  - Receive Cabling (HV Cables)
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+                    
+- name: Receive Radiographic Cones
+  dependencies:
+  - Receive Cabling (HV Cables)
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Panel Van
+  - Forklift
+  - Delivery Boxes
+
+- name: Receive Top Cover
+  max_delay: 312
+  dependencies:
+  - Receive Radiographic Cones
+  - Remove Fibers and Cables from Lid
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Panel Van
+  - Forklift
+  - Delivery Boxes
+
+- name: Receive Coax Feedthroughs
+  max_delay: 168
+  dependencies:
+  - Receive Top Cover
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Panel Van
+  - Forklift
+  - Delivery Boxes
+
+- name: Install Vessel in Zero Room
+  max_delay: 1176
+  dependencies:
+  - Receive Coax Feedthroughs
+  duration:
+    max_hours: 260
+    min_hours: 260
+  resources:
+
+- name: Assemble Top Cover - Fiber and Cabling
+  max_delay: 1512
+  dependencies:
+  - Receive Coax Feedthroughs
+  duration:
+    max_hours: 180
+    min_hours: 180
+  resources:
+
+- name: Recieve Radiographic Windows
+  max_delay: 1560
+  dependencies:
+  - Receive Coax Feedthroughs
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Panel Van
+  - Forklift
+  - Delivery Boxes
+
+- name: Downhole Insertion Support
+  max_delay: 288
+  dependencies:
+  - Receive Radiographic Windows
+  duration:
+    max_hours: 330
+    min_hours: 330
+  resources:
+
+- name: Install Concrete Fragment Mitigation
+  max_delay: 600
+  dependencies:
+  - Receive Radiographic Windows
+  duration:
+    max_hours: 260
+    min_hours: 260
+  resources:
+
+- name: Install Shrapnel Mitigation
+  max_delay: 768
+  dependencies:
+  - Receive Radiographic Windows
+  - Install Vessel in Zero Room
+  - Assemble Top Cover - Fiber and Cabling
+  duration:
+    max_hours: 40
+    min_hours: 40
+  resources:
+        
+- name: Cygnus 3R Shots
+  max_delay: 312
+  dependencies:
+  - Install Shrapnel Mitigation
+  duration:
+    max_hours: 610
+    min_hours: 610
+  resources:
+        
+- name: Helium Leak Tests
+  max_delay: 384
+  dependencies:
+  - Install Shrapnel Mitigation
+  duration:
+    max_hours: 20
+    min_hours: 20
+  resources:
+  - Helium Bottles
+  - Material Moving Cart
+        
+- name: Final Install Radiographic Covers
+  dependencies:
+  - Helium Leak Tests
+  duration:
+    max_hours: 20
+    min_hours: 20
+  resources:
+       
+- name: Perform First Diagnostic Impulse Run
+  max_delay: 264
+  dependencies:
+  - Final Install Radiographic Covers
+  - Install Concrete Fragment Mitigation
+  duration:
+    max_hours: 80
+    min_hours: 80
+  resources:
+  - AC Cooling System Usage
+  - Scientist Activity
+ 
+- name: DAF-Target Arrival from Labs
+  dependencies:
+  - Final Install Radiographic Covers
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Convoy
+  - Scientist Activity
+        
+- name: DAF-Inspect Device Leak Check Radiography
+  dependencies:
+  - Final Install Radiographic Covers
+  duration:
+    max_hours: 30
+    min_hours: 30
+  resources:
+  - Scientist Activity
+
+- name: DAF-Perform Arrival Metrology
+  max_delay: 24
+  dependencies:
+  - DAF-Inspect Device Leak Check Radiography
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Scientist Activity
+        
+- name: DAF-Assemble Device
+  max_delay: 168
+  dependencies:
+  - DAF-Perform Arrival Metrology
+  duration:
+    max_hours: 40
+    min_hours: 40
+  resources:
+  - Scientist Activity
+ 
+        
+- name: DAF-Post Assembly Leak Check
+  dependencies:
+  - DAF-Assemble Device
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Scientist Activity
+        
+- name: DAF-Post Assembly Metrology
+  dependencies:
+  - DAF-Post Assembly Leak Check
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Scientist Activity
+        
+- name: DAF-Post Assembly Radiograph
+  max_delay: 144
+  dependencies:
+  - DAF-Post Assembly Metrology
+  duration:
+    max_hours: 30
+    min_hours: 30
+  resources:
+  - Scientist Activity
+
+- name: DAF-Package Device for transport
+  max_delay: 120
+  dependencies:
+  - DAF-Post Assembly Radiograph
+  duration:
+    max_hours: 20
+    min_hours: 20
+  resources:
+  - Scientist Activity
+        
+- name: DAF-Stage Device and Device Assembly Complete
+  dependencies:
+  - DAF-Package Device for transport
+  duration:
+    max_hours: 90
+    min_hours: 90
+  resources:
+  - Scientist Activity
+         
+- name: DAF-Delivery of Device from Assembly Facility to Tunnel
+  dependencies:
+  - DAF-Stage Device and Device Assembly Complete
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - Scientist Activity
+  - Convoy
+        
+- name: Security Plans Approved
+  max_delay: 168
+  dependencies:
+  - Perform First Diagnostic Impulse Run
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+
+
+- name: Perform Lo-Fi Diagnostics Det Runs
+  dependencies:
+  - Security Plans Approved
+  duration:
+    max_hours: 60
+    min_hours: 60
+  resources:
+  - AC Cooling System Usage
+  - Scientist Activity
+        
+- name: Perform Hi-Fi Diagnostics Det Runs #1
+  max_delay: 96
+  dependencies:
+  - Perform Lo-Fi Diagnostics Det Runs
+  duration:
+    max_hours: 30
+    min_hours: 30
+  resources:
+  - AC Cooling System Usage
+  - Scientist Activity
+        
+- name: Perform Final Diagnotic Impulse Runs
+  max_delay: 96
+  dependencies:
+  - Perform Lo-Fi Diagnostics Det Runs
+  duration:
+    max_hours: 20
+    min_hours: 20
+  resources:
+  - AC Cooling System Usage
+  - Scientist Activity
+        
+- name: Insertion Readiness Meeting
+  max_delay: 120
+  - Perform Final Diagnotic Impulse Runs
+  duration:
+    max_hours: 30
+    min_hours: 30
+  resources:
+  - DP Activity
+  - Scientist Activity
+        
+- name: Perform Hi-Fi Diagnostics Det Runs #2
+  max_delay: 120
+  dependencies:
+  - Perform Final Diagnotic Impulse Runs
+  - Perform Hi-Fi Diagnostic Det Runs #1
+  duration:
+    max_hours: 30
+    min_hours: 30
+  resources:
+  - AC Cooling System Usage
+  - Scientist Activity
+        
+- name: Insertion in RACKLITO
+  max_delay: 96
+  dependencies:
+  - Insertion Readiness Meeting
+  - DAF-Delivery of Device from Assembly Facility to Tunnel
+  - Perform Hi-Fi Diagnostic Det Runs #2
+  duration:
+    max_hours: 20
+    min_hours: 20
+  resources:
+        
+- name: Emplacement Readiness Meeting
+  max_delay: 24
+  dependencies:
+  - Insertion in RACKLITO
+  duration:
+    max_hours: 30
+    min_hours: 30
+  resources:
+  - DP Activity
+  - Scientist Activity
+        
+- name: Entombment Forms Placed
+  max_delay: 24
+  dependencies:
+  - Insertion in RACKLITO
+  duration:
+    max_hours: 70
+    min_hours: 70
+  resources:
+  - Metal Forms
+  - Forklift
+        
+- name: Execution Readiness Meeting
+  max_delay: 456
+  dependencies:
+  - Entombment Forms Placed
+  - Emplacement Readiness Meeting
+  duration:
+    max_hours: 20
+    min_hours: 20
+  resources:
+  - DP Activity
+  - Scientist Activity
+
+- name: Fire Shot
+  max_delay: 24
+  dependencies:
+  - Execution Readiness Meeting
+  - Cygnus 3R Shots
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+  - DP Activity
+  - Scientist Activity
+        
+- name: Physics Freeze
+  dependencies:
+  - Fire Shot
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+
+- name: Cable Freeze
+  dependencies:
+  - Physics Freeze
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+        
+- name: Tunnel Re-Entry
+  dependencies:
+  - Physics Freeze
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+        
+- name: Entomb Vessel
+  dependencies:
+  - Tunnel Re-Entry
+  duration:
+    max_hours: 40
+    min_hours: 40
+  resources:
+  - Grout Pump Truck
+  - Piping
