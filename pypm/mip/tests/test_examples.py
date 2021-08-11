@@ -8,7 +8,7 @@ from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
 
-def run(testname, debug=False):
+def run(testname, debug=False, verify=False):
     configfile = processfile = '{}.yaml'.format(testname)
     with open(join(currdir, processfile), 'r') as INPUT:
         data = yaml.safe_load(INPUT)
@@ -20,7 +20,12 @@ def run(testname, debug=False):
     with open(outputfile, "w") as OUTPUT:
         OUTPUT.write(output)
 
-    tmp = pyutilib.misc.compare_file( outputfile, join(currdir, "{}_baseline.yaml".format(testname)), tolerance=1e-7)
+    if verify:
+        alignment = results['results'][0]['alignment']
+        for j,val in data['data'][0]['ground_truth'].items():
+            assert ((val['start'] == alignment[j]['start']) and (val['stop'] == alignment[j]['stop'])), "Differ from ground truth: {} {} {}".format(j, str(val), str(alignment[j]))
+ 
+    tmp = pyutilib.misc.compare_file(outputfile, join(currdir, "{}_baseline.yaml".format(testname)), tolerance=1e-7)
     assert tmp[0] == False
     os.remove(outputfile)
 
