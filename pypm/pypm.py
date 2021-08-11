@@ -32,7 +32,7 @@ def main():                     # pragma: nocover
     args = parser.parse_args()
 
     if args.func == 'sim':
-        prefix = processfile[:-5]
+        prefix = args.process_file[:-5]
         runsim(configfile=args.config_file, processfile=args.process_file, supervised=not args.unsupervised, outputfile=prefix+"_sim.yaml")
     elif args.func == 'mip':
         results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
