@@ -1,0 +1,24 @@
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rB:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rA:
