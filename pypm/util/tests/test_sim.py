@@ -24,8 +24,8 @@ activities:
     max_hours: 4
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
   name: a1
 
 - dependencies:
@@ -34,7 +34,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-  - rA
+    rA:
   name: a2
 """
     pm = load_process(data=data)
@@ -69,8 +69,8 @@ activities:
     max_hours: 4
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
   name: a1
 
 - dependencies:
@@ -79,7 +79,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-  - rA
+    rA:
   name: a2
 
 - dependencies:
@@ -88,7 +88,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
   name: a3
 """
     pm = load_process(data=data)
@@ -123,8 +123,8 @@ activities:
     max_hours: 4
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
   name: a1
 
 - dependencies:
@@ -134,7 +134,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-  - rA
+    rA:
   name: a2
 
 - dependencies:
@@ -142,7 +142,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
   name: a3
 """
     pm = load_process(data=data)
@@ -177,8 +177,8 @@ activities:
     max_hours: 4
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
   name: a1
 
 - dependencies:
@@ -187,7 +187,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-  - rA
+    rA:
   name: a2
 
 - dependencies:
@@ -197,7 +197,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
   name: a3
 
 - dependencies:
@@ -206,7 +206,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
   name: a4
 """
     pm = load_process(data=data)
@@ -266,8 +266,8 @@ activities:
     max_hours: 4
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
 
 - name: a2
   dependencies:
@@ -276,7 +276,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-  - rA
+    rA:
 
 - name: a3
   dependencies:
@@ -286,7 +286,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
 
 - name: a4
   max_delay: 5
@@ -296,7 +296,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
 """
     pm = load_process(data=data)
 
@@ -345,8 +345,8 @@ activities:
     max_hours: 4
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
 
 - name: a2
   dependencies:
@@ -355,7 +355,7 @@ activities:
     max_hours: 5
     min_hours: 5
   resources:
-  - rA
+    rA:
 
 - name: a3
   dependencies:
@@ -365,7 +365,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
 
 - name: a4
   max_delay: 5
@@ -375,7 +375,7 @@ activities:
     max_hours: 3
     min_hours: 3
   resources:
-  - rA
+    rA:
 """
     pm = load_process(data=data)
 

@@ -12,8 +12,8 @@ activities:
     max_hours: 8
     min_hours: 4
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
 
 - name: a2
   dependencies:
@@ -22,4 +22,4 @@ activities:
     max_hours: 10 
     min_hours: 5
   resources:
-  - rA
+    rA:

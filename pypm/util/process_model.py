@@ -84,9 +84,15 @@ class ProcessModel(object):
             activity['max_delay'] = 0
         self._activities[ i ] = activity
         if activity.get('resources',None) is None:
-            activity['resources'] = []
+            activity['resources'] = {}
         else:
-            assert type(activity['resources']) is list
+            assert type(activity['resources']) is dict
+            #
+            # Default value is to use one copy of each resource
+            #
+            for key in activity['resources']:
+                if activity['resources'][key] is None:
+                    activity['resources'][key] = 1
         #
         # WEH - Should we adopt the term 'predecessor'?
         #

@@ -159,7 +159,7 @@ def create_model1(*, observations, pm, timesteps, sigma=None):
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
     J = list(sorted(pm))
-    K = {j:set(pm[j]['resources']) for j in pm}
+    K = {j:set(pm[j]['resources'].keys()) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
     count = {name:pm.resources.count(name) for name in pm.resources}
 
@@ -209,7 +209,7 @@ def create_model2(*, observations, pm, timesteps, sigma=None):
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
     J = list(sorted(pm))
-    K = {j:set(pm[j]['resources']) for j in pm}
+    K = {j:set(pm[j]['resources'].keys()) for j in pm}
     Kall = set.union(*[v for v in K.values()])
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     count = {name:pm.resources.count(name) for name in pm.resources}
@@ -262,7 +262,7 @@ def create_model3(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
     q = {j:pm[j]['duration']['max_hours'] for j in pm}
     J = list(sorted(pm))
-    K = {j:set(pm[j]['resources']) for j in pm}
+    K = {j:set(pm[j]['resources'].keys()) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
     count = {name:pm.resources.count(name) for name in pm.resources}
 
@@ -317,7 +317,7 @@ def create_model4(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     p = {j:pm[j]['duration']['min_hours'] for j in pm}
     q = {j:pm[j]['duration']['max_hours'] for j in pm}
     J = list(sorted(pm))
-    K = {j:set(pm[j]['resources']) for j in pm}
+    K = {j:set(pm[j]['resources'].keys()) for j in pm}
     Kall = set.union(*[v for v in K.values()])
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     count = {name:pm.resources.count(name) for name in pm.resources}

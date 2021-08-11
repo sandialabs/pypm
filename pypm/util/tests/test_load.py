@@ -19,8 +19,8 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
   name: a1
 
 - dependencies:
@@ -37,13 +37,13 @@ activities:
 
     assert pm['a1']['id'] == 0
     assert pm['a1']['name'] == 'a1'
-    assert pm['a1']['resources'] == ['rB', 'rC']
+    assert pm['a1']['resources'] == {'rB':1, 'rC':1}
     assert pm['a1']['dependencies'] == []
     assert pm[0]['id'] == 0
 
     assert pm['a2']['id'] == 1
     assert pm['a2']['name'] == 'a2'
-    assert pm['a2']['resources'] == []
+    assert pm['a2']['resources'] == {}
     assert pm['a2']['dependencies'] == ['a1']
     assert pm[1]['id'] == 1
 
@@ -56,13 +56,13 @@ def test_pm_simple_file():
 
     assert pm['a1']['id'] == 0
     assert pm['a1']['name'] == 'a1'
-    assert pm['a1']['resources'] == ['rB', 'rC']
+    assert pm['a1']['resources'] == {'rB':1, 'rC':1}
     assert pm['a1']['dependencies'] == []
     assert pm[0]['id'] == 0
 
     assert pm['a2']['id'] == 1
     assert pm['a2']['name'] == 'a2'
-    assert pm['a2']['resources'] == []
+    assert pm['a2']['resources'] == {}
     assert pm['a2']['dependencies'] == ['a1']
     assert pm[1]['id'] == 1
 
@@ -80,8 +80,8 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - rB
-  - rC
+    rB:
+    rC:
   name: a1
 
 - dependencies:
@@ -114,8 +114,8 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - rB
-  - rA
+    rB:
+    rA:
   name: a1
 
 """
@@ -135,8 +135,8 @@ activities:
     max_hours: 10
     min_hours: 5
   resources:
-  - rB
-  - rA
+    rB:
+    rA:
   name: a1
 - name: a1
 
