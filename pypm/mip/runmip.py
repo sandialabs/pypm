@@ -62,8 +62,12 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         observations_ = {}
         for filename in observations:
             fname = filename if dirname is None else join(dirname,filename)
-            df = pd.read_csv(fname)
-            observations_.update( df.to_dict(orient='list') )
+            if fname.endswith(".csv"):
+                df = pd.read_csv(fname)
+                observations_.update( df.to_dict(orient='list') )
+            elif fname.endswith(".yaml"):
+                with open(fname, 'r') as INPUT:
+                    observations_ = yaml.safe_load(INPUT)
     else:
         assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
         observations_ = observations
