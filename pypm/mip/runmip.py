@@ -72,6 +72,15 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
         observations_ = observations
 
+    if model in ['model1', 'model3']:
+        #
+        # For supervised matching, we can confirm that the observations
+        # have the right labels
+        #
+        tmp1 = set(observations_.keys())
+        tmp2 = set([name for name in pm.resources])
+        assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
+
     print("Creating model")
     if model in ['model1', 'model2', 'model3', 'model4']:
         if model == 'model1':
