@@ -34,6 +34,7 @@ requires = [
     'Pyomo',
     #'parameterized',
     #'scipy',
+    'pandas',
     'pyutilib',
     'pyyaml',
     'simpy',
