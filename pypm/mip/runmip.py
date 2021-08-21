@@ -47,13 +47,15 @@ def summarize_alignment(v, model):
             ans[j]['stop'] = t
     return ans
  
-def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False):
+def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
     if data is None:
         assert datafile is not None
         with open(datafile, 'r') as INPUT:
             data = yaml.safe_load(INPUT)
 
+    timesteps=data['_options'].get('timesteps', None)
     tee = data['_options'].get('tee', False) if tee is None else tee
+    verbose = data['_options'].get('verbose', True) if verbose is None else verbose
     model = data['_options'].get('model', 'model3') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
     pm = load_process(data['_options']['process'], dirname=dirname)
@@ -72,6 +74,13 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
         observations_ = observations
 
+    for key in observations_:
+        if timesteps is None:
+            timesteps = len(observations_[key])
+        elif len(observations_[key]) < timesteps:
+            timesteps = len(observations_[key])
+            print("WARNING: limiting analysis to {} because there are only observations for that many time steps".format(timesteps))
+
     if model in ['model1', 'model3']:
         #
         # For supervised matching, we can confirm that the observations
@@ -86,31 +95,39 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         if model == 'model1':
             M = create_model1(observations=observations_,
                             pm=pm, 
-                            timesteps=data['_options']['timesteps'],
-                            sigma=data['_options'].get('sigma',None))
+                            timesteps=timesteps,
+                            sigma=data['_options'].get('sigma',None),
+                            verbose=verbose)
         elif model == 'model2':
             M = create_model2(observations=observations_,
                             pm=pm, 
-                            timesteps=data['_options']['timesteps'],
-                            sigma=data['_options'].get('sigma',None))
+                            timesteps=timesteps,
+                            sigma=data['_options'].get('sigma',None),
+                            verbose=verbose)
         elif model == 'model3':
             M = create_model3(observations=observations_,
                             pm=pm, 
-                            timesteps=data['_options']['timesteps'],
+                            timesteps=timesteps,
                             sigma=data['_options'].get('sigma',None), 
                             gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0))
+                            max_delay=data['_options'].get('max_delay',0),
+                            verbose=verbose)
         elif model == 'model4':
             M = create_model4(observations=observations_,
                             pm=pm, 
-                            timesteps=data['_options']['timesteps'],
+                            timesteps=timesteps,
                             sigma=data['_options'].get('sigma',None),
                             gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0))
+                            max_delay=data['_options'].get('max_delay',0),
+                            verbose=verbose)
 
         print("Optimizing model")
         opt = pe.SolverFactory(solver)
+        if tee:
+            print("-- Solver Output Begins --")
         results = opt.solve(M, tee=tee)
+        if tee:
+            print("-- Solver Output Ends --")
         if debug:           #pragma:nocover
             M.pprint()
             M.display()
