@@ -3,8 +3,8 @@ index: 0
 model: model3
 results:
 - alignment:
-    a1: {start: 0, stop: 7}
-    a2: {start: 8, stop: 12}
+    a1: {start: 0, stop: 8}
+    a2: {start: 9, stop: 13}
   objective: 16.0
   variables:
     a:
@@ -24,7 +24,7 @@ results:
       : 1.0
       ? !!python/tuple [a1, 7]
       : 1.0
-      ? !!python/tuple [a2, 8]
+      ? !!python/tuple [a1, 8]
       : 1.0
       ? !!python/tuple [a2, 9]
       : 1.0
@@ -33,6 +33,8 @@ results:
       ? !!python/tuple [a2, 11]
       : 1.0
       ? !!python/tuple [a2, 12]
+      : 1.0
+      ? !!python/tuple [a2, 13]
       : 1.0
     r:
       ? !!python/tuple [a1, rB, 0]
@@ -70,10 +72,10 @@ results:
     x:
       ? !!python/tuple [a1, 0]
       : 1.0
-      ? !!python/tuple [a2, 8]
+      ? !!python/tuple [a2, 9]
       : 1.0
     y:
-      ? !!python/tuple [a1, 7]
+      ? !!python/tuple [a1, 8]
       : 1.0
-      ? !!python/tuple [a2, 12]
+      ? !!python/tuple [a2, 13]
       : 1.0

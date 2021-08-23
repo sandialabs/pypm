@@ -4,8 +4,8 @@ model: model4
 results:
 - alignment:
     a1: {start: 5, stop: 12}
-    a2: {start: 13, stop: 22}
-  objective: 18.999999999999993
+    a2: {start: 13, stop: 21}
+  objective: 19.0
   variables:
     a:
       ? !!python/tuple [a1, 5]
@@ -34,30 +34,20 @@ results:
       : 1.0
       ? !!python/tuple [a2, 17]
       : 1.0
-      ? !!python/tuple [a2, 18]
-      : 1.0
-      ? !!python/tuple [a2, 19]
-      : 1.0
-      ? !!python/tuple [a2, 20]
-      : 1.0
-      ? !!python/tuple [a2, 21]
-      : 1.0
-      ? !!python/tuple [a2, 22]
-      : 1.0
     m:
       ? !!python/tuple [rA, u0]
       : 1.0
       ? !!python/tuple [rB, u1]
       : 1.0
       ? !!python/tuple [rC, u1]
-      : 0.999999999999999
+      : 1.0
     r:
       ? !!python/tuple [a1, rB, 6]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 7]
       : 1.0
       ? !!python/tuple [a1, rB, 8]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 9]
       : 1.0
       ? !!python/tuple [a1, rB, 10]
@@ -67,19 +57,19 @@ results:
       ? !!python/tuple [a1, rB, 12]
       : 1.0
       ? !!python/tuple [a1, rC, 6]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rC, 7]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rC, 8]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rC, 9]
       : 1.0
       ? !!python/tuple [a1, rC, 10]
       : 1.0
       ? !!python/tuple [a1, rC, 11]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rC, 12]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a2, rA, 13]
       : 1.0
       ? !!python/tuple [a2, rA, 14]
@@ -98,5 +88,5 @@ results:
     y:
       ? !!python/tuple [a1, 12]
       : 1.0
-      ? !!python/tuple [a2, 22]
+      ? !!python/tuple [a2, 21]
       : 1.0

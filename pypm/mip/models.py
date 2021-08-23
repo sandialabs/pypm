@@ -95,24 +95,35 @@ def add_adefx_constraints(*, M, J, T, p, verbose=False):
     if verbose:
         toc("add_adefx_constraints")
 
-def add_adefxy_constraints(*, M, J, T, Tmax, q, gamma, verbose=False):
+def add_adefxy_constraints_OLD(*, M, J, T, Tmax, q, gamma, verbose=False):
     if verbose:
         tic("add_adefxy_constraints")
     def activity_start_(m, j, t):
         return sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) >= m.a[j,t]
     M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
-    #def x_if_a_(m, j, t):
-    #    return sum(m.a[j,tau] for tau in range(t+1)) >= m.x[j,t]
-    #M.x_if_a = pe.Constraint(J, T, rule=x_if_a_)
+    def x_if_a_(m, j, t):
+        return sum(m.a[j,tau] for tau in range(t+1)) >= m.x[j,t]
+    M.x_if_a = pe.Constraint(J, T, rule=x_if_a_)
 
     def activity_stop_(m, j, t):
         return sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax) >= m.a[j,t]
     M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
 
-    #def y_if_a_(m, j, t):
-    #    return sum(m.a[j,tau] for tau in range(t,Tmax)) >= m.y[j,t]
-    #M.y_if_a = pe.Constraint(J, T, rule=y_if_a_)
+    def y_if_a_(m, j, t):
+        return sum(m.a[j,tau] for tau in range(t,Tmax)) >= m.y[j,t]
+    M.y_if_a = pe.Constraint(J, T, rule=y_if_a_)
+    if verbose:
+        toc("add_adefxy_constraints")
+
+def add_adefxy_constraints(*, M, J, T, Tmax, q, gamma, verbose=False):
+    if verbose:
+        tic("add_adefxy_constraints")
+    def activity_start_stop_(m, j, t):
+        start = sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) 
+        stop =  sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax)
+        return (start+stop)/2.0 >= m.a[j,t]
+    M.activity_start_stop = pe.Constraint(J, T, rule=activity_start_stop_)
     if verbose:
         toc("add_adefxy_constraints")
 
