@@ -53,6 +53,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         with open(datafile, 'r') as INPUT:
             data = yaml.safe_load(INPUT)
 
+    savefile = data['_options'].get('write', None)
     timesteps=data['_options'].get('timesteps', None)
     tee = data['_options'].get('tee', False) if tee is None else tee
     verbose = data['_options'].get('verbose', True) if verbose is None else verbose
@@ -120,6 +121,11 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
                             verbose=verbose)
+
+        if savefile:
+            print("Writing file:",savefile)
+            M.write(savefile, io_options=dict(symbolic_solver_labels=True))
+            return dict()
 
         print("Optimizing model")
         opt = pe.SolverFactory(solver)
