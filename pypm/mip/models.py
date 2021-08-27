@@ -61,7 +61,7 @@ def add_xdef_constraints(*, M, T, J, p, E, verbose=False):
     if verbose:
         toc("add_xdef_constraints")
 
-def add_xydef_constraints(*, M, T, J, E, max_delay, verbose=False):
+def add_xydef_constraints(*, M, T, J, p, q, E, gamma, max_delay, verbose=False):
     if verbose:
         tic("add_xydef_constraints")
     def start_once_(m,j):
@@ -71,6 +71,14 @@ def add_xydef_constraints(*, M, T, J, E, max_delay, verbose=False):
     def stop_once_(m,j):
         return sum(m.y[j,t] for t in T) <= 1
     M.stop_once = pe.Constraint(J, rule=stop_once_)
+
+    def min_stop_(m,j,t):
+        tau_0 = max(0, t-(q[j]+gamma[j])+1)
+        tau_1 = t-p[j]+1
+        if tau_1 < 0:
+            return pe.Constraint.Skip
+        return m.y[j,t] <= sum(m.x[j,tau] for tau in range(tau_0, tau_1+1))
+    M.min_stop = pe.Constraint(J, T, rule=min_stop_)
 
     def precedence_(m, i, j):
         return sum(t*m.x[j,t] for t in T) - sum(t*m.y[i,t] for t in T)
@@ -139,26 +147,26 @@ def add_fixed_length_activities(*, M, T, J, p, verbose=False):
 def add_variable_length_activities(*, M, T, J, p, q, verbose=False):
     if verbose:
         tic("add_variable_length_activities")
-    J_fixed =    [j for j in J if      abs(q[j]-p[j]) < 1e-7]
-    tmp = set(J_fixed)
-    J_variable = [j for j in J if not j in tmp]
+    #J_fixed =    [j for j in J if      abs(q[j]-p[j]) < 1e-7]
+    #tmp = set(J_fixed)
+    #J_variable = [j for j in J if not j in tmp]
     
-
-    def fixed_(m, j):
-        return sum(m.a[j,t] for t in T) == p[j]
-    M.length_fixed = pe.Constraint(J_fixed, rule=fixed_)
 
     def length_(m, j):
         return sum(m.a[j,t] for t in T)
-    M.length = pe.Expression(J_variable, rule=length_)
+    M.length = pe.Expression(J, rule=length_)
 
-    def length_lower_(m, j):
-        return m.length[j] >= p[j]
-    M.length_lower = pe.Constraint(J_variable, rule=length_lower_)
+    #def fixed_(m, j):
+    #   return sum(m.a[j,t] for t in T) == p[j]
+    #M.length_fixed = pe.Constraint(J_fixed, rule=fixed_)
+
+    #def length_lower_(m, j):
+    #    return m.length[j] >= p[j]
+    #M.length_lower = pe.Constraint(J_variable, rule=length_lower_)
 
     def length_upper_(m, j):
         return m.length[j] <= q[j]
-    M.length_upper = pe.Constraint(J_variable, rule=length_upper_)
+    M.length_upper = pe.Constraint(J, rule=length_upper_)
     if verbose:
         toc("add_variable_length_activities")
 
@@ -306,7 +314,7 @@ def create_pyomo_model3(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=
     M.r = pe.Var(JK, T, bounds=(0,1))
 
     add_objective(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
-    add_xydef_constraints(M=M, T=T, J=J, E=E, max_delay=max_delay, verbose=verbose)
+    add_xydef_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, verbose=verbose)
     add_adefxy_constraints(M=M, J=J, T=T, Tmax=Tmax, q=q, gamma=gamma, verbose=verbose)
     add_variable_length_activities(M=M, T=T, J=J, p=p, q=q, verbose=verbose)
     add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O, verbose=verbose)
@@ -360,12 +368,12 @@ def create_pyomo_model4(*, K, Tmax, J, E, p, q, U, O, S, count, gamma=0, max_del
     M.r = pe.Var(JK, T, bounds=(0,1))
     M.m = pe.Var(Kall, U, bounds=(0,1))
 
-    add_objective(M=M, J=J, T=T, S=S, K=K)
-    add_xydef_constraints(M=M, T=T, J=J, E=E, max_delay=max_delay)
-    add_adefxy_constraints(M=M, J=J, T=T, q=q, gamma=gamma, Tmax=Tmax)
-    add_variable_length_activities(M=M, T=T, J=J, p=p, q=q)
-    add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U)
-    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k)
+    add_objective(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
+    add_xydef_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, verbose=verbose)
+    add_adefxy_constraints(M=M, J=J, T=T, q=q, gamma=gamma, Tmax=Tmax, verbose=verbose)
+    add_variable_length_activities(M=M, T=T, J=J, p=p, q=q, verbose=verbose)
+    add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U, verbose=verbose)
+    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)
 
     return M
 

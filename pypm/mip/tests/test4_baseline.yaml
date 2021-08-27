@@ -8,12 +8,6 @@ results:
   objective: 19.0
   variables:
     a:
-      ? !!python/tuple [a1, 2]
-      : 1.0
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
       ? !!python/tuple [a1, 5]
       : 1.0
       ? !!python/tuple [a1, 6]

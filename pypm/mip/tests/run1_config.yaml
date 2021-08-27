@@ -4,9 +4,10 @@ _options:
   model: model3
   process: run1_process.yaml
   solver: glpk
-  tee: false
+  tee: true
   timesteps: 30
   max_delay: 2
+  #write: run1.lp
 
 data:
 - observations:

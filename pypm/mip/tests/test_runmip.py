@@ -19,8 +19,9 @@ def run(model, example, sim, supervised):
     outputfile = join(currdir, "{}_{}_{}_{}_results.yaml".format(example, sim, model, supervised))
     with open(outputfile, "w") as OUTPUT:
         OUTPUT.write(output)
-    tmp = pyutilib.misc.compare_file( outputfile, join(currdir, "{}_{}_{}_{}_baseline.yaml".format(example, sim, model, supervised)) , tolerance=1e-7)
-    assert tmp[0] == False
+    baselinefile = join(currdir, "{}_{}_{}_{}_baseline.yaml".format(example, sim, model, supervised))
+    tmp = pyutilib.misc.compare_file( outputfile, baselinefile, tolerance=1e-7)
+    assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)
 
 

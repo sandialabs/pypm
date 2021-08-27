@@ -25,8 +25,9 @@ def run(testname, debug=False, verify=False):
         for j,val in data['data'][0]['ground_truth'].items():
             assert ((val['start'] == alignment[j]['start']) and (val['stop'] == alignment[j]['stop'])), "Differ from ground truth: {} {} {}".format(j, str(val), str(alignment[j]))
  
-    tmp = pyutilib.misc.compare_file(outputfile, join(currdir, "{}_baseline.yaml".format(testname)), tolerance=1e-7)
-    assert tmp[0] == False
+    baselinefile = join(currdir, "{}_baseline.yaml".format(testname))
+    tmp = pyutilib.misc.compare_file(outputfile, baselinefile, tolerance=1e-7)
+    assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)
 
 
