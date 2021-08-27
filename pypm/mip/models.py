@@ -139,17 +139,26 @@ def add_fixed_length_activities(*, M, T, J, p, verbose=False):
 def add_variable_length_activities(*, M, T, J, p, q, verbose=False):
     if verbose:
         tic("add_variable_length_activities")
+    J_fixed =    [j for j in J if      abs(q[j]-p[j]) < 1e-7]
+    tmp = set(J_fixed)
+    J_variable = [j for j in J if not j in tmp]
+    
+
+    def fixed_(m, j):
+        return sum(m.a[j,t] for t in T) == p[j]
+    M.length_fixed = pe.Constraint(J_fixed, rule=fixed_)
+
     def length_(m, j):
         return sum(m.a[j,t] for t in T)
-    M.length = pe.Expression(J, rule=length_)
+    M.length = pe.Expression(J_variable, rule=length_)
 
     def length_lower_(m, j):
         return m.length[j] >= p[j]
-    M.length_lower = pe.Constraint(J, rule=length_lower_)
+    M.length_lower = pe.Constraint(J_variable, rule=length_lower_)
 
     def length_upper_(m, j):
         return m.length[j] <= q[j]
-    M.length_upper = pe.Constraint(J, rule=length_upper_)
+    M.length_upper = pe.Constraint(J_variable, rule=length_upper_)
     if verbose:
         toc("add_variable_length_activities")
 
