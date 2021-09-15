@@ -44,6 +44,7 @@ def main():                     # pragma: nocover
     parser_mip = subparsers.add_parser('mip', help='Run a MIP solver')
     parser_mip.add_argument('datafile', help='YAML problem file')
     parser_mip.add_argument('index', help='Index of problem to run', default=0)
+    parser_vis.add_argument('-o', '--output', help='YAML file where results are stored', default="results.yaml")
     parser_mip.set_defaults(func='mip')
 
     #
@@ -66,8 +67,8 @@ def main():                     # pragma: nocover
 
     elif args.func == 'mip':
         results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
-        with open('results.yaml', 'w') as OUTPUT:
-            print("Writing file: results.yaml")
+        with open(args.output, 'w') as OUTPUT:
+            print("Writing file: {}".format(args.output))
             OUTPUT.write(yaml.dump(results, default_flow_style=None))
 
     elif args.func == 'vis':
