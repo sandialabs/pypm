@@ -26,12 +26,12 @@ def summarize_alignment(v, model):
         for key,val in a.items():
             j,t = key
             if not j in ans:
-                ans[j] = {'start':t, 'stop':t}
+                ans[j] = {'first':t, 'last':t}
             else:
-                if t < ans[j]['start']:
-                    ans[j]['start'] = t        
-                if t > ans[j]['stop']:
-                    ans[j]['stop'] = t        
+                if t < ans[j]['first']:
+                    ans[j]['first'] = t        
+                if t > ans[j]['last']:
+                    ans[j]['last'] = t        
     else:
         x = v['x']
         y = v['y']
@@ -39,12 +39,12 @@ def summarize_alignment(v, model):
             if val < 1-1e-7:
                 continue
             j,t = key
-            ans[j] = {'start':t}
+            ans[j] = {'first':t}
         for key,val in y.items():
             if val < 1-1e-7:
                 continue
             j,t = key
-            ans[j]['stop'] = t
+            ans[j]['last'] = t
     return ans
  
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
@@ -141,6 +141,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         variables = variables=get_nonzero_variables(M)
         alignment = summarize_alignment(variables, model)
         res = dict(datafile=datafile, index=index, model=model, 
+                    timesteps=timesteps,
                     results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])
 
     return res

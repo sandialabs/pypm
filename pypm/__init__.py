@@ -28,3 +28,4 @@ __all__ = ('__version__')
 from . import util
 from . import pypm
 from . import mip
+from . import vis
