@@ -24,13 +24,20 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0,
         name = activity['name']
         if name not in alignment:
             print("Warning: Activity {} was not included in the process match".format(name))
-        if 'stop' not in alignment[name]:
-            print("Warning: Activity {} does not have a stop time".format(name))
+            data['Activity'].append(name)
+            data['Start'].append(0)
+            data['Stop'].append(0)
+        if 'last' not in alignment[name]:
+            print("Warning: Activity {} does not appear to end".format(name))
+            data['Activity'].append(name)
+            data['Start'].append(alignment[name]['first'])
+            data['Stop'].append(alignment[name]['first'])
         else:
             data['Activity'].append(name)
             data['Start'].append(alignment[name]['first'])
             data['Stop'].append(alignment[name]['last']+1)
     df = pd.DataFrame(data)
+    #print(df.head())
     #
     # Gannt chart for scheduled tasks
     #
