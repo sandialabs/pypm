@@ -72,13 +72,25 @@ def add_xydef_constraints(*, M, T, J, p, q, E, gamma, max_delay, verbose=False):
         return sum(m.y[j,t] for t in T) <= 1
     M.stop_once = pe.Constraint(J, rule=stop_once_)
 
-    def min_stop_(m,j,t):
-        tau_0 = max(0, t-(q[j]+gamma[j])+1)
-        tau_1 = t-p[j]+1
-        if tau_1 < 0:
-            return pe.Constraint.Skip
-        return m.y[j,t] <= sum(m.x[j,tau] for tau in range(tau_0, tau_1+1))
-    M.min_stop = pe.Constraint(J, T, rule=min_stop_)
+    #def min_stop_(m,j,t):
+    #    tau_0 = max(0, t-(q[j]+gamma[j])+1)
+    #    tau_1 = t-p[j]+1
+    #    if tau_1 < 0:
+    #        return pe.Constraint.Skip
+    #    return m.y[j,t] <= sum(m.x[j,tau] for tau in range(tau_0, tau_1+1))
+    #M.min_stop = pe.Constraint(J, T, rule=min_stop_)
+
+    def stop_after_start_(m, j):
+        return sum(t*m.y[j,t] for t in T) - sum(t*m.x[j,t] for t in T)
+    M.stop_after_start = pe.Expression(J, rule=stop_after_start_)
+
+    def stop_after_start_lb_(m, j):
+        return m.stop_after_start[j] >= p[j] - 1
+    M.stop_after_start_lb = pe.Constraint(J, rule=stop_after_start_lb_)
+
+    def stop_after_start_ub_(m, j):
+        return m.stop_after_start[j] <= q[j] + gamma[j] - 1
+    M.stop_after_start_ub = pe.Constraint(J, rule=stop_after_start_ub_)
 
     def precedence_(m, i, j):
         return sum(t*m.x[j,t] for t in T) - sum(t*m.y[i,t] for t in T)
@@ -89,7 +101,7 @@ def add_xydef_constraints(*, M, T, J, p, q, E, gamma, max_delay, verbose=False):
     M.precedence_lower = pe.Constraint(E, rule=precedence_lower_)
 
     def precedence_upper_(m, i, j):
-        return m.precedence[i,j] <= 1 + max_delay
+        return m.precedence[i,j] <= 1 + max_delay[j]
     M.precedence_upper = pe.Constraint(E, rule=precedence_upper_)
     if verbose:
         toc("add_xydef_constraints")
@@ -103,34 +115,23 @@ def add_adefx_constraints(*, M, J, T, p, verbose=False):
     if verbose:
         toc("add_adefx_constraints")
 
-def add_adefxy_constraints_OLD(*, M, J, T, Tmax, q, gamma, verbose=False):
-    if verbose:
-        tic("add_adefxy_constraints")
-    def activity_start_(m, j, t):
-        return sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) >= m.a[j,t]
-    M.activity_start = pe.Constraint(J, T, rule=activity_start_)
-
-    def x_if_a_(m, j, t):
-        return sum(m.a[j,tau] for tau in range(t+1)) >= m.x[j,t]
-    M.x_if_a = pe.Constraint(J, T, rule=x_if_a_)
-
-    def activity_stop_(m, j, t):
-        return sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax) >= m.a[j,t]
-    M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
-
-    def y_if_a_(m, j, t):
-        return sum(m.a[j,tau] for tau in range(t,Tmax)) >= m.y[j,t]
-    M.y_if_a = pe.Constraint(J, T, rule=y_if_a_)
-    if verbose:
-        toc("add_adefxy_constraints")
-
 def add_adefxy_constraints(*, M, J, T, Tmax, q, gamma, verbose=False):
     if verbose:
         tic("add_adefxy_constraints")
+    def activity_start_(m, j, t):
+        start = sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) 
+        return start >= m.a[j,t]
+    #M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+
+    def activity_stop_(m, j, t):
+        stop =  sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax)
+        return stop >= m.a[j,t]
+    #M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
+
     def activity_start_stop_(m, j, t):
         start = sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) 
         stop =  sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax)
-        return (start+stop)/2.0 >= m.a[j,t]
+        return start+stop >= 2*m.a[j,t]
     M.activity_start_stop = pe.Constraint(J, T, rule=activity_start_stop_)
     if verbose:
         toc("add_adefxy_constraints")
@@ -287,7 +288,7 @@ def create_model2(*, observations, pm, timesteps, sigma=None, verbose=False):
                                verbose=verbose)
 
 
-def create_pyomo_model3(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=0, sigma=None, verbose=False):
+def create_pyomo_model3(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=None, sigma=None, verbose=False):
     """
     Extended Supervised Process Matching
 
@@ -334,6 +335,7 @@ def create_model3(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
     count = {name:pm.resources.count(name) for name in pm.resources}
+    max_delay = {j:pm[j]['max_delay'] for j in pm}
 
     return create_pyomo_model3(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
