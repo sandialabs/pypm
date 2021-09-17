@@ -6,7 +6,7 @@ import csv
 import pandas as pd
 from os.path import join
 from pypm.util.load import load_process
-from pypm.mip.models import create_model1, create_model2, create_model3, create_model4
+from pypm.mip.models import create_model1, create_model2, create_model3, create_model4, create_model5
 import pyomo.environ as pe
 
 
@@ -57,7 +57,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     timesteps=data['_options'].get('timesteps', None)
     tee = data['_options'].get('tee', False) if tee is None else tee
     verbose = data['_options'].get('verbose', True) if verbose is None else verbose
-    model = data['_options'].get('model', 'model3') if model is None else model
+    model = data['_options'].get('model', 'model3', 'model5') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
     pm = load_process(data['_options']['process'], dirname=dirname)
     observations = data['data'][index]['observations']
@@ -82,7 +82,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             timesteps = len(observations_[key])
             print("WARNING: limiting analysis to {} because there are only observations for that many time steps".format(timesteps))
 
-    if model in ['model1', 'model3']:
+    if model in ['model1', 'model3', 'model5']:
         #
         # For supervised matching, we can confirm that the observations
         # have the right labels
@@ -92,7 +92,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
     print("Creating model")
-    if model in ['model1', 'model2', 'model3', 'model4']:
+    if model in ['model1', 'model2', 'model3', 'model4', 'model5']:
         if model == 'model1':
             M = create_model1(observations=observations_,
                             pm=pm, 
@@ -118,6 +118,14 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
                             pm=pm, 
                             timesteps=timesteps,
                             sigma=data['_options'].get('sigma',None),
+                            gamma=data['_options'].get('gamma',0),
+                            max_delay=data['_options'].get('max_delay',0),
+                            verbose=verbose)
+        elif model == 'model5':
+            M = create_model5(observations=observations_,
+                            pm=pm, 
+                            timesteps=timesteps,
+                            sigma=data['_options'].get('sigma',None), 
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
                             verbose=verbose)
