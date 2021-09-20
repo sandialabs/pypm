@@ -19,7 +19,7 @@ def get_nonzero_variables(M):
                 ans[v.name][index] = pe.value(v[index])
     return ans
 
-def summarize_alignment(v, model):
+def summarize_alignment(v, model, pm):
     ans = {}
     if model in ['model1', 'model2']:
         a = v['a']
@@ -32,7 +32,7 @@ def summarize_alignment(v, model):
                     ans[j]['first'] = t        
                 if t > ans[j]['last']:
                     ans[j]['last'] = t        
-    else:
+    elif model in ['model3', 'model4']:
         x = v['x']
         y = v['y']
         for key,val in x.items():
@@ -45,6 +45,25 @@ def summarize_alignment(v, model):
                 continue
             j,t = key
             ans[j]['last'] = t
+    elif model in ['model5', 'model6']:
+        z = v['z']
+        for key,val in z.items():
+            if val < 1-1e-7:
+                continue
+            j,t = key
+            if j in ans:
+                continue
+            ans[j] = {'first':t, 'last':t+pm[j]['duration']['min_hours']-1}
+        a = v['a']
+        for key,val in a.items():
+            j,t = key
+            if not j in ans:
+                ans[j] = {'first':t, 'last':t}
+            else:
+                #if t < ans[j]['first']:
+                #    ans[j]['first'] = t        
+                if t > ans[j]['last']:
+                    ans[j]['last'] = t        
     return ans
  
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
@@ -147,7 +166,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             M.display()
 
         variables = variables=get_nonzero_variables(M)
-        alignment = summarize_alignment(variables, model)
+        alignment = summarize_alignment(variables, model, pm)
         res = dict(datafile=datafile, index=index, model=model, 
                     timesteps=timesteps,
                     results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])

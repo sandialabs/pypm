@@ -3,8 +3,8 @@ index: 0
 model: model3
 results:
 - alignment:
-    a1: {start: 7, stop: 11}
-    a2: {start: 14, stop: 18}
+    a1: {first: 7, last: 11}
+    a2: {first: 14, last: 18}
   objective: 14.0
   variables:
     a:
@@ -65,3 +65,4 @@ results:
       : 1.0
       ? !!python/tuple [a2, 18]
       : 1.0
+timesteps: 30

@@ -81,7 +81,7 @@ class ProcessModel(object):
         activity['id'] = i
         self._names[ activity['name'] ] = i
         if activity.get('max_delay',None) is None:
-            activity['max_delay'] = 0
+            activity['max_delay'] = None
         self._activities[ i ] = activity
         if activity.get('resources',None) is None:
             activity['resources'] = {}

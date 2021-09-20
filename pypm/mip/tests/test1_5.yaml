@@ -1,10 +1,10 @@
 _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
-  model: model3
+  model: model5
   process: test1.yaml
   solver: glpk
-  tee: true
+  tee: false
   timesteps: 30
 
 resources:

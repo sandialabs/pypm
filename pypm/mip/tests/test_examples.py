@@ -12,7 +12,7 @@ def run(testname, debug=False, verify=False):
     configfile = processfile = '{}.yaml'.format(testname)
     with open(join(currdir, processfile), 'r') as INPUT:
         data = yaml.safe_load(INPUT)
-    assert testname+".yaml" == data['_options']['process']
+    assert testname.startswith(data['_options']['process'][:-5])
 
     results = runmip_from_datafile(data=data, model=data['_options']['model'], dirname=currdir, debug=debug, tee=debug)
     output = yaml.dump(results, default_flow_style=None) 
@@ -50,4 +50,22 @@ def test5():
 
 def test6():
     run('test6')
+
+def test1_5():
+    run('test1_5')
+
+def test2_5():
+    run('test2_5')
+
+def test3_5():
+    run('test3_5')
+
+def test4_5():
+    run('test4_5')
+
+def test5_5():
+    run('test5_5')
+
+def test6_5():
+    run('test6_5')
 

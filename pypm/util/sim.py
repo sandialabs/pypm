@@ -31,7 +31,7 @@ class Simulator(object):
     def _execute_activity(self, *, minlen, maxlen, maxdelay, name, pred):
         for p in pred:
             yield p
-        if maxdelay > 0:
+        if maxdelay is not None and maxdelay > 0:
             yield self.env.process( self._delay_start(maxdelay) )
         activity_len = random.randint(minlen,maxlen)
         self.ground_truth[name] = dict(start=self.env.now, stop=self.env.now+activity_len-1)
