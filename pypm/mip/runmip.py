@@ -76,7 +76,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     timesteps=data['_options'].get('timesteps', None)
     tee = data['_options'].get('tee', False) if tee is None else tee
     verbose = data['_options'].get('verbose', True) if verbose is None else verbose
-    model = data['_options'].get('model', 'model3', 'model5') if model is None else model
+    model = data['_options'].get('model', 'model3') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
     pm = load_process(data['_options']['process'], dirname=dirname)
     observations = data['data'][index]['observations']
