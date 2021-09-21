@@ -116,10 +116,6 @@ def add_zdef_constraints(*, M, T, J, p, q, max_delay, gamma, E, Tmax, verbose=Fa
         return m.z[j,t] - m.z[j, t-1] >= 0
     M.zstep = pe.Constraint(J, T, rule=zstep_)
 
-    #def zforce_(m, j):
-    #    return m.z[j,Tmax-1] == 1
-    #M.zforce = pe.Constraint(J, rule=zforce_)
-
     def precedence_ub_(m, i, j, t):
         if t-q[i]-gamma[i]-max_delay[j] < 0:
             return pe.Constraint.Skip
@@ -128,7 +124,8 @@ def add_zdef_constraints(*, M, T, J, p, q, max_delay, gamma, E, Tmax, verbose=Fa
 
     def precedence_lb_(m, i, j, t):
         if t-p[i] < 0:
-            return - m.z[j,t] >= 0
+            return pe.Constraint.Skip
+            #return m.z[j,t] == 0
         return m.z[i, t-p[i]] - m.z[j,t] >= 0
     M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
@@ -210,6 +207,25 @@ def add_variable_length_activities(*, M, T, J, p, q, verbose=False):
     def length_upper_(m, j):
         return m.length[j] <= q[j]
     M.length_upper = pe.Constraint(J, rule=length_upper_)
+    if verbose:
+        toc("add_variable_length_activities")
+
+def add_variable_length_activities_z(*, M, T, J, p, q, Tmax, verbose=False):
+    if verbose:
+        tic("add_variable_length_activities")
+
+    def length_(m, j):
+        return sum(m.a[j,t] for t in T)
+    M.length = pe.Expression(J, rule=length_)
+
+    def length_lower_(m, j):
+        return m.length[j] >= p[j] * m.z[j,Tmax-1]
+    M.length_lower = pe.Constraint(J, rule=length_lower_)
+
+    def length_upper_(m, j):
+        return m.length[j] <= q[j] * m.z[j,Tmax-1]
+    M.length_upper = pe.Constraint(J, rule=length_upper_)
+
     if verbose:
         toc("add_variable_length_activities")
 
@@ -471,7 +487,7 @@ def create_pyomo_model5(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=
     add_objective(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
     add_zdef_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_adefz_constraints(M=M, J=J, T=T, q=q, gamma=gamma, verbose=verbose)
-    add_variable_length_activities(M=M, T=T, J=J, p=p, q=q, verbose=verbose)
+    add_variable_length_activities_z(M=M, T=T, J=J, p=p, q=q, Tmax=Tmax, verbose=verbose)
     add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O, verbose=verbose)
     add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)
 
