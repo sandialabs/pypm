@@ -5,7 +5,7 @@ results:
 - alignment:
     a1: {first: 7, last: 11}
     a2: {first: 15, last: 19}
-  objective: 15.0
+  objective: 14.999999999999982
   variables:
     a:
       ? !!python/tuple [a1, 7]
@@ -28,23 +28,25 @@ results:
       : 1.0
       ? !!python/tuple [a2, 19]
       : 1.0
+    d: {a1: 5.0, a2: 5.0}
+    g: {}
     r:
       ? !!python/tuple [a1, rB, 7]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a1, rB, 8]
-      : 1.0
+      : 0.999999999999996
       ? !!python/tuple [a1, rB, 9]
-      : 1.0
+      : 0.999999999999995
       ? !!python/tuple [a1, rB, 10]
       : 1.0
       ? !!python/tuple [a1, rB, 11]
       : 1.0
       ? !!python/tuple [a1, rC, 7]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a1, rC, 8]
-      : 1.0
+      : 0.999999999999996
       ? !!python/tuple [a1, rC, 9]
-      : 1.0
+      : 0.999999999999995
       ? !!python/tuple [a1, rC, 10]
       : 1.0
       ? !!python/tuple [a1, rC, 11]

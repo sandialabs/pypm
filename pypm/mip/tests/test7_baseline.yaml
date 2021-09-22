@@ -1,0 +1,58 @@
+datafile: null
+index: 0
+model: model3
+results:
+- alignment:
+    a1: {first: 0, last: 5}
+    a2: {first: 6, last: 7}
+  objective: 9.0
+  variables:
+    a:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
+      ? !!python/tuple [a1, 5]
+      : 1.0
+      ? !!python/tuple [a2, 6]
+      : 1.0
+      ? !!python/tuple [a2, 7]
+      : 1.0
+    d: {a1: 6.0, a2: 2.0}
+    g: {}
+    r:
+      ? !!python/tuple [a1, rC, 1]
+      : 1.0
+      ? !!python/tuple [a1, rC, 2]
+      : 1.0
+      ? !!python/tuple [a1, rC, 3]
+      : 1.0
+      ? !!python/tuple [a1, rC, 4]
+      : 1.0
+      ? !!python/tuple [a1, rC, 5]
+      : 1.0
+      ? !!python/tuple [a2, rA, 6]
+      : 1.0
+      ? !!python/tuple [a2, rA, 7]
+      : 1.0
+      ? !!python/tuple [a2, rB, 6]
+      : 1.0
+      ? !!python/tuple [a2, rB, 7]
+      : 1.0
+    x:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a2, 6]
+      : 1.0
+    y:
+      ? !!python/tuple [a1, 5]
+      : 1.0
+      ? !!python/tuple [a2, 7]
+      : 1.0
+timesteps: 30

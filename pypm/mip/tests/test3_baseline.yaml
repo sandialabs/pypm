@@ -32,6 +32,8 @@ results:
       : 1.0
       ? !!python/tuple [a2, 16]
       : 1.0
+    d: {a1: 7.0, a2: 5.0}
+    g: {}
     r:
       ? !!python/tuple [a1, rB, 5]
       : 1.0
@@ -62,7 +64,7 @@ results:
       ? !!python/tuple [a1, rC, 11]
       : 1.0
       ? !!python/tuple [a2, rA, 12]
-      : 0.999999999999997
+      : 1.0
       ? !!python/tuple [a2, rA, 13]
       : 1.0
       ? !!python/tuple [a2, rA, 14]

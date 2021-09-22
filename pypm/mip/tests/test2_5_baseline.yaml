@@ -3,13 +3,11 @@ index: 0
 model: model5
 results:
 - alignment:
-    a1: {first: 2, last: 9}
+    a1: {first: 3, last: 9}
     a2: {first: 10, last: 14}
-  objective: 21.0
+  objective: 19.0
   variables:
     a:
-      ? !!python/tuple [a1, 2]
-      : 1.0
       ? !!python/tuple [a1, 3]
       : 1.0
       ? !!python/tuple [a1, 4]
@@ -35,8 +33,6 @@ results:
       ? !!python/tuple [a2, 14]
       : 1.0
     r:
-      ? !!python/tuple [a1, rB, 2]
-      : 1.0
       ? !!python/tuple [a1, rB, 3]
       : 1.0
       ? !!python/tuple [a1, rB, 4]
@@ -50,8 +46,6 @@ results:
       ? !!python/tuple [a1, rB, 8]
       : 1.0
       ? !!python/tuple [a1, rB, 9]
-      : 1.0
-      ? !!python/tuple [a1, rC, 2]
       : 1.0
       ? !!python/tuple [a1, rC, 3]
       : 1.0
@@ -78,8 +72,6 @@ results:
       ? !!python/tuple [a2, rA, 14]
       : 1.0
     z:
-      ? !!python/tuple [a1, 2]
-      : 1.0
       ? !!python/tuple [a1, 3]
       : 1.0
       ? !!python/tuple [a1, 4]

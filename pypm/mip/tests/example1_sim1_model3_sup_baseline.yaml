@@ -24,6 +24,22 @@ results:
       : 1.0
       ? !!python/tuple [a1, 7]
       : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a2, 10]
+      : 1.0
+      ? !!python/tuple [a2, 11]
+      : 1.0
+      ? !!python/tuple [a2, 12]
+      : 1.0
+      ? !!python/tuple [a2, 13]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+    d: {a1: 10.0, a2: 5.0}
+    g: {}
     r:
       ? !!python/tuple [a1, rB, 0]
       : 1.0

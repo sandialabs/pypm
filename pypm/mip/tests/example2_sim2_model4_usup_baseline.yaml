@@ -4,7 +4,7 @@ model: model4
 results:
 - alignment:
     a1: {first: 6, last: 12}
-    a2: {first: 13, last: 18}
+    a2: {first: 13, last: 17}
   objective: 19.0
   variables:
     a:
@@ -32,6 +32,8 @@ results:
       : 1.0
       ? !!python/tuple [a2, 17]
       : 1.0
+    d: {a1: 7.0, a2: 5.0}
+    g: {}
     m:
       ? !!python/tuple [rA, u0]
       : 1.0
@@ -43,7 +45,7 @@ results:
       ? !!python/tuple [a1, rB, 6]
       : 1.0
       ? !!python/tuple [a1, rB, 7]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a1, rB, 8]
       : 1.0
       ? !!python/tuple [a1, rB, 9]
@@ -57,7 +59,7 @@ results:
       ? !!python/tuple [a1, rC, 6]
       : 1.0
       ? !!python/tuple [a1, rC, 7]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a1, rC, 8]
       : 1.0
       ? !!python/tuple [a1, rC, 9]
@@ -73,7 +75,7 @@ results:
       ? !!python/tuple [a2, rA, 14]
       : 1.0
       ? !!python/tuple [a2, rA, 15]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a2, rA, 16]
       : 1.0
       ? !!python/tuple [a2, rA, 17]
@@ -86,6 +88,6 @@ results:
     y:
       ? !!python/tuple [a1, 12]
       : 1.0
-      ? !!python/tuple [a2, 18]
+      ? !!python/tuple [a2, 17]
       : 1.0
 timesteps: 30

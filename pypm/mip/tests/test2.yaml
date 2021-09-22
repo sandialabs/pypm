@@ -17,7 +17,7 @@ activities:
 - name: a1
   dependencies:
   duration:
-    max_hours: 10
+    max_hours: 7
     min_hours: 5
   resources:
     rB:

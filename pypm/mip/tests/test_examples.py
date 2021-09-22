@@ -51,6 +51,10 @@ def test5():
 def test6():
     run('test6')
 
+def test7():
+    run('test7')
+
+
 def test1_5():
     run('test1_5')
 
@@ -68,4 +72,7 @@ def test5_5():
 
 def test6_5():
     run('test6_5')
+
+def test7_5():
+    run('test7_5')
 

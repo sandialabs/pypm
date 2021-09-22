@@ -64,6 +64,7 @@ def add_xdef_constraints(*, M, T, J, p, E, verbose=False):
 def add_xydef_constraints(*, M, T, J, p, q, E, gamma, max_delay, verbose=False):
     if verbose:
         tic("add_xydef_constraints")
+
     def start_once_(m,j):
         return sum(m.x[j,t] for t in T) <= 1
     M.start_once = pe.Constraint(J, rule=start_once_)
@@ -72,25 +73,9 @@ def add_xydef_constraints(*, M, T, J, p, q, E, gamma, max_delay, verbose=False):
         return sum(m.y[j,t] for t in T) <= 1
     M.stop_once = pe.Constraint(J, rule=stop_once_)
 
-    #def min_stop_(m,j,t):
-    #    tau_0 = max(0, t-(q[j]+gamma[j])+1)
-    #    tau_1 = t-p[j]+1
-    #    if tau_1 < 0:
-    #        return pe.Constraint.Skip
-    #    return m.y[j,t] <= sum(m.x[j,tau] for tau in range(tau_0, tau_1+1))
-    #M.min_stop = pe.Constraint(J, T, rule=min_stop_)
-
     def stop_after_start_(m, j):
-        return sum(t*m.y[j,t] for t in T) - sum(t*m.x[j,t] for t in T)
-    M.stop_after_start = pe.Expression(J, rule=stop_after_start_)
-
-    def stop_after_start_lb_(m, j):
-        return m.stop_after_start[j] >= p[j] - 1
-    M.stop_after_start_lb = pe.Constraint(J, rule=stop_after_start_lb_)
-
-    def stop_after_start_ub_(m, j):
-        return m.stop_after_start[j] <= q[j] + gamma[j] - 1
-    M.stop_after_start_ub = pe.Constraint(J, rule=stop_after_start_ub_)
+        return sum(t*m.y[j,t] for t in T) - sum(t*m.x[j,t] for t in T) + 1 == m.d[j] + m.g[j]
+    M.stop_after_start = pe.Constraint(J, rule=stop_after_start_)
 
     def precedence_(m, i, j):
         return sum(t*m.x[j,t] for t in T) - sum(t*m.y[i,t] for t in T)
@@ -103,6 +88,7 @@ def add_xydef_constraints(*, M, T, J, p, q, E, gamma, max_delay, verbose=False):
     def precedence_upper_(m, i, j):
         return m.precedence[i,j] <= 1 + max_delay[j]
     M.precedence_upper = pe.Constraint(E, rule=precedence_upper_)
+
     if verbose:
         toc("add_xydef_constraints")
 
@@ -144,21 +130,17 @@ def add_adefx_constraints(*, M, J, T, p, verbose=False):
 def add_adefxy_constraints(*, M, J, T, Tmax, q, gamma, verbose=False):
     if verbose:
         tic("add_adefxy_constraints")
+
     def activity_start_(m, j, t):
-        start = sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) 
+        start = sum(m.x[j,t-s] for s in range(q[j]+gamma[j]) if t-s >= 0) 
         return start >= m.a[j,t]
-    #M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+    M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
     def activity_stop_(m, j, t):
-        stop =  sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax)
+        stop =  sum(m.y[j,t+s] for s in range(q[j]+gamma[j]) if t+s < Tmax)
         return stop >= m.a[j,t]
-    #M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
+    M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
 
-    def activity_start_stop_(m, j, t):
-        start = sum(m.x[j,t-(s+gamma[j])] for s in range(q[j]) if t-(s+gamma[j]) >= 0) 
-        stop =  sum(m.y[j,t+(s+gamma[j])] for s in range(q[j]) if t+(s+gamma[j]) < Tmax)
-        return start+stop >= 2*m.a[j,t]
-    M.activity_start_stop = pe.Constraint(J, T, rule=activity_start_stop_)
     if verbose:
         toc("add_adefxy_constraints")
 
@@ -187,26 +169,11 @@ def add_fixed_length_activities(*, M, T, J, p, verbose=False):
 def add_variable_length_activities(*, M, T, J, p, q, verbose=False):
     if verbose:
         tic("add_variable_length_activities")
-    #J_fixed =    [j for j in J if      abs(q[j]-p[j]) < 1e-7]
-    #tmp = set(J_fixed)
-    #J_variable = [j for j in J if not j in tmp]
-    
 
     def length_(m, j):
-        return sum(m.a[j,t] for t in T)
-    M.length = pe.Expression(J, rule=length_)
+        return sum(m.a[j,t] for t in T) == m.d[j]
+    M.length = pe.Constraint(J, rule=length_)
 
-    #def fixed_(m, j):
-    #   return sum(m.a[j,t] for t in T) == p[j]
-    #M.length_fixed = pe.Constraint(J_fixed, rule=fixed_)
-
-    #def length_lower_(m, j):
-    #    return m.length[j] >= p[j]
-    #M.length_lower = pe.Constraint(J_variable, rule=length_lower_)
-
-    def length_upper_(m, j):
-        return m.length[j] <= q[j]
-    M.length_upper = pe.Constraint(J, rule=length_upper_)
     if verbose:
         toc("add_variable_length_activities")
 
@@ -370,6 +337,12 @@ def create_pyomo_model3(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=
     M.x = pe.Var(J, T, within=pe.Binary)
     M.y = pe.Var(J, T, within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
+    def d_bounds(model, i):
+        return (p[i], q[i])
+    M.d = pe.Var(J, bounds=d_bounds)
+    def g_bounds(model, i):
+        return (0, gamma[i])
+    M.g = pe.Var(J, bounds=g_bounds)
     M.r = pe.Var(JK, T, bounds=(0,1))
 
     add_objective(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
@@ -425,6 +398,12 @@ def create_pyomo_model4(*, K, Tmax, J, E, p, q, U, O, S, count, gamma=0, max_del
     M.x = pe.Var(J, T, within=pe.Binary)
     M.y = pe.Var(J, T, within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
+    def d_bounds(model, i):
+        return (p[i], q[i])
+    M.d = pe.Var(J, bounds=d_bounds)
+    def g_bounds(model, i):
+        return (0, gamma[i])
+    M.g = pe.Var(J, bounds=g_bounds)
     M.r = pe.Var(JK, T, bounds=(0,1))
     M.m = pe.Var(Kall, U, bounds=(0,1))
 
