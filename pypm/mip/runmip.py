@@ -53,17 +53,15 @@ def summarize_alignment(v, model, pm):
             j,t = key
             if j in ans:
                 continue
-            ans[j] = {'first':t, 'last':t+pm[j]['duration']['min_hours']-1}
-        a = v['a']
-        for key,val in a.items():
+            ans[j] = {'first':t, 'last':None}
+        w = v['w']
+        for key,val in w.items():
+            if val < 1-1e-7:
+                continue
             j,t = key
-            if not j in ans:
-                ans[j] = {'first':t, 'last':t}
-            else:
-                #if t < ans[j]['first']:
-                #    ans[j]['first'] = t        
-                if t > ans[j]['last']:
-                    ans[j]['last'] = t        
+            if j in ans:
+                if ans[j]['last'] is None:
+                    ans[j]['last'] = t
     return ans
  
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
@@ -156,7 +154,6 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
 
         print("Optimizing model")
         opt = pe.SolverFactory(solver)
-        print("HERE",tee)
         if tee:
             print("-- Solver Output Begins --")
         results = opt.solve(M, tee=tee)
