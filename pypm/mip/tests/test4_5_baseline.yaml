@@ -71,6 +71,61 @@ results:
       : 1.0
       ? !!python/tuple [a2, rA, 19]
       : 1.0
+    w:
+      ? !!python/tuple [a1, 14]
+      : 1.0
+      ? !!python/tuple [a1, 15]
+      : 1.0
+      ? !!python/tuple [a1, 16]
+      : 1.0
+      ? !!python/tuple [a1, 17]
+      : 1.0
+      ? !!python/tuple [a1, 18]
+      : 1.0
+      ? !!python/tuple [a1, 19]
+      : 1.0
+      ? !!python/tuple [a1, 20]
+      : 1.0
+      ? !!python/tuple [a1, 21]
+      : 1.0
+      ? !!python/tuple [a1, 22]
+      : 1.0
+      ? !!python/tuple [a1, 23]
+      : 1.0
+      ? !!python/tuple [a1, 24]
+      : 1.0
+      ? !!python/tuple [a1, 25]
+      : 1.0
+      ? !!python/tuple [a1, 26]
+      : 1.0
+      ? !!python/tuple [a1, 27]
+      : 1.0
+      ? !!python/tuple [a1, 28]
+      : 1.0
+      ? !!python/tuple [a1, 29]
+      : 1.0
+      ? !!python/tuple [a2, 19]
+      : 1.0
+      ? !!python/tuple [a2, 20]
+      : 1.0
+      ? !!python/tuple [a2, 21]
+      : 1.0
+      ? !!python/tuple [a2, 22]
+      : 1.0
+      ? !!python/tuple [a2, 23]
+      : 1.0
+      ? !!python/tuple [a2, 24]
+      : 1.0
+      ? !!python/tuple [a2, 25]
+      : 1.0
+      ? !!python/tuple [a2, 26]
+      : 1.0
+      ? !!python/tuple [a2, 27]
+      : 1.0
+      ? !!python/tuple [a2, 28]
+      : 1.0
+      ? !!python/tuple [a2, 29]
+      : 1.0
     z:
       ? !!python/tuple [a1, 5]
       : 1.0

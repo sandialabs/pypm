@@ -156,6 +156,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
 
         print("Optimizing model")
         opt = pe.SolverFactory(solver)
+        print("HERE",tee)
         if tee:
             print("-- Solver Output Begins --")
         results = opt.solve(M, tee=tee)

@@ -102,17 +102,34 @@ def add_zdef_constraints(*, M, T, J, p, q, max_delay, gamma, E, Tmax, verbose=Fa
         return m.z[j,t] - m.z[j, t-1] >= 0
     M.zstep = pe.Constraint(J, T, rule=zstep_)
 
-    def precedence_ub_(m, i, j, t):
-        if t-q[i]-gamma[i]-max_delay[j] < 0:
+    def wstep_(m, j, t):
+        if t == 0:
             return pe.Constraint.Skip
-        return m.z[j, t] - m.z[i, t-q[i]-gamma[i]-max_delay[j]] >= 0
+        return m.w[j,t] - m.w[j, t-1] >= 0
+    M.wstep = pe.Constraint(J, T, rule=wstep_)
+
+    def start_stop_lb_(m, j, t):
+        if t-p[j]+1 < 0:
+            return pe.Constraint.Skip
+        return m.z[j, t-p[j]+1] - m.w[j,t] >= 0
+    M.start_stop_lb = pe.Constraint(J, T, rule=start_stop_lb_)
+
+    def start_stop_ub_(m, j, t):
+        if t-q[j]-gamma[j]+1 < 0:
+            return pe.Constraint.Skip
+        return m.w[j,t] - m.z[j, t-q[j]-gamma[j]+1] >= 0
+    M.start_stop_ub = pe.Constraint(J, T, rule=start_stop_ub_)
+
+    def precedence_ub_(m, i, j, t):
+        if t-max_delay[j]-1 < 0:
+            return pe.Constraint.Skip
+        return m.z[j, t] - m.w[i, t-max_delay[j]-1] >= 0
     M.precedence_ub = pe.Constraint(E, T, rule=precedence_ub_)
 
     def precedence_lb_(m, i, j, t):
-        if t-p[i] < 0:
+        if t-1 < 0:
             return pe.Constraint.Skip
-            #return m.z[j,t] == 0
-        return m.z[i, t-p[i]] - m.z[j,t] >= 0
+        return m.w[i, t-1] - m.z[j,t] >= 0
     M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
     if verbose:
@@ -144,9 +161,17 @@ def add_adefxy_constraints(*, M, J, T, Tmax, q, gamma, verbose=False):
     if verbose:
         toc("add_adefxy_constraints")
 
-def add_adefz_constraints(*, M, J, T, q, gamma, verbose=False):
+def add_adefz_constraints(*, M, J, T, p, q, gamma, Tmax, verbose=False):
     if verbose:
         tic("add_adefz_constraints")
+
+    def activity_stop_(m, j, t):
+        if t+q[j]+gamma[j]-1 >= Tmax:
+            return pe.Constraint.Skip
+        if t-1 < 0:
+            return m.w[j,t+q[j]+gamma[j]-1] >= m.a[j,t]
+        return m.w[j,t+q[j]+gamma[j]-1] - m.w[j,t-1] >= m.a[j,t]
+    M.activity_stop = pe.Constraint(J, T, rule=activity_stop_)
 
     def activity_start_(m, j, t):
         if t-q[j]-gamma[j] < 0:
@@ -460,12 +485,13 @@ def create_pyomo_model5(*, K, Tmax, J, E, p, q, O, S, count, gamma=0, max_delay=
     M = pe.ConcreteModel()
 
     M.z = pe.Var(J, T, within=pe.Binary)
+    M.w = pe.Var(J, T, within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
     M.r = pe.Var(JK, T, bounds=(0,1))
 
     add_objective(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
     add_zdef_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
-    add_adefz_constraints(M=M, J=J, T=T, q=q, gamma=gamma, verbose=verbose)
+    add_adefz_constraints(M=M, J=J, T=T, p=p, q=q, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_variable_length_activities_z(M=M, T=T, J=J, p=p, q=q, Tmax=Tmax, verbose=verbose)
     add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O, verbose=verbose)
     add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)

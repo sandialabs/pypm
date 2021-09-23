@@ -56,7 +56,7 @@ def test7():
 
 
 def test1_5():
-    run('test1_5')
+    run('test1_5', debug=False)
 
 def test2_5():
     run('test2_5')
