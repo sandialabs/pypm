@@ -56,7 +56,7 @@ def test7():
 
 
 def test1_5():
-    run('test1_5', debug=False)
+    run('test1_5')
 
 def test2_5():
     run('test2_5')
@@ -75,4 +75,26 @@ def test6_5():
 
 def test7_5():
     run('test7_5')
+
+
+def test1_7():
+    run('test1_7')
+
+def test2_7():
+    run('test2_7')
+
+def test3_7():
+    run('test3_7')
+
+def test4_7():
+    run('test4_7')
+
+def test5_7():
+    run('test5_7')
+
+def test6_7():
+    run('test6_7')
+
+def test7_7():
+    run('test7_7')
 

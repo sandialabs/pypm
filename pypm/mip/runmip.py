@@ -6,7 +6,7 @@ import csv
 import pandas as pd
 from os.path import join
 from pypm.util.load import load_process
-from pypm.mip.models import create_model1, create_model2, create_model3, create_model4, create_model5
+from pypm.mip.models import create_model1, create_model2, create_model3, create_model4, create_model5, create_model7
 import pyomo.environ as pe
 
 
@@ -62,6 +62,20 @@ def summarize_alignment(v, model, pm):
             if j in ans:
                 if ans[j]['last'] is None:
                     ans[j]['last'] = t
+    elif model in ['model7', 'model8']:
+        z = v['z']
+        for key,val in z.items():
+            if val < 1-1e-7:
+                continue
+            j,t = key
+            if j in ans:
+                continue
+            ans[j] = {'first':t, 'last':-1}
+        a = v['a']
+        for key,val in a.items():
+            j,t = key
+            if t > ans[j]['last']:
+                ans[j]['last'] = t        
     return ans
  
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
@@ -99,7 +113,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             timesteps = len(observations_[key])
             print("WARNING: limiting analysis to {} because there are only observations for that many time steps".format(timesteps))
 
-    if model in ['model1', 'model3', 'model5']:
+    if model in ['model1', 'model3', 'model5', 'model7']:
         #
         # For supervised matching, we can confirm that the observations
         # have the right labels
@@ -109,7 +123,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
     print("Creating model")
-    if model in ['model1', 'model2', 'model3', 'model4', 'model5']:
+    if model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7']:
         if model == 'model1':
             M = create_model1(observations=observations_,
                             pm=pm, 
@@ -140,6 +154,14 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
                             verbose=verbose)
         elif model == 'model5':
             M = create_model5(observations=observations_,
+                            pm=pm, 
+                            timesteps=timesteps,
+                            sigma=data['_options'].get('sigma',None), 
+                            gamma=data['_options'].get('gamma',0),
+                            max_delay=data['_options'].get('max_delay',0),
+                            verbose=verbose)
+        elif model == 'model7':
+            M = create_model7(observations=observations_,
                             pm=pm, 
                             timesteps=timesteps,
                             sigma=data['_options'].get('sigma',None), 
