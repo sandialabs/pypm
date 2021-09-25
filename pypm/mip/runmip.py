@@ -19,7 +19,7 @@ def get_nonzero_variables(M):
                 ans[v.name][index] = pe.value(v[index])
     return ans
 
-def summarize_alignment(v, model, pm):
+def summarize_alignment(v, model, pm, timesteps=None):
     ans = {}
     if model in ['model1', 'model2']:
         a = v['a']
@@ -70,10 +70,18 @@ def summarize_alignment(v, model, pm):
             j,t = key
             if j in ans:
                 continue
+            if t == -1:
+                ans[j] = {'pre':True}
+                continue
+            if t == timesteps:
+                ans[j] = {'post':True}
+                continue
             ans[j] = {'first':t, 'last':-1}
         a = v['a']
         for key,val in a.items():
             j,t = key
+            if 'pre' in ans[j] or 'post' in ans[j]:
+                continue
             if t > ans[j]['last']:
                 ans[j]['last'] = t        
     return ans
@@ -186,7 +194,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             M.display()
 
         variables = variables=get_nonzero_variables(M)
-        alignment = summarize_alignment(variables, model, pm)
+        alignment = summarize_alignment(variables, model, pm, timesteps=timesteps)
         res = dict(datafile=datafile, index=index, model=model, 
                     timesteps=timesteps,
                     results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])
