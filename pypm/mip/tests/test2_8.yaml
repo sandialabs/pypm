@@ -1,8 +1,8 @@
 _options:
   comments: 
     - Mimicing test1 with delay before a1
-  model: model5
-  process: test2_5.yaml
+  model: model8
+  process: test2_8.yaml
   solver: glpk
   tee: false
   timesteps: 30

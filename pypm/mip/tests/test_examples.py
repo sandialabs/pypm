@@ -95,6 +95,25 @@ def test5_7():
 def test6_7():
     run('test6_7')
 
-def test7_7():
-    run('test7_7')
+
+def test1_8():
+    run('test1_8')
+
+def test2_8():
+    run('test2_8')
+
+def test3_8():
+    run('test3_8')
+
+def test4_8():
+    run('test4_8')
+
+def test5_8():
+    run('test5_8')
+
+def test6_8():
+    run('test6_8')
+
+def test7_8():
+    run('test7_8')
 

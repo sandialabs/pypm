@@ -1,8 +1,8 @@
 _options:
   comments: 
     - Mimicing test1 with delay before a1
-  model: model5
-  process: test2_5.yaml
+  model: model8
+  process: test3.yaml
   solver: glpk
   tee: false
   timesteps: 30
@@ -34,11 +34,11 @@ activities:
 
 data:
 - ground_truth:
-    a1: {start: 2, stop: 9}
-    a2: {start: 10, stop: 14}
+    a1: {start: 5, stop: 11}
+    a2: {start: 12, stop: 16}
   observations:
-    rB: [0,0,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rC: [0,0,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rA: [0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0
