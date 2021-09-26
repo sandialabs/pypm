@@ -10,14 +10,17 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0,
     import pandas as pd
     import plotly.express as px
 
+    print("Reading {}".format(process_fname))
     with open(process_fname, 'r') as INPUT:
         process = yaml.safe_load(INPUT)
+    print("Reading {}".format(results_fname))
     with open(results_fname, 'r') as INPUT:
         results = yaml.load(INPUT)
 
-    assert results['model'] in ['model3', 'model4'], "Cannot visualize results in {}.  Expects results generated for model3 or model4.".format(results_fname)
+    assert results['model'] in ['model3', 'model4', 'model5', 'model6', 'model7', 'model8'], "Cannot visualize results in {}.  Expects results generated for model3-model8.".format(results_fname)
     assert len(results['results']) > index, "Cannot visualize the {}-th process match in {}.  This file only has {} matches.".format(index, results_fname, len(results['results']))
 
+    print("Processing results")
     alignment = results['results'][index]['alignment']
     data = {'Activity':[], 'Start':[], 'Stop':[]}
     for activity in process['activities']:
@@ -41,6 +44,7 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0,
     #
     # Gannt chart for scheduled tasks
     #
+    print("Generating Figure")
     fig = px.timeline(df, x_start="Start", x_end="Stop",  y="Activity", color="Start")
     if linear:
         fig.layout.xaxis.type = 'linear'
