@@ -45,7 +45,7 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0)
                 data['Stop'].append(alignment[name]['stop'])
                 data['Weight'].append(results['results'][index]['variables']['o'].get(name,0))
 
-        data['Weight'] = [v+100 if v>0 else 0 for v in data['Weight']]
+        data['Weight'] = [v+10 if v>0 else 0 for v in data['Weight']]
     else:
         linear = True
         alignment = results['results'][index]['alignment']
