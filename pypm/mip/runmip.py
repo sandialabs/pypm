@@ -3,6 +3,7 @@
 import yaml
 import pprint
 import csv
+from munch import Munch
 import pandas as pd
 from os.path import join
 from pypm.util.load import load_process
@@ -18,6 +19,7 @@ def get_nonzero_variables(M):
             if pe.value(v[index]) > 1e-7:
                 ans[v.name][index] = pe.value(v[index])
     return ans
+
 
 def summarize_alignment(v, model, pm, timesteps=None):
     ans = {}
@@ -86,34 +88,39 @@ def summarize_alignment(v, model, pm, timesteps=None):
                 ans[j]['last'] = t        
     return ans
  
-def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
-    if data is None:
-        assert datafile is not None
-        with open(datafile, 'r') as INPUT:
-            data = yaml.safe_load(INPUT)
 
-    savefile = data['_options'].get('write', None)
-    timesteps=data['_options'].get('timesteps', None)
-    tee = data['_options'].get('tee', False) if tee is None else tee
-    verbose = data['_options'].get('verbose', True) if verbose is None else verbose
-    model = data['_options'].get('model', 'model3') if model is None else model
-    solver = data['_options'].get('solver', 'glpk') if solver is None else solver
-    pm = load_process(data['_options']['process'], dirname=dirname)
-    observations = data['data'][index]['observations']
-    if type(observations) is list:
-        observations_ = {}
-        for filename in observations:
-            fname = filename if dirname is None else join(dirname,filename)
-            if fname.endswith(".csv"):
-                df = pd.read_csv(fname)
-                observations_.update( df.to_dict(orient='list') )
-            elif fname.endswith(".yaml"):
-                with open(fname, 'r') as INPUT:
-                    observations_ = yaml.safe_load(INPUT)
-    else:
-        assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
+def load_observations(data, timesteps, dirname, index):
+    observations_ = {}
+    if type(data) is list:
+        datetime=None
+        observations = data[index]['observations']
+        if type(observations) is list:
+            for filename in observations:
+                fname = filename if dirname is None else join(dirname,filename)
+                if fname.endswith(".csv"):
+                    df = pd.read_csv(fname)
+                    observations_.update( df.to_dict(orient='list') )
+                elif fname.endswith(".yaml"):
+                    with open(fname, 'r') as INPUT:
+                        observations_ = yaml.safe_load(INPUT)
+        else:
+            assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
         observations_ = observations
-
+    else:
+        fname = data['filename']
+        if not dirname is None:
+            fname = join(dirname, fname)
+        index = data.get('index','DateTime')
+        if fname.endswith(".csv"):
+            df = pd.read_csv(fname)
+            observations_ = df.to_dict(orient='list')
+        else:
+            raise "Unknown file format"
+        datetime = observations_.get(index,None)
+        if not datetime is None:
+            del observations_[index]
+            datetime = dict(zip(range(len(datetime)), datetime))
+        
     for key in observations_:
         if timesteps is None:
             timesteps = len(observations_[key])
@@ -121,67 +128,88 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             timesteps = len(observations_[key])
             print("WARNING: limiting analysis to {} because there are only observations for that many time steps".format(timesteps))
 
+    return Munch(observations=observations_, timesteps=timesteps, datetime=datetime)
+
+
+def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
+    if data is None:
+        assert datafile is not None
+        with open(datafile, 'r') as INPUT:
+            data = yaml.safe_load(INPUT)
+
+    savefile = data['_options'].get('write', None)
+    tee = data['_options'].get('tee', False) if tee is None else tee
+    verbose = data['_options'].get('verbose', True) if verbose is None else verbose
+    model = data['_options'].get('model', 'model3') if model is None else model
+    solver = data['_options'].get('solver', 'glpk') if solver is None else solver
+    pm = load_process(data['_options']['process'], dirname=dirname)
+
+    obs = load_observations(data['data'], 
+                            data['_options'].get('timesteps', None),
+                            dirname,
+                            index)
+
     if model in ['model1', 'model3', 'model5', 'model7']:
         #
         # For supervised matching, we can confirm that the observations
         # have the right labels
         #
-        tmp1 = set(observations_.keys())
+        tmp1 = set(obs.observations.keys())
         tmp2 = set([name for name in pm.resources])
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
     print("Creating model")
     if model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8']:
         if model == 'model1':
-            M = create_model1(observations=observations_,
+            M = create_model1(observations=obs.observations,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None),
                             verbose=verbose)
         elif model == 'model2':
-            M = create_model2(observations=observations_,
+            M = create_model2(observations=obs.observations,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None),
                             verbose=verbose)
         elif model == 'model3':
-            M = create_model3(observations=observations_,
+            M = create_model3(observations=obs.observations,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None), 
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
                             verbose=verbose)
         elif model == 'model4':
-            M = create_model4(observations=observations_,
+            M = create_model4(observations=obs.observations,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None),
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
                             verbose=verbose)
         elif model == 'model5':
-            M = create_model5(observations=observations_,
+            M = create_model5(observations=obs.observations,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None), 
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
                             verbose=verbose)
         elif model == 'model7':
-            M = create_model78(observations=observations_,
+            M = create_model78(observations=obs.observations,
                             supervised=True,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None), 
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
                             verbose=verbose)
         elif model == 'model8':
-            M = create_model78(observations=observations_,
+            M = create_model78(observations=obs.observations,
                             supervised=False,
                             pm=pm, 
-                            timesteps=timesteps,
+                            timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None), 
                             gamma=data['_options'].get('gamma',0),
                             max_delay=data['_options'].get('max_delay',0),
@@ -204,10 +232,14 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             M.display()
 
         variables = variables=get_nonzero_variables(M)
-        alignment = summarize_alignment(variables, model, pm, timesteps=timesteps)
+        alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
         res = dict(datafile=datafile, index=index, model=model, 
-                    timesteps=timesteps,
+                    timesteps=obs.timesteps,
                     results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])
+        if not obs.datetime is None:
+            res['datetime'] = obs.datetime
+            res['results'][0]['datetime_alignment'] = \
+                {key:{k:obs.datetime[v] for k,v in value.items()} for key,value in alignment.items()}
 
     return res
 

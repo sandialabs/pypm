@@ -7,7 +7,7 @@ _options:
   tee: true
   timesteps: 30
   max_delay: 2
-  #write: run1.lp
 
 data:
-  filename: run1.csv
+  filename: run2.csv
+  index: DateTime

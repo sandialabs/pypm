@@ -12,7 +12,7 @@ Python software package for Process Matching.
 
 * cd examples/linear1
 * pypm sim sim.yaml linear1.yaml
-* pypm mip linear1\_sim.yaml 0
+* pypm mip linear1\_sim.yaml
 
 ## Testing
 

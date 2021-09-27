@@ -43,7 +43,7 @@ def main():                     # pragma: nocover
     #
     parser_mip = subparsers.add_parser('mip', help='Run a MIP solver')
     parser_mip.add_argument('datafile', help='YAML problem file')
-    parser_mip.add_argument('index', help='Index of problem to run', default=0)
+    parser_mip.add_argument('-i', '--index', help='Index of problem to run', default=0)
     parser_mip.add_argument('-o', '--output', help='YAML file where results are stored', default="results.yaml")
     parser_mip.set_defaults(func='mip')
 
