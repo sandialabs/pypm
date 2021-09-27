@@ -28,6 +28,7 @@ results:
       : 1.0
       ? !!python/tuple [a2, 18]
       : 1.0
+    o: {a1: 10.0, a2: 4.0}
     r:
       ? !!python/tuple [a1, rB, 7]
       : 1.0

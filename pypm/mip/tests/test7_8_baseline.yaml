@@ -31,6 +31,7 @@ results:
       : 1.0
       ? !!python/tuple [rC, rC]
       : 1.0
+    o: {a1: 6.0, a2: 4.0}
     r:
       ? !!python/tuple [a1, rC, 1]
       : 1.0

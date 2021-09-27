@@ -235,11 +235,16 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
         res = dict(datafile=datafile, index=index, model=model, 
                     timesteps=obs.timesteps,
-                    results=[dict(objective=pe.value(M.o), variables=variables, alignment=alignment)])
+                    results=[dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)])
         if not obs.datetime is None:
             res['datetime'] = obs.datetime
-            res['results'][0]['datetime_alignment'] = \
-                {key:{k:obs.datetime[v] for k,v in value.items()} for key,value in alignment.items()}
+            datetime_alignment = {key:{} for key in alignment}
+            for key,value in alignment.items():
+                for k,v in value.items():
+                    datetime_alignment[key][k] = obs.datetime[v]
+                if 'last' in datetime_alignment[key]:
+                    datetime_alignment[key]['stop'] = obs.datetime[v+1]
+            res['results'][0]['datetime_alignment'] = datetime_alignment
 
     return res
 

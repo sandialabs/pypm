@@ -14,9 +14,24 @@ def add_objective(*, M, J, T, S, K, verbose=False):
         tic("add_objective")
     def o_(m):
         return sum(sum(S[j,k]*m.r[j,k,t] for j in J for k in K[j]) for t in T)
-    M.o = pe.Objective(sense=pe.maximize, rule=o_)
+    M.objective = pe.Objective(sense=pe.maximize, rule=o_)
     if verbose:
         toc("add_objective")
+
+def add_objective_o(*, M, J, T, S, K, verbose=False):
+    if verbose:
+        tic("add_objective_o")
+
+    def objective_(m):
+        return sum(m.o[j] for j in J)
+    M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
+
+    def odef_(m, j):
+        return m.o[j] == sum(sum(S[j,k]*m.r[j,k,t] for k in K[j]) for t in T) 
+    M.odef = pe.Constraint(J, rule=odef_)
+
+    if verbose:
+        toc("add_objective_o")
 
 def add_rdef_constraints_supervised(*, M, JK, T, O, verbose=False):
     if verbose:
@@ -613,10 +628,11 @@ def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, cou
     M.z = pe.Var(J, T+[-1,Tmax], within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
     M.r = pe.Var(JK, T, bounds=(0,1))
+    M.o = pe.Var(J)
     if not supervised:
         M.m = pe.Var(Kall, U, bounds=(0,1))
 
-    add_objective(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
+    add_objective_o(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
     add_zdef_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_adefz_constraints(M=M, J=J, T=T, E=E, p=p, q=q, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_variable_length_activities_z7(M=M, T=T, J=J, p=p, q=q, Tmax=Tmax, verbose=verbose)
