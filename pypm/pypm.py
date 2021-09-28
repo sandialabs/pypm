@@ -3,6 +3,7 @@ import yaml
 from pypm.util import runsim
 from pypm.mip import runmip_from_datafile
 from pypm.vis import create_gannt_chart
+from pypm.chunk import chunk_process, chunk_csv
 
 
 def main():                     # pragma: nocover
@@ -59,6 +60,19 @@ def main():                     # pragma: nocover
     parser_vis.add_argument('-i', '--index', help='Index of alignment that is visualized', default=0)
     parser_vis.set_defaults(func='vis')
 
+    #
+    # Subparser for 'pypm chunk'
+    #
+    # Reduce the time steps in a process or observations
+    #
+    parser_vis = subparsers.add_parser('chunk', help='Chunk the time steps in a process or observations')
+    parser_vis.add_argument('-s', '--step', help='Chunk step.  This is a string describing the chunking step: 2h, 4h, 3:55554h, 8h', default='3:55554')
+    parser_vis.add_argument('-c', '--csv', help='CSV file of observations', default=None)
+    parser_vis.add_argument('-i', '--index', help='Name of the date-time column in the CSV file', default=None)
+    parser_vis.add_argument('-p', '--process', help='YAML process file', default=None)
+    parser_vis.add_argument('-o', '--output', help='Name of output file', default=None)
+    parser_vis.set_defaults(func='chunk')
+
     args = parser.parse_args()
 
     if args.func == 'sim':
@@ -73,6 +87,14 @@ def main():                     # pragma: nocover
 
     elif args.func == 'vis':
         create_gannt_chart(args.process, args.results, output_fname=args.output, index=args.index)
+
+    elif args.func == 'chunk':
+        if args.csv is not None:
+            chunk_csv(args.csv, args.output, args.index, args.step)
+        elif args.process is not None:
+            chunk_process(args.process, args.output)
+        else:
+            print("pypm chunk - expected --csv or --process option!")
 
 #
 # This is used for interactive testing

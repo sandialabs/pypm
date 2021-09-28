@@ -29,3 +29,4 @@ from . import util
 from . import pypm
 from . import mip
 from . import vis
+from . import chunk
