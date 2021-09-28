@@ -92,7 +92,7 @@ def main():                     # pragma: nocover
         if args.csv is not None:
             chunk_csv(args.csv, args.output, args.index, args.step)
         elif args.process is not None:
-            chunk_process(args.process, args.output)
+            chunk_process(args.process, args.output, args.step)
         else:
             print("pypm chunk - expected --csv or --process option!")
 

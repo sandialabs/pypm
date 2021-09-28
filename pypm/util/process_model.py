@@ -102,3 +102,17 @@ class ProcessModel(object):
     def _initialize(self):
         """Initialize derived data from core process model representation."""
 
+    def data(self):
+        resources={name:None for name in sorted(self.resources)}
+        activities=[]
+        for name in self:
+            ans = {}
+            ans['name']=name
+            ans['max_delay'] = self[name]['max_delay']
+            ans['dependencies'] = self[name]['dependencies']
+            ans['resources'] = self[name]['resources']
+            ans['duration'] = self[name]['duration']
+            activities.append(ans)
+        return dict(resources=resources, activities=activities)
+        
+
