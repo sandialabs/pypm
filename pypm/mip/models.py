@@ -654,7 +654,8 @@ def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=0, verbose=F
     q = {j:pm[j]['duration']['max_hours'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
-    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
+    Kall = set(k for j in K for k in K[j])
+    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     count = {name:pm.resources.count(name) for name in pm.resources}
     max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
 

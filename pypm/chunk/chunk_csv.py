@@ -91,11 +91,11 @@ def chunk_csv(filename, output, index, step):
         #
         # Rounding-off the time horion to the beginning and end of the start/end of the horizon
         #
-        start_ = datetime.datetime(year=start.year, month=start.month, day=start.day)
+        start_ = datetime.datetime(year=start.year, month=start.month, day=start.day, tzinfo=start.tzinfo)
         while start_ < start:
             start_ = start_ + hour
             hours.append(start_)
-        stop_ = datetime.datetime(year=stop.year, month=stop.month, day=stop.day) + 24*hour
+        stop_ = datetime.datetime(year=stop.year, month=stop.month, day=stop.day, tzinfo=start.tzinfo) + 24*hour
         while stop < stop_:
             stop = stop + hour
             hours.append(stop)
