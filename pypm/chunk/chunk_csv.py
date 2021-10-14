@@ -54,6 +54,8 @@ def chunk_csv_k(df, k, offset=0, hours=[], workhours=[0,24]):
             ignore[i] = not (h.hour >= workhours[0] and h.hour < workhours[1])
     else:
         ignore = {}
+    #for i in range(len(hours)):
+    #    print(i,str(hours[i]),ignore[i])
     #
     # Iterate over rows in the data, collecting values
     #
@@ -123,14 +125,15 @@ def chunk_csv(filename, output, index, step):
         #
         start_ = datetime.datetime(year=start.year, month=start.month, day=start.day, tzinfo=start.tzinfo)
         while start_ < start:
-            start_ = start_ + hour
             hours.append(start_)
+            start_ = start_ + hour
         stop_ = datetime.datetime(year=stop.year, month=stop.month, day=stop.day, tzinfo=start.tzinfo) + 24*hour
         while stop < stop_:
             stop = stop + hour
             hours.append(stop)
         if len(hours) != len(df.index):
             print("WARNING: Additional time steps added at the beginning and end of the time horizon.  \n\t{} hours from start-to-stop, but only {} time steps in the data".format(len(hours), len(df.index)))
+        hours = list(sorted(hours))
     else:
         hours = []
 

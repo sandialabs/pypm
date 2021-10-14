@@ -64,6 +64,7 @@ def add_rdef_constraints_unsupervised(*, M, K, JK, T, O, U, verbose=False):
 
     def rdef3_(m, k):
         return sum(m.m[k,u] for u in U) <= 1
+        #return sum(m.m[k,u] for u in U) == 1
     M.rdef3 = pe.Constraint(K, rule=rdef3_)
 
     if verbose:
