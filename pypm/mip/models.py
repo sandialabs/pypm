@@ -18,7 +18,7 @@ def add_objective(*, M, J, T, S, K, verbose=False):
     if verbose:
         toc("add_objective")
 
-def add_objective_o(*, M, J, T, S, K, verbose=False):
+def add_objective_o(*, M, J, T, S, K, O, verbose=False, supervised=True):
     if verbose:
         tic("add_objective_o")
 
@@ -26,8 +26,12 @@ def add_objective_o(*, M, J, T, S, K, verbose=False):
         return sum(m.o[j] for j in J)
     M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
 
-    def odef_(m, j):
-        return m.o[j] == sum(sum(S[j,k]*m.r[j,k,t] for k in K[j]) for t in T) 
+    if supervised:
+        def odef_(m, j):
+            return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
+    else:
+        def odef_(m, j):
+            return m.o[j] == sum(sum(S[j,k]*m.r[j,k,t] for k in K[j]) for t in T)
     M.odef = pe.Constraint(J, rule=odef_)
 
     if verbose:
@@ -626,19 +630,19 @@ def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, cou
 
     M.z = pe.Var(J, T+[-1], within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
-    M.r = pe.Var(JK, T, bounds=(0,1))
     M.o = pe.Var(J, bounds=(0,None))
     if not supervised:
+        M.r = pe.Var(JK, T, bounds=(0,1))
         M.m = pe.Var(Kall, U, bounds=(0,1))
 
-    add_objective_o(M=M, J=J, T=T, S=S, K=K, verbose=verbose)
+    add_objective_o(M=M, J=J, T=T, S=S, K=K, O=O, verbose=verbose, supervised=supervised)
+    if not supervised:
+        #add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O, verbose=verbose)
+        #else:
+        add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U, verbose=verbose)
     add_zdef_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_adefz_constraints(M=M, J=J, T=T, E=E, p=p, q=q, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_variable_length_activities_z7(M=M, T=T, J=J, p=p, q=q, Tmax=Tmax, verbose=verbose)
-    if supervised:
-        add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O, verbose=verbose)
-    else:
-        add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U, verbose=verbose)
     add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)
 
     return M

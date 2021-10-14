@@ -29,37 +29,6 @@ results:
       ? !!python/tuple [a2, 19]
       : 1.0
     o: {a1: 10.0, a2: 5.0}
-    r:
-      ? !!python/tuple [a1, rB, 7]
-      : 1.0
-      ? !!python/tuple [a1, rB, 8]
-      : 1.0
-      ? !!python/tuple [a1, rB, 9]
-      : 1.0
-      ? !!python/tuple [a1, rB, 10]
-      : 1.0
-      ? !!python/tuple [a1, rB, 11]
-      : 1.0
-      ? !!python/tuple [a1, rC, 7]
-      : 1.0
-      ? !!python/tuple [a1, rC, 8]
-      : 1.0
-      ? !!python/tuple [a1, rC, 9]
-      : 1.0
-      ? !!python/tuple [a1, rC, 10]
-      : 1.0
-      ? !!python/tuple [a1, rC, 11]
-      : 1.0
-      ? !!python/tuple [a2, rA, 15]
-      : 1.0
-      ? !!python/tuple [a2, rA, 16]
-      : 1.0
-      ? !!python/tuple [a2, rA, 17]
-      : 1.0
-      ? !!python/tuple [a2, rA, 18]
-      : 1.0
-      ? !!python/tuple [a2, rA, 19]
-      : 1.0
     z:
       ? !!python/tuple [a1, 7]
       : 1.0
