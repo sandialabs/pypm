@@ -5,12 +5,21 @@ import yaml
 from pypm.util import load_process
 
 
-def update(p, k, K=None):
+def update(p, k, K=None, workhours=None):
     if K is None:
         K=k
+    if workhours is None:
+        workhours=[0,24]
 
     max_delay = p['max_delay']
     if max_delay is not None:
+        #
+        # Rescaling max_delay to include the specified # of work hours per day
+        #
+        max_delay = max_delay * (workhours[1]-workhours[0])/ 24 
+        #
+        # Chunk the max_delay into K-bins, and round up to the nearest integer
+        #
         tmp = max_delay / K
         if tmp - int(tmp) > 1e-7:
             print("WARNING: max_delay is not evenly divisible by {}.  Rounding up chunked max_delay.")
@@ -44,12 +53,18 @@ def chunk_process(filename, output, step):
 
         if step == '2h':
             update(p, 2)
+        elif step == '2h_workday(7-17)':
+            update(p, 2, workhours=[7,17])
         elif step == '4h':
             update(p, 4)
         elif step == '8h':
             update(p, 8)
         elif step == '3:55554h':
             update(p, 5, 24/5)
+        elif step == '5h_workday(7-17)':
+            update(p, 5, workhours=[7,17])
+        elif step == '10h_workday(7-17)':
+            update(p, 10, workhours=[7,17])
         elif step == '1h':
             pass
         else:

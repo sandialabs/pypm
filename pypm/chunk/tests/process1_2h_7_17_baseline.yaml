@@ -1,0 +1,22 @@
+activities:
+- dependencies: []
+  duration:
+    max_hours: 5
+    min_hours: 3
+  max_delay: null
+  name: a1
+  resources:
+    rB: 1
+    rC: 1
+- dependencies:
+  - a1
+  duration:
+    max_hours: 3
+    min_hours: 3
+  max_delay: 5
+  name: a2
+  resources: {}
+resources:
+  rA: null
+  rB: null
+  rC: null
