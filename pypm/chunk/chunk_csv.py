@@ -49,11 +49,9 @@ def chunk_csv_k(df, k, offset=0, hours=[], workhours=[0,24]):
     # Use hours and workhours to build identify the data that will be ignored
     #
     if hours:
-        print(workhours)
         ignore = {}
         for i,h in enumerate(hours):
             ignore[i] = not (h.hour >= workhours[0] and h.hour < workhours[1])
-        print(ignore)
     else:
         ignore = {}
     #
@@ -72,10 +70,11 @@ def chunk_csv_k(df, k, offset=0, hours=[], workhours=[0,24]):
             if i < df.shape[0]:
                 values = [df[col][i] for col in df.columns]
         else:
-            if len(values) == 0:
-                values = [df[col][i] for col in df.columns]
-            else:
-                values = [max(l1, l2) for l1, l2 in zip(values, [df[col][i] for col in df.columns])]
+            if i < df.shape[0]:
+                if len(values) == 0:
+                    values = [df[col][i] for col in df.columns]
+                else:
+                    values = [max(l1, l2) for l1, l2 in zip(values, [df[col][i] for col in df.columns])]
     return chunked
 
 
@@ -186,10 +185,20 @@ def chunk_csv(filename, output, index, step):
     elif step == "10h_workday(7-17)":
         #
         # Assume the rows of the CSV file represent hours.
-        # Chunk the CSV into 2-hour blocks
+        # Chunk the CSV into 10-hour blocks
         # Specify the workday that is used
         #
         chunked = chunk_csv_k(df, [10], hours=hours, workhours=[7,17])
+        print("Writing file: {}".format(output))
+        with open(output, 'w') as OUTPUT:
+            OUTPUT.write( "\n".join(chunked) )
+    elif step == "5h_workday(7-17)":
+        #
+        # Assume the rows of the CSV file represent hours.
+        # Chunk the CSV into 5-hour blocks
+        # Specify the workday that is used
+        #
+        chunked = chunk_csv_k(df, [5], hours=hours, workhours=[7,17])
         print("Writing file: {}".format(output))
         with open(output, 'w') as OUTPUT:
             OUTPUT.write( "\n".join(chunked) )
