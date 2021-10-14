@@ -130,8 +130,6 @@ results:
       : 1.0
       ? !!python/tuple [a1, 29]
       : 1.0
-      ? !!python/tuple [a1, 30]
-      : 1.0
       ? !!python/tuple [a2, 15]
       : 1.0
       ? !!python/tuple [a2, 16]
@@ -161,7 +159,5 @@ results:
       ? !!python/tuple [a2, 28]
       : 1.0
       ? !!python/tuple [a2, 29]
-      : 1.0
-      ? !!python/tuple [a2, 30]
       : 1.0
 timesteps: 30

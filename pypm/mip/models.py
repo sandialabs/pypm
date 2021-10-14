@@ -115,13 +115,12 @@ def add_zdef_constraints(*, M, T, J, p, q, max_delay, gamma, E, Tmax, verbose=Fa
 
     def zstep_(m, j, t):
         return m.z[j,t] - m.z[j, t-1] >= 0
-    M.zstep = pe.Constraint(J, T+[Tmax], rule=zstep_)
+    M.zstep = pe.Constraint(J, T, rule=zstep_)
 
     def precedence_ub_(m, i, j, t):
         if t+q[i]+gamma[i]+max_delay[j] < Tmax:
             return m.z[j, t+q[i]+gamma[i]+max_delay[j]] - m.z[i,t] >= 0
-        else:
-            return m.z[j, Tmax] - m.z[i,t] >= 0
+        return pe.Constraint.Skip
     M.precedence_ub = pe.Constraint(E, T, rule=precedence_ub_)
 
     def precedence_lb_(m, i, j, t):
@@ -296,11 +295,11 @@ def add_variable_length_activities_z7(*, M, T, J, p, q, Tmax, verbose=False):
     M.length = pe.Expression(J, rule=length_)
 
     def length_lower_(m, j):
-        return m.length[j] >= p[j] * m.z[j,Tmax]
+        return m.length[j] >= p[j] * m.z[j,Tmax-1]
     M.length_lower = pe.Constraint(J, rule=length_lower_)
 
     def length_upper_(m, j):
-        return m.length[j] <= q[j] * m.z[j,Tmax]
+        return m.length[j] <= q[j] * m.z[j,Tmax-1]
     M.length_upper = pe.Constraint(J, rule=length_upper_)
 
     if verbose:
@@ -625,10 +624,10 @@ def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, cou
     
     M = pe.ConcreteModel()
 
-    M.z = pe.Var(J, T+[-1,Tmax], within=pe.Binary)
+    M.z = pe.Var(J, T+[-1], within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
     M.r = pe.Var(JK, T, bounds=(0,1))
-    M.o = pe.Var(J)
+    M.o = pe.Var(J, bounds=(0,None))
     if not supervised:
         M.m = pe.Var(Kall, U, bounds=(0,1))
 
@@ -645,7 +644,7 @@ def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, cou
     return M
 
 
-def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=0, verbose=False, supervised=True, observations={}):
+def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbose=False, supervised=True, observations={}):
     # Fixed-length activities
     # No gaps within or between activities
     U = list(sorted(observations.keys()))
@@ -654,9 +653,11 @@ def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=0, verbose=F
     q = {j:pm[j]['duration']['max_hours'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
-    Kall = set(k for j in K for k in K[j])
-    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     count = {name:pm.resources.count(name) for name in pm.resources}
+    Kall = set(count.keys())
+    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
+    if max_delay is None:
+        max_delay = timesteps
     max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
 
     return create_pyomo_model78(K=K, Tmax=timesteps, J=J, 
