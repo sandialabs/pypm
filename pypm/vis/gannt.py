@@ -15,7 +15,7 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0)
         process = yaml.safe_load(INPUT)
     print("Reading {}".format(results_fname))
     with open(results_fname, 'r') as INPUT:
-        results = yaml.load(INPUT)
+        results = yaml.load(INPUT, Loader=yaml.Loader)
 
     assert results['model'] in ['model3', 'model4', 'model5', 'model6', 'model7', 'model8'], "Cannot visualize results in {}.  Expects results generated for model3-model8.".format(results_fname)
     assert len(results['results']) > index, "Cannot visualize the {}-th process match in {}.  This file only has {} matches.".format(index, results_fname, len(results['results']))
