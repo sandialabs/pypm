@@ -7,14 +7,18 @@ class Resources(object):
         self._ids = {}      # ids: id -> name
         self._count = {}      # ids: id -> name
 
+    def add(self, name, count):
+        i = len(self._names)
+        self._names[name] = i
+        self._ids[i] = name
+        self._count[i] = count
+
     def load(self, data):
         assert type(data) is dict
         for name in data:
             assert (name not in self._names), "Resource {} already defined".format(name)
-            i = len(self._names)
-            self._names[name] = i
-            self._ids[i] = name
-            self._count[i] = None if data[name] is None else int(data[name])
+            count = None if data[name] is None else int(data[name])
+            self.add(name, count)
 
     def __len__(self):
         """Return the number of resources in the model."""

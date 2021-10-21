@@ -123,6 +123,14 @@ def load_observations(data, timesteps, dirname, index, strict=False):
             datetime = dict(zip(range(len(datetime)), datetime))
         
     #
+    # Check that dates are strictly increasing
+    #
+    if not datetime is None:
+        prev = datetime[0]
+        for i in range(1,len(datetime)):
+            assert prev < datetime[i], "Expecting date-time values to be strictly increasing.  The date {} appears before {} in the data set.".format(prev, datetime[i])
+            prev = datetime[i]
+    #
     # Check that observations are in the intervale [0,1]
     #
     for key in observations_:
