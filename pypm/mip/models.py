@@ -661,8 +661,8 @@ def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
     count = {name:pm.resources.count(name) for name in pm.resources}
     Kall = set(count.keys())
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
-    if max_delay is None:
-        max_delay = timesteps
+    #if max_delay is None:
+    #    max_delay = timesteps
     max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
 
     return create_pyomo_model78(K=K, Tmax=timesteps, J=J, 
