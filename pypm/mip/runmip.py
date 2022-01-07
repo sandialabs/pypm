@@ -272,7 +272,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             for key,value in alignment.items():
                 for k,v in value.items():
                     datetime_alignment[key][k] = obs.datetime[v]
-                if 'last' in datetime_alignment[key]:
+                if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
                     datetime_alignment[key]['stop'] = obs.datetime[v+1]
             res['results'][0]['datetime_alignment'] = datetime_alignment
 
