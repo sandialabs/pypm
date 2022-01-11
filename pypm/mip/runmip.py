@@ -172,6 +172,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     verbose = data['_options'].get('verbose', True) if verbose is None else verbose
     model = data['_options'].get('model', 'model3') if model is None else model
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
+    solver_options = data['_options'].get('solver_options', {})
     pm = load_process(data['_options']['process'], dirname=dirname)
 
     obs = load_observations(data['data'], 
@@ -254,7 +255,10 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         opt = pe.SolverFactory(solver)
         if tee:
             print("-- Solver Output Begins --")
-        results = opt.solve(M, tee=tee)
+        if solver_options:
+            results = opt.solve(M, options=solver_options, tee=tee)
+        else:
+            results = opt.solve(M, tee=tee)
         if tee:
             print("-- Solver Output Ends --")
         if debug:           #pragma:nocover
