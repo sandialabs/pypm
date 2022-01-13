@@ -10,6 +10,7 @@ from os.path import join
 from pypm.util.load import load_process
 from pypm.mip.models import create_model1, create_model2, create_model3, create_model4, create_model5, create_model78
 import pyomo.environ as pe
+from pyomo.opt import TerminationCondition as tc
 
 
 def get_nonzero_variables(M):
@@ -164,6 +165,42 @@ def load_observations(data, timesteps, dirname, index, strict=False):
     return Munch(observations=observations_, header=header, timesteps=timesteps, datetime=datetime)
 
 
+def perform_optimization(*, M, model, solver, options, tee, debug, obs, pm):
+    opt = pe.SolverFactory(solver)
+    if tee:
+        print("-- Solver Output Begins --")
+    if options:
+        results = opt.solve(M, options=options, tee=tee)
+    else:
+        results = opt.solve(M, tee=tee)
+    if tee:
+        print("-- Solver Output Ends --")
+    if results.solver.termination_condition not in {tc.optimal, tc.locallyOptimal, tc.feasible}:
+        return None
+    if debug:           #pragma:nocover
+        M.pprint()
+        M.display()
+    return summarize(model=model, M=M, obs=obs, pm=pm)
+
+
+def summarize(*, model, M, pm, obs):
+    #
+    # Summarize optimization results
+    #
+    variables = variables=get_nonzero_variables(M)
+    alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
+    results=dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)
+    if not obs.datetime is None:
+        datetime_alignment = {key:{} for key in alignment}
+        for key,value in alignment.items():
+            for k,v in value.items():
+                datetime_alignment[key][k] = obs.datetime[v]
+            if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
+                datetime_alignment[key]['stop'] = obs.datetime[v+1]
+        results['datetime_alignment'] = datetime_alignment
+    return results
+
+
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
     if data is None:
         assert datafile is not None
@@ -177,6 +214,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     solver = data['_options'].get('solver', 'glpk') if solver is None else solver
     solver_options = data['_options'].get('solver_options', {})
     pm = load_process(data['_options']['process'], dirname=dirname)
+    solver_strategy = data['_options'].get('solver_strategy', 'simple')
 
     obs = load_observations(data['data'], 
                             data['_options'].get('timesteps', None),
@@ -254,35 +292,67 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             M.write(savefile, io_options=dict(symbolic_solver_labels=True))
             return dict()
 
-        print("Optimizing model")
-        opt = pe.SolverFactory(solver)
-        if tee:
-            print("-- Solver Output Begins --")
-        if solver_options:
-            results = opt.solve(M, options=solver_options, tee=tee)
-        else:
-            results = opt.solve(M, tee=tee)
-        if tee:
-            print("-- Solver Output Ends --")
-        if debug:           #pragma:nocover
             M.pprint()
             M.display()
 
-        variables = variables=get_nonzero_variables(M)
-        alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
-        res = dict(datafile=datafile, index=index, model=model, 
+        #
+        # Setup results YAML data
+        #
+        res = dict( datafile=datafile,
+                    index=index,
+                    model=model, 
                     indicators=obs.header,
                     timesteps=obs.timesteps,
-                    results=[dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)])
+                    results=[])
         if not obs.datetime is None:
             res['datetime'] = obs.datetime
-            datetime_alignment = {key:{} for key in alignment}
-            for key,value in alignment.items():
-                for k,v in value.items():
-                    datetime_alignment[key][k] = obs.datetime[v]
-                if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
-                    datetime_alignment[key]['stop'] = obs.datetime[v+1]
-            res['results'][0]['datetime_alignment'] = datetime_alignment
+
+        if solver_strategy == 'simple':
+            #
+            # Perform optimization
+            #
+            print("Optimizing model")
+            results = perform_optimization(M=M, model=model, solver=solver, options=solver_options, tee=tee, debug=debug, obs=obs, pm=pm)
+
+            #
+            # Append results to YAML data
+            #
+            res['results'].append( results )
+
+        elif solver_strategy == 'enum_labelling':
+            M.cuts = pe.ConstraintList()
+            i = 0
+            maxiters = 10
+            flag = True
+            while flag: 
+                #
+                # Perform optimization
+                #
+                print("Optimizing model")
+                results = perform_optimization(M=M, model=model, solver=solver, options=solver_options, tee=tee, debug=debug, obs=obs, pm=pm)
+                #
+                # Break if infeasible
+                #
+                if results is None:
+                    break
+                #
+                # Add more cuts
+                #
+                expr = 0
+                for v in M.m.values():
+                    if pe.value(v) < 0.5:
+                        expr += v
+                    else:
+                        expr += (1-v)
+                M.cuts.add( expr >= 1 )
+                #
+                # Append results to YAML data
+                #
+                res['results'].append( results )
+
+                i = i+1
+                if i == maxiters:
+                    break
 
     return res
 
