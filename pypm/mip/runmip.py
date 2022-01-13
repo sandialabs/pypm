@@ -92,6 +92,7 @@ def summarize_alignment(v, model, pm, timesteps=None):
 
 def load_observations(data, timesteps, dirname, index, strict=False):
     observations_ = {}
+    header = []
     if type(data) is list:
         datetime=None
         observations = data[index]['observations']
@@ -115,11 +116,13 @@ def load_observations(data, timesteps, dirname, index, strict=False):
         if fname.endswith(".csv"):
             df = pd.read_csv(fname)
             observations_ = df.to_dict(orient='list')
+            header = list(df.columns)
         else:
             raise "Unknown file format"
         datetime = observations_.get(index,None)
         if not datetime is None:
             del observations_[index]
+            header.remove(index)
             datetime = dict(zip(range(len(datetime)), datetime))
         
     #
@@ -131,7 +134,7 @@ def load_observations(data, timesteps, dirname, index, strict=False):
             assert prev < datetime[i], "Expecting date-time values to be strictly increasing.  The date {} appears before {} in the data set.".format(prev, datetime[i])
             prev = datetime[i]
     #
-    # Check that observations are in the intervale [0,1]
+    # Check that observations are in the interval [0,1]
     #
     for key in observations_:
         for row in range(len(observations_[key])):
@@ -158,7 +161,7 @@ def load_observations(data, timesteps, dirname, index, strict=False):
             timesteps = len(observations_[key])
             print("WARNING: limiting analysis to {} because there are only observations for that many time steps".format(timesteps))
 
-    return Munch(observations=observations_, timesteps=timesteps, datetime=datetime)
+    return Munch(observations=observations_, header=header, timesteps=timesteps, datetime=datetime)
 
 
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
@@ -268,6 +271,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         variables = variables=get_nonzero_variables(M)
         alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
         res = dict(datafile=datafile, index=index, model=model, 
+                    indicators=obs.header,
                     timesteps=obs.timesteps,
                     results=[dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)])
         if not obs.datetime is None:
