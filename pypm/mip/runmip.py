@@ -161,7 +161,25 @@ def load_observations(data, timesteps, dirname, index, strict=False):
     return Munch(observations=observations_, timesteps=timesteps, datetime=datetime)
 
 
-def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
+def summarize(*, model, M, pm, obs):
+    #
+    # Summarize optimization results
+    #
+    variables = variables=get_nonzero_variables(M)
+    alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
+    results=dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)
+    if not obs.datetime is None:
+        datetime_alignment = {key:{} for key in alignment}
+        for key,value in alignment.items():
+            for k,v in value.items():
+                datetime_alignment[key][k] = obs.datetime[v]
+            if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
+                datetime_alignment[key]['stop'] = obs.datetime[v+1]
+        results['datetime_alignment'] = datetime_alignment
+    return results
+
+
+def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None, enum_labelling=False):
     if data is None:
         assert datafile is not None
         with open(datafile, 'r') as INPUT:
@@ -251,6 +269,20 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
             M.write(savefile, io_options=dict(symbolic_solver_labels=True))
             return dict()
 
+        #
+        # Setup results YAML data
+        #
+        res = dict( datafile=datafile,
+                    index=index,
+                    model=model, 
+                    timesteps=obs.timesteps,
+                    results=[])
+        if not obs.datetime is None:
+            res['datetime'] = obs.datetime
+
+        #
+        # Perform optimization
+        #
         print("Optimizing model")
         opt = pe.SolverFactory(solver)
         if tee:
@@ -264,21 +296,12 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         if debug:           #pragma:nocover
             M.pprint()
             M.display()
+        results = summarize(model=model, M=M, obs=obs, pm=pm)
 
-        variables = variables=get_nonzero_variables(M)
-        alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
-        res = dict(datafile=datafile, index=index, model=model, 
-                    timesteps=obs.timesteps,
-                    results=[dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)])
-        if not obs.datetime is None:
-            res['datetime'] = obs.datetime
-            datetime_alignment = {key:{} for key in alignment}
-            for key,value in alignment.items():
-                for k,v in value.items():
-                    datetime_alignment[key][k] = obs.datetime[v]
-                if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
-                    datetime_alignment[key]['stop'] = obs.datetime[v+1]
-            res['results'][0]['datetime_alignment'] = datetime_alignment
+        #
+        # Append results to YAML data
+        #
+        res['results'].append( results )
 
     return res
 
