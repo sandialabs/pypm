@@ -3,6 +3,7 @@ import yaml
 from pypm.util import runsim
 from pypm.mip import runmip_from_datafile
 from pypm.vis import create_gannt_chart
+from pypm.vis import create_labelling_matrix
 from pypm.chunk import chunk_process, chunk_csv
 
 
@@ -58,6 +59,7 @@ def main():                     # pragma: nocover
     parser_vis.add_argument('results', help='YAML results file')
     parser_vis.add_argument('-o', '--output', help='HTML file where results are stored', default=None)
     parser_vis.add_argument('-i', '--index', help='Index of alignment that is visualized', default=0)
+    parser_vis.add_argument('-t', '--type', help='Indicates the type of visualization generated: gannt or labelling', default='gannt')
     parser_vis.set_defaults(func='vis')
 
     #
@@ -86,7 +88,12 @@ def main():                     # pragma: nocover
             OUTPUT.write(yaml.dump(results, default_flow_style=None))
 
     elif args.func == 'vis':
-        create_gannt_chart(args.process, args.results, output_fname=args.output, index=args.index)
+        if args.type == 'gannt':
+            create_gannt_chart(args.process, args.results, output_fname=args.output, index=args.index)
+        elif args.type == 'labelling':
+            create_labelling_matrix(args.process, args.results, output_fname=args.output, index=args.index)
+        else:
+            print("ERROR: Unknown type of visualization '{}'".format(args.type))
 
     elif args.func == 'chunk':
         if args.csv is not None:
