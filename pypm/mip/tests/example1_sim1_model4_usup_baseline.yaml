@@ -1,5 +1,6 @@
 datafile: null
 index: 0
+indicators: []
 model: model4
 results:
 - alignment:

@@ -70,6 +70,17 @@ def add_rdef_constraints_unsupervised(*, M, K, JK, T, O, U, verbose=False):
     if verbose:
         toc("add_rdef_constraints_unsupervised")
 
+def add_rdef_constraints_unsupervised_more(*, M, K, JK, T, O, U, verbose=False):
+    if verbose:
+        tic("add_rdef_constraints_unsupervised_more")
+
+    def rdef4_(m, u):
+        return sum(m.m[k,u] for k in K) <= 1
+    M.rdef4 = pe.Constraint(U, rule=rdef4_)
+
+    if verbose:
+        toc("add_rdef_constraints_unsupervised_more")
+
 def add_xdef_constraints(*, M, T, J, p, E, verbose=False):
     if verbose:
         tic("add_xdef_constraints")
@@ -608,7 +619,7 @@ def create_model5(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
 
 
 
-def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, count, supervised, gamma=0, max_delay=None, sigma=None, verbose=False):
+def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, count, supervised, gamma=0, max_delay=None, sigma=None, verbose=False, binary_m=False):
     """
     Extended Supervised Process Matching
 
@@ -634,7 +645,10 @@ def create_pyomo_model78(*, K, Tmax, J, E, p, q, O, S, U, observations=None, cou
     M.o = pe.Var(J, bounds=(0,None))
     if not supervised:
         M.r = pe.Var(JK, T, bounds=(0,1))
-        M.m = pe.Var(Kall, U, bounds=(0,1))
+        if binary_m:
+            M.m = pe.Var(Kall, U, within=pe.Binary)
+        else:
+            M.m = pe.Var(Kall, U, bounds=(0,1))
 
     add_objective_o(M=M, J=J, T=T, S=S, K=K, O=O, verbose=verbose, supervised=supervised)
     if not supervised:
@@ -670,4 +684,31 @@ def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
                                count=count, gamma=gamma, max_delay=max_delay, 
                                U=U, supervised=supervised,
                                verbose=verbose)
+
+
+def create_model10(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbose=False, supervised=True, observations={}):
+    # Fixed-length activities
+    # No gaps within or between activities
+    U = list(sorted(observations.keys()))
+    E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
+    p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    J = list(sorted(pm))
+    K = {j:set(pm[j]['resources'].keys()) for j in pm}
+    count = {name:pm.resources.count(name) for name in pm.resources}
+    Kall = set(count.keys())
+    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
+    #if max_delay is None:
+    #    max_delay = timesteps
+    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+
+    M = create_pyomo_model78(K=K, Tmax=timesteps, J=J, 
+                               E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
+                               count=count, gamma=gamma, max_delay=max_delay, 
+                               U=U, supervised=supervised,
+                               verbose=verbose,
+                               binary_m=True)
+        
+    add_rdef_constraints_unsupervised_more(M=M, K=Kall, JK=None, T=None, O=None, U=U, verbose=verbose)
+    return M
 

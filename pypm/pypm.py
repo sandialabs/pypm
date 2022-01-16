@@ -89,9 +89,9 @@ def main():                     # pragma: nocover
 
     elif args.func == 'vis':
         if args.type == 'gannt':
-            create_gannt_chart(args.process, args.results, output_fname=args.output, index=args.index)
+            create_gannt_chart(args.process, args.results, output_fname=args.output, index=int(args.index))
         elif args.type == 'labelling':
-            create_labelling_matrix(args.process, args.results, output_fname=args.output, index=args.index)
+            create_labelling_matrix(args.process, args.results, output_fname=args.output, index=int(args.index))
         else:
             print("ERROR: Unknown type of visualization '{}'".format(args.type))
 

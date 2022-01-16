@@ -1,11 +1,12 @@
 datafile: null
 index: 0
+indicators: []
 model: model3
 results:
 - alignment:
     a1: {first: 7, last: 11}
     a2: {first: 15, last: 19}
-  objective: 14.999999999999982
+  objective: 14.999999999999996
   variables:
     a:
       ? !!python/tuple [a1, 7]
@@ -32,25 +33,25 @@ results:
     g: {}
     r:
       ? !!python/tuple [a1, rB, 7]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 8]
-      : 0.999999999999996
+      : 1.0
       ? !!python/tuple [a1, rB, 9]
-      : 0.999999999999995
+      : 1.0
       ? !!python/tuple [a1, rB, 10]
       : 1.0
       ? !!python/tuple [a1, rB, 11]
-      : 1.0
-      ? !!python/tuple [a1, rC, 7]
       : 0.999999999999999
+      ? !!python/tuple [a1, rC, 7]
+      : 1.0
       ? !!python/tuple [a1, rC, 8]
-      : 0.999999999999996
+      : 1.0
       ? !!python/tuple [a1, rC, 9]
-      : 0.999999999999995
+      : 1.0
       ? !!python/tuple [a1, rC, 10]
       : 1.0
       ? !!python/tuple [a1, rC, 11]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a2, rA, 15]
       : 1.0
       ? !!python/tuple [a2, rA, 16]

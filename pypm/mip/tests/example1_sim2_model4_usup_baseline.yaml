@@ -1,5 +1,6 @@
 datafile: null
 index: 0
+indicators: []
 model: model4
 results:
 - alignment:
@@ -34,7 +35,7 @@ results:
       : 1.0
       ? !!python/tuple [a2, 12]
       : 1.0
-    d: {a1: 7.99999999999999, a2: 5.0}
+    d: {a1: 8.0, a2: 5.0}
     g: {}
     m:
       ? !!python/tuple [rB, u0]

@@ -1,5 +1,6 @@
 datafile: null
 index: 0
+indicators: []
 model: model8
 results:
 - alignment:
@@ -44,7 +45,7 @@ results:
       ? !!python/tuple [a1, rB, 0]
       : 1.0
       ? !!python/tuple [a1, rB, 1]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 2]
       : 1.0
       ? !!python/tuple [a1, rB, 3]
