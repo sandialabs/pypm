@@ -18,7 +18,7 @@ def create_labelling_matrix(process_fname, results_fname, output_fname=None, ind
     with open(results_fname, 'r') as INPUT:
         results = yaml.load(INPUT, Loader=yaml.Loader)
 
-    assert results['model'] in ['model3', 'model4', 'model5', 'model6', 'model7', 'model8'], "Cannot visualize results in {}.  Expects results generated for model3-model8.".format(results_fname)
+    assert results['model'] in ['model3', 'model4', 'model5', 'model6', 'model7', 'model8', 'model10'], "Cannot visualize results in {}.  Expects results generated for model3-model8,model10.".format(results_fname)
     assert len(results['results']) > index, "Cannot visualize the {}-th process match in {}.  This file only has {} matches.".format(index, results_fname, len(results['results']))
 
     print("Processing results")
