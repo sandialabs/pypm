@@ -774,7 +774,7 @@ def create_pyomo_model11_12(*, K, Tmax, J, E, p, q, O, S, U, observations=None, 
     
     M = pe.ConcreteModel()
 
-    M.z = pe.Var(J, T+[-1], within=pe.Binary)
+    M.z = pe.Var(J, [-1]+T, within=pe.Binary)
     M.a = pe.Var(J, T, within=pe.Binary)
     M.o = pe.Var(J, bounds=(0,None))
     if not supervised:

@@ -136,3 +136,18 @@ def test5_11():
 def test6_11():
     run('test6_11')
 
+def test7_11():
+    run('test7_11')
+
+def test100_11():
+    run('test100_11')
+
+def test101_11():
+    run('test101_11')
+
+def test102_11():
+    run('test102_11')
+
+def test103_11():
+    run('test103_11')
+
