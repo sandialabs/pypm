@@ -242,6 +242,46 @@ def add_adefz_constraints(*, M, E, J, T, p, q, gamma, Tmax, verbose=False):
     if verbose:
         toc("add_adefz_constraints")
 
+def add_z_constraints(*, M, T, J, p, q, max_delay, gamma, E, Tmax, verbose=False):
+    if verbose:
+        tic("add_z_constraints")
+
+    def zstep_(m, j, t):
+        return m.z[j,t] - m.z[j, t-1] >= 0
+    M.zstep = pe.Constraint(J, T, rule=zstep_)
+
+    def firsta_(m, j, t):
+        return m.a[j,t] >= m.z[j,t] - m.z[j,t-1]
+    M.firsta = pe.Constraint(J, T, rule=firsta_)
+
+    def activity_start_(m, j, t):
+        tprev = max(t- (q[j]+gamma[j]+max_delay[j]), -1)
+        return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+    M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+
+    def length_upper_(m, j):
+        return sum(m.a[j,t] for t in T) <= q[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+    M.length_upper = pe.Constraint(J, rule=length_upper_)
+
+    def precedence_lb_(m, i, j, t):
+        tprev = max(t- (p[i]+max_delay[i]), -1)
+        return m.z[i,tprev] - m.z[j,t] >= 0
+    M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+    #def precedence_ub_(m, i, j, t):
+    #    tnext = t + q[i]+gamma[i]+max_delay[i]
+    #    if tnext < Tmax:
+    #        return m.z[j, tnext] - m.z[i,t] >= 0
+    #    return pe.Constraint.Skip
+    #M.precedence_ub = pe.Constraint(E, T, rule=precedence_ub_)
+
+    def activity_stop_(m, i, j, t):
+        return 1 - m.z[j, t] >= m.a[i,t]
+    M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+
+    if verbose:
+        toc("add_z_constraints")
+
 def add_adefzw_constraints(*, M, J, T, p, q, gamma, Tmax, verbose=False):
     if verbose:
         tic("add_adefzw_constraints")
@@ -711,4 +751,71 @@ def create_model10(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
         
     add_rdef_constraints_unsupervised_more(M=M, K=Kall, JK=None, T=None, O=None, U=U, verbose=verbose)
     return M
+
+
+def create_pyomo_model11_12(*, K, Tmax, J, E, p, q, O, S, U, observations=None, count, supervised, gamma=0, max_delay=None, sigma=None, verbose=False, binary_m=False):
+    """
+    Extended Supervised Process Matching
+
+    Tmax - Number of timesteps
+    E - set of (i,j) pairs that represent precedence constraints
+    p[j] - The length of activity j
+    O[k][t] - The observation data for resource k at time t
+    """
+    T = list(range(Tmax))
+    Kall = list(sorted(count.keys()))
+    JK = [(j,k) for j in J for k in K[j]]
+    J_k = {k:[] for k in Kall}
+    for j in J:
+        for k in K[j]:
+            J_k[k].append(j)
+    if not type(gamma) is dict:
+        gamma = {j:gamma for j in J}
+    
+    M = pe.ConcreteModel()
+
+    M.z = pe.Var(J, T+[-1], within=pe.Binary)
+    M.a = pe.Var(J, T, within=pe.Binary)
+    M.o = pe.Var(J, bounds=(0,None))
+    if not supervised:
+        M.r = pe.Var(JK, T, bounds=(0,1))
+        if binary_m:
+            M.m = pe.Var(Kall, U, within=pe.Binary)
+        else:
+            M.m = pe.Var(Kall, U, bounds=(0,1))
+
+    add_objective_o(M=M, J=J, T=T, S=S, K=K, O=O, verbose=verbose, supervised=supervised)
+    if not supervised:
+        #add_rdef_constraints_supervised(M=M, JK=JK, T=T, O=O, verbose=verbose)
+        #else:
+        add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U, verbose=verbose)
+    add_z_constraints(M=M, T=T, J=J, p=p, q=q, E=E, max_delay=max_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
+    #add_variable_length_activities_z7(M=M, T=T, J=J, p=p, q=q, Tmax=Tmax, verbose=verbose)
+    add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)
+
+    return M
+
+
+def create_model11_12(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbose=False, supervised=True, observations={}):
+    # Fixed-length activities
+    # No gaps within or between activities
+    U = list(sorted(observations.keys()))
+    E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
+    p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    J = list(sorted(pm))
+    K = {j:set(pm[j]['resources'].keys()) for j in pm}
+    count = {name:pm.resources.count(name) for name in pm.resources}
+    Kall = set(count.keys())
+    S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
+    #if max_delay is None:
+    #    max_delay = timesteps
+    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+
+    return create_pyomo_model11_12(K=K, Tmax=timesteps, J=J, 
+                               E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
+                               count=count, gamma=gamma, max_delay=max_delay, 
+                               U=U, supervised=supervised,
+                               verbose=verbose)
+
 

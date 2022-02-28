@@ -117,3 +117,22 @@ def test6_8():
 def test7_8():
     run('test7_8')
 
+
+def test1_11():
+    run('test1_11')
+
+def test2_11():
+    run('test2_11')
+
+def test3_11():
+    run('test3_11')
+
+def test4_11():
+    run('test4_11')
+
+def test5_11():
+    run('test5_11')
+
+def test6_11():
+    run('test6_11')
+
