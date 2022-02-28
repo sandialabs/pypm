@@ -151,3 +151,15 @@ def test102_11():
 def test103_11():
     run('test103_11')
 
+def test104_11():
+    run('test104_11')
+
+def test105_11():
+    run('test105_11')
+
+def test106_11():
+    run('test106_11')
+
+def test107_11():
+    run('test107_11')
+

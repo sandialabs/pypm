@@ -67,18 +67,16 @@ def summarize_alignment(v, model, pm, timesteps=None):
                 if ans[j]['last'] is None:
                     ans[j]['last'] = t
     elif model in ['model7', 'model8', 'model10', 'model11']:
+        ans = {j:{'post':True} for j in pm}
         z = v['z']
         for key,val in z.items():
+            j,t = key
             if val < 1-1e-7:
                 continue
-            j,t = key
-            if j in ans:
+            if j in ans and 'post' not in ans[j]:
                 continue
             if t == -1:
                 ans[j] = {'pre':True}
-                continue
-            if t == timesteps:
-                ans[j] = {'post':True}
                 continue
             ans[j] = {'first':t, 'last':-1}
         a = v['a']

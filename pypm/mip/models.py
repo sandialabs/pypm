@@ -259,6 +259,10 @@ def add_z_constraints(*, M, T, J, p, q, max_delay, gamma, E, Tmax, verbose=False
         return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
     M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
+    def length_lower_(m, j):
+        return sum(m.a[j,t] for t in T) >= p[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+    M.length_lower = pe.Constraint(J, rule=length_lower_)
+
     def length_upper_(m, j):
         return sum(m.a[j,t] for t in T) <= q[j] * (m.z[j,Tmax-1] - M.z[j,-1])
     M.length_upper = pe.Constraint(J, rule=length_upper_)
