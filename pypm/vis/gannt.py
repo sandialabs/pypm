@@ -17,7 +17,7 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0)
     with open(results_fname, 'r') as INPUT:
         results = yaml.load(INPUT, Loader=yaml.Loader)
 
-    assert results['model'] in ['model3', 'model4', 'model5', 'model6', 'model7', 'model8','model10'], "Cannot visualize results in {}.  Expects results generated for model3-model8,model10.".format(results_fname)
+    assert results['model'] in ['model3', 'model4', 'model5', 'model6', 'model7', 'model8','model10', 'model11'], "Cannot visualize results in {}.  Expects results generated for model3-model8,model10.".format(results_fname)
     assert len(results['results']) > index, "Cannot visualize the {}-th process match in {}.  This file only has {} matches.".format(index, results_fname, len(results['results']))
 
     print("Processing results")
@@ -33,6 +33,11 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0)
                 #data['Start'].append(0)
                 #data['Stop'].append(0)
                 #data['Weight'].append(0)
+            elif 'pre' in alignment[name] or 'post' in alignment[name]:
+                if 'pre' in alignment[name]:
+                    print("Warning: Activity \"{}\" omitted because it starts before the data time window.".format(name))
+                if 'post' in alignment[name]:
+                    print("Warning: Activity \"{}\" omitted because it ends after the data time window.".format(name))
             else:
                 data['Activity'].append(name)
                 data['Start'].append(alignment[name]['first'])
