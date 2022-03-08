@@ -66,7 +66,7 @@ def summarize_alignment(v, model, pm, timesteps=None):
             if j in ans:
                 if ans[j]['last'] is None:
                     ans[j]['last'] = t
-    elif model in ['model7', 'model8', 'model10', 'model11']:
+    elif model in ['model7', 'model8', 'model10', 'model11', 'model12']:
         ans = {j:{'post':True} for j in pm}
         z = v['z']
         for key,val in z.items():
@@ -229,7 +229,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
     print("Creating model")
-    if model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8', 'model10', 'model11']:
+    if model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8', 'model10', 'model11', 'model12']:
         if model == 'model1':
             M = create_model1(observations=obs.observations,
                             pm=pm, 
@@ -296,6 +296,15 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         elif model == 'model11':
             M = create_model11_12(observations=obs.observations,
                             supervised=True,
+                            pm=pm, 
+                            timesteps=obs.timesteps,
+                            sigma=data['_options'].get('sigma',None), 
+                            gamma=data['_options'].get('gamma',0),
+                            max_delay=data['_options'].get('max_delay',0),
+                            verbose=verbose)
+        elif model == 'model12':
+            M = create_model11_12(observations=obs.observations,
+                            supervised=False,
                             pm=pm, 
                             timesteps=obs.timesteps,
                             sigma=data['_options'].get('sigma',None), 

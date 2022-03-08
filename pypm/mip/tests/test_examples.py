@@ -163,3 +163,49 @@ def test106_11():
 def test107_11():
     run('test107_11')
 
+
+def test1_12():
+    run('test1_12')
+
+def test2_12():
+    run('test2_12')
+
+def test3_12():
+    run('test3_12')
+
+def test4_12():
+    run('test4_12')
+
+def test5_12():
+    run('test5_12')
+
+def test6_12():
+    run('test6_12')
+
+def test7_12():
+    run('test7_12')
+
+def test100_12():
+    run('test100_12')
+
+def test101_12():
+    run('test101_12')
+
+def test102_12():
+    run('test102_12')
+
+def test103_12():
+    run('test103_12')
+
+def test104_12():
+    run('test104_12')
+
+def test105_12():
+    run('test105_12')
+
+def test106_12():
+    run('test106_12')
+
+def test107_12():
+    run('test107_12')
+
