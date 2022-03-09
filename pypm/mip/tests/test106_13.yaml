@@ -1,8 +1,8 @@
 _options:
   comments: 
-    - confirming that last activity is not included if it's short enough, but the delay causes a conflict
-  model: model11
-  process: test104_11.yaml
+    - confirming that last activity is not included if there are no observations
+  model: model13
+  process: test106_13.yaml
   solver: glpk
   tee: true
   timesteps: 30

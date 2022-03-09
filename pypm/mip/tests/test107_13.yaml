@@ -1,8 +1,8 @@
 _options:
   comments: 
-    - confirming that last activity is not included if it's short enough, but the delay causes a conflict
-  model: model11
-  process: test104_11.yaml
+    - confirming that last activity is not included if it doesn't fit
+  model: model13
+  process: test107_13.yaml
   solver: glpk
   tee: true
   timesteps: 30
@@ -34,11 +34,11 @@ activities:
 
 data:
 - ground_truth:
-    a1: {start: 19, stop: 23}
+    a1: {start: 20, stop: 24}
     a2: {post: True}
   observations:
-    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0]
     rB: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,1,1,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0]
   seed: 0
   trial: 0

@@ -1,8 +1,8 @@
 _options:
   comments: 
-    - confirming that first activity is not included if it's short enough, but the delay causes a conflict
-  model: model11
-  process: test103_11.yaml
+    - confirming that first activity is not included if it's too long
+  model: model13
+  process: test102_13.yaml
   solver: glpk
   tee: true
   timesteps: 30
@@ -15,11 +15,10 @@ resources:
 activities:
 
 - name: a1
-  max_delay: 1
   dependencies:
   duration:
-    max_hours: 5
-    min_hours: 5
+    max_hours: 6
+    min_hours: 6
   resources:
     rC:
 

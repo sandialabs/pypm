@@ -1,8 +1,8 @@
 _options:
   comments: 
-    - confirming that first activity is not included if it's short enough, but the delay causes a conflict
-  model: model11
-  process: test103_11.yaml
+    - testing behavior when only second activity matches
+  model: model13
+  process: test100_13.yaml
   solver: glpk
   tee: true
   timesteps: 30
@@ -15,7 +15,6 @@ resources:
 activities:
 
 - name: a1
-  max_delay: 1
   dependencies:
   duration:
     max_hours: 5
@@ -35,11 +34,10 @@ activities:
 
 data:
 - ground_truth:
-    a1: {pre: True}
     a2: {start: 6, stop: 10}
   observations:
     rA: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
     rB: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rC: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

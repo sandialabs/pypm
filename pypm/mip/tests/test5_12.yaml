@@ -6,7 +6,6 @@ _options:
   solver: glpk
   tee: false
   timesteps: 30
-  max_delay: 3
 
 resources:
   rA:

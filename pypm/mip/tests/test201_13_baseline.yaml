@@ -1,0 +1,107 @@
+datafile: null
+index: 0
+indicators: []
+model: model13
+results:
+- alignment:
+    a1: {first: 0, last: 7}
+    a2: {post: true}
+  objective: 12.0
+  variables:
+    a:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
+      ? !!python/tuple [a1, 5]
+      : 1.0
+      ? !!python/tuple [a1, 6]
+      : 1.0
+      ? !!python/tuple [a1, 7]
+      : 1.0
+    o: {a1: 12.0}
+    r:
+      ? !!python/tuple [a1, rC, 0]
+      : 0.5
+      ? !!python/tuple [a1, rC, 1]
+      : 0.5
+      ? !!python/tuple [a1, rC, 2]
+      : 0.5
+      ? !!python/tuple [a1, rC, 3]
+      : 0.5
+      ? !!python/tuple [a1, rC, 4]
+      : 0.5
+      ? !!python/tuple [a1, rC, 5]
+      : 0.5
+      ? !!python/tuple [a1, rC, 6]
+      : 0.5
+      ? !!python/tuple [a1, rC, 7]
+      : 0.5
+    z:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
+      ? !!python/tuple [a1, 5]
+      : 1.0
+      ? !!python/tuple [a1, 6]
+      : 1.0
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a1, 10]
+      : 1.0
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a1, 12]
+      : 1.0
+      ? !!python/tuple [a1, 13]
+      : 1.0
+      ? !!python/tuple [a1, 14]
+      : 1.0
+      ? !!python/tuple [a1, 15]
+      : 1.0
+      ? !!python/tuple [a1, 16]
+      : 1.0
+      ? !!python/tuple [a1, 17]
+      : 1.0
+      ? !!python/tuple [a1, 18]
+      : 1.0
+      ? !!python/tuple [a1, 19]
+      : 1.0
+      ? !!python/tuple [a1, 20]
+      : 1.0
+      ? !!python/tuple [a1, 21]
+      : 1.0
+      ? !!python/tuple [a1, 22]
+      : 1.0
+      ? !!python/tuple [a1, 23]
+      : 1.0
+      ? !!python/tuple [a1, 24]
+      : 1.0
+      ? !!python/tuple [a1, 25]
+      : 1.0
+      ? !!python/tuple [a1, 26]
+      : 1.0
+      ? !!python/tuple [a1, 27]
+      : 1.0
+      ? !!python/tuple [a1, 28]
+      : 1.0
+      ? !!python/tuple [a1, 29]
+      : 1.0
+timesteps: 30

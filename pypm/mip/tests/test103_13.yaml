@@ -1,8 +1,8 @@
 _options:
   comments: 
     - confirming that first activity is not included if it's short enough, but the delay causes a conflict
-  model: model11
-  process: test103_11.yaml
+  model: model13
+  process: test103_13.yaml
   solver: glpk
   tee: true
   timesteps: 30
