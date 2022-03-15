@@ -1,13 +1,14 @@
 datafile: null
 index: 0
-indicators: []
+indicators: None
 model: model13
 results:
 - alignment:
     a1: {first: 0, last: 7}
     a2: {post: true}
-  objective: 12.0
-  separation: {a1: 2.0, a2: 0.0}
+  labeling: {rB: rB, rC: rC}
+  objective: 16.0
+  separation: {a1: 2.0, a2: 0}
   variables:
     a:
       ? !!python/tuple [a1, 0]
@@ -26,24 +27,7 @@ results:
       : 1.0
       ? !!python/tuple [a1, 7]
       : 1.0
-    o: {a1: 12.0}
-    r:
-      ? !!python/tuple [a1, rC, 0]
-      : 0.5
-      ? !!python/tuple [a1, rC, 1]
-      : 0.5
-      ? !!python/tuple [a1, rC, 2]
-      : 0.5
-      ? !!python/tuple [a1, rC, 3]
-      : 0.5
-      ? !!python/tuple [a1, rC, 4]
-      : 0.5
-      ? !!python/tuple [a1, rC, 5]
-      : 0.5
-      ? !!python/tuple [a1, rC, 6]
-      : 0.5
-      ? !!python/tuple [a1, rC, 7]
-      : 0.5
+    o: {a1: 16.0}
     z:
       ? !!python/tuple [a1, 0]
       : 1.0
@@ -105,4 +89,6 @@ results:
       : 1.0
       ? !!python/tuple [a1, 29]
       : 1.0
+search_strategy: tabu
+solver_statistics: {evaluations: 86, iterations: 26, stall count: 25, unique solutions: 9}
 timesteps: 30

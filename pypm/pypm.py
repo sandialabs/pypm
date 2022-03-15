@@ -1,10 +1,11 @@
 import argparse
 import yaml
 from pypm.util import runsim
-from pypm.mip import runmip_from_datafile
+from pypm.mip import runmip_from_datafile, load_config, runmip
 from pypm.vis import create_gannt_chart
 from pypm.vis import create_labelling_matrix
 from pypm.chunk import chunk_process, chunk_csv
+import pypm.unsup.ts_labeling
 
 
 def main():                     # pragma: nocover
@@ -50,6 +51,28 @@ def main():                     # pragma: nocover
     parser_mip.set_defaults(func='mip')
 
     #
+    # Subparser for 'pypm sup'
+    #
+    # Perform supervised process matching
+    #
+    parser_sup = subparsers.add_parser('sup', help='Supervised process matching')
+    parser_sup.add_argument('datafile', help='YAML problem file')
+    parser_sup.add_argument('-i', '--index', help='Index of problem to run', default=0)
+    parser_sup.add_argument('-o', '--output', help='YAML file where results are stored', default="results.yaml")
+    parser_sup.set_defaults(func='sup')
+
+    #
+    # Subparser for 'pypm unsup'
+    #
+    # Perform unsupervised process matching
+    #
+    parser_unsup = subparsers.add_parser('unsup', help='Unsupervised process matching')
+    parser_unsup.add_argument('datafile', help='YAML problem file')
+    parser_unsup.add_argument('-i', '--index', help='Index of problem to run', default=0)
+    parser_unsup.add_argument('-o', '--output', help='YAML file where results are stored', default="results.yaml")
+    parser_unsup.set_defaults(func='unsup')
+
+    #
     # Subparser for 'pypm vis'
     #
     # Visualize a process match
@@ -83,6 +106,22 @@ def main():                     # pragma: nocover
 
     elif args.func == 'mip':
         results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
+        with open(args.output, 'w') as OUTPUT:
+            print("Writing file: {}".format(args.output))
+            OUTPUT.write(yaml.dump(results, default_flow_style=None))
+
+    elif args.func == 'sup':
+        results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
+        with open(args.output, 'w') as OUTPUT:
+            print("Writing file: {}".format(args.output))
+            OUTPUT.write(yaml.dump(results, default_flow_style=None))
+
+    elif args.func == 'unsup':
+        config = load_config(datafile=args.datafile, index=int(args.index))
+        if config.solver_strategy == 'tabu':
+            results = pypm.unsup.ts_labeling.run_tabu(config)
+        elif config.solver_strategy == 'simple':
+            results = runmip(config)
         with open(args.output, 'w') as OUTPUT:
             print("Writing file: {}".format(args.output))
             OUTPUT.write(yaml.dump(results, default_flow_style=None))

@@ -1,50 +1,32 @@
 datafile: null
 index: 0
-indicators: []
+indicators: None
 model: model13
 results:
 - alignment:
-    a1: {first: 0, last: 7}
-    a2: {post: true}
-  objective: 12.0
-  separation: {a1: 2.0, a2: 0.0}
+    a1: {pre: true}
+    a2: {first: 20, last: 25}
+  labeling: {rA: rB, rB: rB, rC: rA}
+  objective: 6.0
+  separation: {a1: 0, a2: 1.0}
   variables:
     a:
-      ? !!python/tuple [a1, 0]
+      ? !!python/tuple [a2, 20]
       : 1.0
-      ? !!python/tuple [a1, 1]
+      ? !!python/tuple [a2, 21]
       : 1.0
-      ? !!python/tuple [a1, 2]
+      ? !!python/tuple [a2, 22]
       : 1.0
-      ? !!python/tuple [a1, 3]
+      ? !!python/tuple [a2, 23]
       : 1.0
-      ? !!python/tuple [a1, 4]
+      ? !!python/tuple [a2, 24]
       : 1.0
-      ? !!python/tuple [a1, 5]
+      ? !!python/tuple [a2, 25]
       : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-    o: {a1: 12.0}
-    r:
-      ? !!python/tuple [a1, rC, 0]
-      : 0.5
-      ? !!python/tuple [a1, rC, 1]
-      : 0.5
-      ? !!python/tuple [a1, rC, 2]
-      : 0.5
-      ? !!python/tuple [a1, rC, 3]
-      : 0.5
-      ? !!python/tuple [a1, rC, 4]
-      : 0.5
-      ? !!python/tuple [a1, rC, 5]
-      : 0.5
-      ? !!python/tuple [a1, rC, 6]
-      : 0.5
-      ? !!python/tuple [a1, rC, 7]
-      : 0.5
+    o: {a2: 6.0}
     z:
+      ? !!python/tuple [a1, -1]
+      : 1.0
       ? !!python/tuple [a1, 0]
       : 1.0
       ? !!python/tuple [a1, 1]
@@ -105,4 +87,26 @@ results:
       : 1.0
       ? !!python/tuple [a1, 29]
       : 1.0
+      ? !!python/tuple [a2, 20]
+      : 1.0
+      ? !!python/tuple [a2, 21]
+      : 1.0
+      ? !!python/tuple [a2, 22]
+      : 1.0
+      ? !!python/tuple [a2, 23]
+      : 1.0
+      ? !!python/tuple [a2, 24]
+      : 1.0
+      ? !!python/tuple [a2, 25]
+      : 1.0
+      ? !!python/tuple [a2, 26]
+      : 1.0
+      ? !!python/tuple [a2, 27]
+      : 1.0
+      ? !!python/tuple [a2, 28]
+      : 1.0
+      ? !!python/tuple [a2, 29]
+      : 1.0
+search_strategy: tabu
+solver_statistics: {evaluations: 151, iterations: 25, stall count: 25, unique solutions: 24}
 timesteps: 30

@@ -53,7 +53,29 @@ def add_objective_o(*, M, J, T, S, K, O, count_data=[], ar_count=None, JK=None, 
 
     if verbose:
         toc("add_objective_o")
-    M.pprint()
+
+def add_aux_measures(*, M, J, K, T, O, verbose=False):
+    if verbose:
+        tic("add_objective_o")
+
+    def activity_length_(m, j):
+        return sum(m.a[j,t] for t in T)
+    M.activity_length = pe.Expression(J, rule=activity_length_)
+
+    def weighted_activity_length_(m, j):
+        return sum(O[k][t] * m.a[j,t] for k in K[j] for t in T)
+    M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+
+    def nonactivity_length_(m, j):
+        return sum( (1-m.a[j,t]) for t in T)
+    M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+
+    def weighted_nonactivity_length_(m, j):
+        return sum(O[k][t] * (1-m.a[j,t]) for k in K[j] for t in T)
+    M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
+
+    if verbose:
+        tic("add_objective_o")
 
 def add_rdef_constraints_supervised(*, M, JK, T, O, verbose=False):
     if verbose:
@@ -877,6 +899,7 @@ def create_pyomo_model13_14(*, K, Tmax, J, E, p, q, O, S, U, count_data, ar_coun
         add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U, verbose=verbose)
     add_z_constraints(M=M, T=T, J=J, p=p, q=q, E=E, min_delay=min_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)
+    add_aux_measures(M=M, J=J, K=K, T=T, O=O)
 
     return M
 

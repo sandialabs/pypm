@@ -181,6 +181,12 @@ def perform_optimization(*, M, model, solver, options, tee, debug, obs, pm):
     return summarize(model=model, M=M, obs=obs, pm=pm)
 
 
+def fracval(num,denom):
+    if denom != 0:
+        return num/denom
+    return 0
+
+
 def summarize(*, model, M, pm, obs):
     #
     # Summarize optimization results
@@ -188,6 +194,7 @@ def summarize(*, model, M, pm, obs):
     variables = variables=get_nonzero_variables(M)
     alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
     results=dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)
+    #
     if not obs.datetime is None:
         datetime_alignment = {key:{} for key in alignment}
         for key,value in alignment.items():
@@ -196,30 +203,41 @@ def summarize(*, model, M, pm, obs):
             if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
                 datetime_alignment[key]['stop'] = obs.datetime[v+1]
         results['datetime_alignment'] = datetime_alignment
+    #
+    if hasattr(M, 'activity_length'):
+        results['separation'] = {i:0 if alignment[i].get('pre',False) or alignment[i].get('post',False) else fracval(pe.value(M.weighted_activity_length[i]),pe.value(M.activity_length[i])) - fracval(pe.value(M.weighted_nonactivity_length[i]),pe.value(M.nonactivity_length[i])) for i in M.activity_length}
+    #
     return results
 
 
 def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False, verbose=None):
+    configdata = load_config(datafile=datafile, data=data, index=index, tee=tee, model=model, solver=solver, dirname=dirname, debug=debug, verbose=verbose)
+    return runmip(configdata)
+
+
+def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False,          verbose=None, seed=123456789237498):
     if data is None:
         assert datafile is not None
         with open(datafile, 'r') as INPUT:
             data = yaml.safe_load(INPUT)
 
-    savefile = data['_options'].get('write', None)
-    tee = data['_options'].get('tee', False) if tee is None else tee
-    verbose = data['_options'].get('verbose', True) if verbose is None else verbose
-    model = data['_options'].get('model', 'model3') if model is None else model
-    solver = data['_options'].get('solver', 'glpk') if solver is None else solver
-    solver_options = data['_options'].get('solver_options', {})
-    pm = load_process(data['_options']['process'], dirname=dirname)
-    solver_strategy = data['_options'].get('solver_strategy', 'simple')
+    options = data['_options']
+    savefile = options.get('write', None)
+    tee = options.get('tee', False) if tee is None else tee
+    seed = options.get('seed', False) if seed is None else seed
+    verbose = options.get('verbose', True) if verbose is None else verbose
+    model = options.get('model', 'model3') if model is None else model
+    solver = options.get('solver', 'glpk') if solver is None else solver
+    solver_options = options.get('solver_options', {})
+    pm = load_process(options['process'], dirname=dirname)
+    solver_strategy = options.get('solver_strategy', 'simple')
 
     obs = load_observations(data['data'], 
-                            data['_options'].get('timesteps', None),
+                            options.get('timesteps', None),
                             dirname,
                             index)
 
-    if model in ['model1', 'model3', 'model5', 'model7']:
+    if model in ['model1', 'model3', 'model5', 'model7', 'model11', 'model13']:
         #
         # For supervised matching, we can confirm that the observations
         # have the right labels
@@ -228,103 +246,110 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         tmp2 = set([name for name in pm.resources])
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
-    print("Creating model")
-    if model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8', 'model10', 'model11', 'model12', 'model13', 'model14']:
-        if model == 'model1':
-            M = create_model1(observations=obs.observations,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None),
-                            verbose=verbose)
-        elif model == 'model2':
-            M = create_model2(observations=obs.observations,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None),
-                            verbose=verbose)
-        elif model == 'model3':
-            M = create_model3(observations=obs.observations,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0),
-                            verbose=verbose)
-        elif model == 'model4':
-            M = create_model4(observations=obs.observations,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None),
-                            gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0),
-                            verbose=verbose)
-        elif model == 'model5':
-            M = create_model5(observations=obs.observations,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0),
-                            verbose=verbose)
-        elif model == 'model7':
-            M = create_model78(observations=obs.observations,
-                            supervised=True,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0),
-                            verbose=verbose)
-        elif model == 'model8':
-            M = create_model78(observations=obs.observations,
-                            supervised=False,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0),
-                            verbose=verbose)
-        elif model == 'model10':
-            M = create_model10(observations=obs.observations,
-                            supervised=False,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            max_delay=data['_options'].get('max_delay',0),
-                            verbose=verbose)
-        elif model == 'model11':
-            assert 'max_delay' not in data['_options']
-            M = create_model11_12(observations=obs.observations,
-                            supervised=True,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            verbose=verbose)
-        elif model == 'model12':
-            assert 'max_delay' not in data['_options']
-            M = create_model11_12(observations=obs.observations,
-                            supervised=False,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            verbose=verbose)
-        elif model == 'model13':
-            assert 'max_delay' not in data['_options']
-            M = create_model13_14(observations=obs.observations,
-                            supervised=True,
-                            pm=pm, 
-                            timesteps=obs.timesteps,
-                            sigma=data['_options'].get('sigma',None), 
-                            gamma=data['_options'].get('gamma',0),
-                            count_data=set(data['_options'].get('count_data',[])),
-                            verbose=verbose)
+    return Munch(savefile=savefile, tee=tee, verbose=verbose, model=model, solver=solver, solver_options=solver_options,
+                    pm=pm, solver_strategy=solver_strategy, obs=obs,
+                    options=options, datafile=datafile, index=index, debug=debug, seed=seed)
 
-        if savefile:
-            print("Writing file:",savefile)
-            M.write(savefile, io_options=dict(symbolic_solver_labels=True))
+
+def runmip(config):
+
+    print("Creating model")
+    if config.model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8', 'model10', 'model11', 'model12', 'model13', 'model14']:
+        if config.model == 'model1':
+            M = create_model1(observations=config.obs.observations,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None),
+                            verbose=config.verbose)
+        elif config.model == 'model2':
+            M = create_model2(observations=config.obs.observations,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None),
+                            verbose=config.verbose)
+        elif config.model == 'model3':
+            M = create_model3(observations=config.obs.observations,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            max_delay=config.options.get('max_delay',0),
+                            verbose=config.verbose)
+        elif config.model == 'model4':
+            M = create_model4(observations=config.obs.observations,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None),
+                            gamma=config.options.get('gamma',0),
+                            max_delay=config.options.get('max_delay',0),
+                            verbose=config.verbose)
+        elif config.model == 'model5':
+            M = create_model5(observations=config.obs.observations,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            max_delay=config.options.get('max_delay',0),
+                            verbose=config.verbose)
+        elif config.model == 'model7':
+            M = create_model78(observations=config.obs.observations,
+                            supervised=True,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            max_delay=config.options.get('max_delay',0),
+                            verbose=config.verbose)
+        elif config.model == 'model8':
+            M = create_model78(observations=config.obs.observations,
+                            supervised=False,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            max_delay=config.options.get('max_delay',0),
+                            verbose=config.verbose)
+        elif config.model == 'model10':
+            M = create_model10(observations=config.obs.observations,
+                            supervised=False,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            max_delay=config.options.get('max_delay',0),
+                            verbose=config.verbose)
+        elif config.model == 'model11':
+            assert 'max_delay' not in config.options
+            M = create_model11_12(observations=config.obs.observations,
+                            supervised=True,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            verbose=config.verbose)
+        elif config.model == 'model12':
+            assert 'max_delay' not in config.options
+            M = create_model11_12(observations=config.obs.observations,
+                            supervised=False,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            verbose=config.verbose)
+        elif config.model == 'model13':
+            assert 'max_delay' not in config.options
+            M = create_model13_14(observations=config.obs.observations,
+                            supervised=True,
+                            pm=config.pm, 
+                            timesteps=config.obs.timesteps,
+                            sigma=config.options.get('sigma',None), 
+                            gamma=config.options.get('gamma',0),
+                            count_data=set(config.options.get('count_data',[])),
+                            verbose=config.verbose)
+
+        if config.savefile:
+            print("Writing file:",config.savefile)
+            M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
             return dict()
 
             M.pprint()
@@ -333,21 +358,21 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
         #
         # Setup results YAML data
         #
-        res = dict( datafile=datafile,
-                    index=index,
-                    model=model, 
-                    indicators=obs.header,
-                    timesteps=obs.timesteps,
+        res = dict( datafile=config.datafile,
+                    index=config.index,
+                    model=config.model, 
+                    indicators=config.obs.header,
+                    timesteps=config.obs.timesteps,
                     results=[])
-        if not obs.datetime is None:
-            res['datetime'] = obs.datetime
+        if not config.obs.datetime is None:
+            res['datetime'] = config.obs.datetime
 
-        if solver_strategy == 'simple':
+        if config.solver_strategy == 'simple':
             #
             # Perform optimization
             #
             print("Optimizing model")
-            results = perform_optimization(M=M, model=model, solver=solver, options=solver_options, tee=tee, debug=debug, obs=obs, pm=pm)
+            results = perform_optimization(M=M, model=config.model, solver=config.solver, options=config.solver_options, tee=config.tee, debug=config.debug, obs=config.obs, pm=config.pm)
 
             #
             # Append results to YAML data
@@ -364,7 +389,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
                 # Perform optimization
                 #
                 print("Optimizing model")
-                results = perform_optimization(M=M, model=model, solver=solver, options=solver_options, tee=tee, debug=debug, obs=obs, pm=pm)
+                results = perform_optimization(M=M, model=config.model, solver=config.solver, options=config.solver_options, tee=config.tee, debug=config.debug, obs=obs, pm=pm)
                 #
                 # Break if infeasible
                 #

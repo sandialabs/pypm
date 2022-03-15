@@ -1,41 +1,42 @@
 datafile: null
 index: 0
-indicators: []
+indicators: None
 model: model13
 results:
 - alignment:
-    a1: {first: 5, last: 11}
-    a2: {first: 15, last: 19}
-  objective: 19.0
-  separation: {a1: 2.0, a2: 1.0}
+    a1: {pre: true}
+    a2: {first: 5, last: 10}
+  labeling: {rA: rA, rB: rB, rC: rC}
+  objective: 12.0
+  separation: {a1: 0, a2: 2.0}
   variables:
     a:
-      ? !!python/tuple [a1, 5]
+      ? !!python/tuple [a2, 5]
       : 1.0
-      ? !!python/tuple [a1, 6]
+      ? !!python/tuple [a2, 6]
       : 1.0
-      ? !!python/tuple [a1, 7]
+      ? !!python/tuple [a2, 7]
       : 1.0
-      ? !!python/tuple [a1, 8]
+      ? !!python/tuple [a2, 8]
       : 1.0
-      ? !!python/tuple [a1, 9]
+      ? !!python/tuple [a2, 9]
       : 1.0
-      ? !!python/tuple [a1, 10]
+      ? !!python/tuple [a2, 10]
       : 1.0
-      ? !!python/tuple [a1, 11]
-      : 1.0
-      ? !!python/tuple [a2, 15]
-      : 1.0
-      ? !!python/tuple [a2, 16]
-      : 1.0
-      ? !!python/tuple [a2, 17]
-      : 1.0
-      ? !!python/tuple [a2, 18]
-      : 1.0
-      ? !!python/tuple [a2, 19]
-      : 1.0
-    o: {a1: 14.0, a2: 5.0}
+    o: {a2: 12.0}
     z:
+      ? !!python/tuple [a1, -1]
+      : 1.0
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
       ? !!python/tuple [a1, 5]
       : 1.0
       ? !!python/tuple [a1, 6]
@@ -86,6 +87,26 @@ results:
       : 1.0
       ? !!python/tuple [a1, 29]
       : 1.0
+      ? !!python/tuple [a2, 5]
+      : 1.0
+      ? !!python/tuple [a2, 6]
+      : 1.0
+      ? !!python/tuple [a2, 7]
+      : 1.0
+      ? !!python/tuple [a2, 8]
+      : 1.0
+      ? !!python/tuple [a2, 9]
+      : 1.0
+      ? !!python/tuple [a2, 10]
+      : 1.0
+      ? !!python/tuple [a2, 11]
+      : 1.0
+      ? !!python/tuple [a2, 12]
+      : 1.0
+      ? !!python/tuple [a2, 13]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
       ? !!python/tuple [a2, 15]
       : 1.0
       ? !!python/tuple [a2, 16]
@@ -116,4 +137,6 @@ results:
       : 1.0
       ? !!python/tuple [a2, 29]
       : 1.0
+search_strategy: tabu
+solver_statistics: {evaluations: 126, iterations: 27, stall count: 25, unique solutions: 18}
 timesteps: 30

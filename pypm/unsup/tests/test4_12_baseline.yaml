@@ -1,11 +1,12 @@
 datafile: null
 index: 0
-indicators: []
+indicators: None
 model: model13
 results:
 - alignment:
     a1: {first: 5, last: 11}
     a2: {first: 15, last: 19}
+  labeling: {rA: rA, rB: rB, rC: rC}
   objective: 19.0
   separation: {a1: 2.0, a2: 1.0}
   variables:
@@ -116,4 +117,6 @@ results:
       : 1.0
       ? !!python/tuple [a2, 29]
       : 1.0
+search_strategy: tabu
+solver_statistics: {evaluations: 137, iterations: 27, stall count: 25, unique solutions: 19}
 timesteps: 30

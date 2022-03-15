@@ -1,22 +1,35 @@
 #
 # Iteratively label data with TABU search
 #
+import copy
+import random
+from munch import Munch
 from .tabu_search import CachedTabuSearch
+from pypm.mip import runmip
 
 
 class LabelSearch(CachedTabuSearch):
 
-    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+    def __init__(self, config=None, nresources=None, nfeatures=None):
         CachedTabuSearch.__init__(self)
-        if pm is not None:
-            self.pm = pm
-            self.nresources = len(pm.resources)
-            self.nfeatures = len(data)
-        else:
-            self.nresources = nresources
-            self.nfeatures = nfeatures
+        self.config = config
+        self.nresources = len(config.pm.resources)
+        self.resources = list(sorted(k for k in self.config.pm.resources))
+        self.nfeatures = len(config.obs['observations'])
+        self.features = list(sorted(config.obs['observations'].keys()))
+        #
+        # Clone the config without observation data (config.obs)
+        #
+        obs = config.obs
+        config.obs = None
+        self.config_clone = copy.deepcopy(config)
+        config.obs = obs
+        self.config_clone.solver_strategy = 'simple'
+        self.config_clone.model = 'model13'         # or model11?
         #
         self.tabu_tenure = round(0.25 * self.nfeatures) + 1
+        #
+        self.results = {}
 
     def initial_solution(self):
         # Each feature is randomly labeled as a resource
@@ -43,12 +56,46 @@ class LabelSearch(CachedTabuSearch):
             yield tuple(nhbr), (i,rorder[(j+1) % self.nresources]), None
 
     def compute_solution_value(self, point):
-        # TODO
-        pass
-                    
-if __name__ == "__main__":
-    random.seed(39483098)
-    ls = LabelSearch(nresources=6, nfeatures=7)
-    ls.max_iterations = 100
-    ls.tabu_tenure = 4
-    ls.run()
+        #
+        # Create labeled observations
+        #
+        # Take the max value across all features associated with a resource in the 
+        # current point.
+        #
+        observations = {k: [0]*self.config.obs.timesteps for k in self.resources}
+        for index, i in enumerate(self.features):
+            k = self.resources[point[index]]
+            for t in range(self.config.obs.timesteps):
+                #print(index,k,i,t)
+                #print(list(observations.keys()))
+                #print(list(self.config.obs['observations'].keys()))
+                observations[k][t] = max(observations[k][t], self.config.obs['observations'][i][t])
+        #
+        # Setup the configuration object to use these observations
+        #
+        self.config_clone.obs = Munch(observations=observations, header="None", timesteps=self.config.obs.timesteps, datetime=None)
+        #
+        # Execute the mip
+        #
+        results = runmip(self.config_clone)
+        #
+        # Cache results
+        #
+        point_ = {i: self.resources[point[index]] for index,i in enumerate(self.features)}
+        self.results[point] = point_, results
+        # 
+        return - sum(max(0,value) for value in results['results'][0]['separation'].values())
+
+
+def run_tabu(config):
+    random.seed(config.seed)
+    ls = LabelSearch(config)
+    ls.max_iterations = config.options.get('max_iterations',100)
+    ls.tabu_tenure = config.options.get('tabu_tenure',4)
+    x, f = ls.run()
+    point_, results = ls.results[x]
+    results['results'][0]['labeling'] = point_
+    results['search_strategy'] = 'tabu'
+    results['solver_statistics'] = {'iterations':ls.iteration, 'stall count':ls.stall_count, 'unique solutions':len(ls.cache), 'evaluations': ls.num_moves_evaluated}
+    return results
+

@@ -11,6 +11,7 @@ class TabuSearch(object):
     def __init__(self):
         self.iteration = 0
         self.max_iterations = 100
+        self.stall_count = 0
         self.max_stall_count = self.max_iterations/4
         self.tabu_tenure = 2
         self.tabu_time = {}
@@ -77,7 +78,7 @@ class TabuSearch(object):
         x_best = x   = self.initial_solution()
         f_best = f_x = self.evaluate(x)
 
-        stall_count = 0
+        self.stall_count = 0
         while True:
             #
             # Find the best neighbor
@@ -92,7 +93,7 @@ class TabuSearch(object):
                 #
                 x_best, f_best = x_nbhd, f_nbhd
                 x, f_x = x_nbhd, f_nbhd
-                stall_count = 0
+                self.stall_count = 0
             else:
                 #
                 # Update the current point to the point generated
@@ -100,7 +101,7 @@ class TabuSearch(object):
                 #
                 if x_nbhd is not None:
                     x, f_x = x_nbhd, f_nbhd
-                stall_count += 1
+                self.stall_count += 1
             #
             # End iteration
             #
@@ -116,8 +117,8 @@ class TabuSearch(object):
             if self.iteration >= self.max_iterations:
                 print("# Termination at iteration {}".format(self.iteration))
                 break
-            if stall_count >= self.max_stall_count:
-                print("# Termination after {} stalled iterations.".format(stall_count))
+            if self.stall_count >= self.max_stall_count:
+                print("# Termination after {} stalled iterations.".format(self.stall_count))
                 break
 
         return x_best, f_best
