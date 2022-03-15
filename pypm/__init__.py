@@ -30,3 +30,4 @@ from . import pypm
 from . import mip
 from . import vis
 from . import chunk
+from . import unsup
