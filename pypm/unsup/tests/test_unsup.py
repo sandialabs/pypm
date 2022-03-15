@@ -81,3 +81,6 @@ def test106_12():
 def test107_12():
     run('test107_12')
 
+def test300_12():
+    run('test300_12')
+
