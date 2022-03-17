@@ -1,10 +1,9 @@
 _options:
   comments: 
-    - confirming that last activity is included if it's short enough
-  model: model11
+    - testing behavior when only second activity matches
   solver_strategy: tabu
   verbose: false
-  process: test105_12.yaml
+  process: test301_12.yaml
   solver: glpk
   tee: false
   timesteps: 30
@@ -36,11 +35,11 @@ activities:
 
 data:
 - ground_truth:
-    a1: {start: 19, stop: 23}
-    a2: {start: 24, stop: 29}
+    a2: {start: 6, stop: 10}
   observations:
-    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1]
-    rB: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,1,1,0, 0,0,0,0,0]
+    rA: [0,0,0,0,0, 0,0,0,1,1, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 0,0,0,1,1, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1]
+    rD: [0,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

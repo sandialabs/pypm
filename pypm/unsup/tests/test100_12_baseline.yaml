@@ -6,7 +6,7 @@ results:
 - alignment:
     a1: {pre: true}
     a2: {first: 5, last: 10}
-  labeling: {rA: rA, rB: rB, rC: rA}
+  labeling: {rA: rA, rB: rB, rC: rB}
   objective: 12.0
   separation: {a1: 0, a2: 2.0}
   variables:
@@ -138,5 +138,5 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
 search_strategy: tabu
-solver_statistics: {evaluations: 134, iterations: 26, stall count: 25, unique solutions: 24}
+solver_statistics: {evaluations: 146, iterations: 27, stall count: 25, unique solutions: 41}
 timesteps: 30

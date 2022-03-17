@@ -4,23 +4,13 @@ indicators: None
 model: model13
 results:
 - alignment:
-    a1: {first: 3, last: 7}
+    a1: {pre: true}
     a2: {first: 8, last: 13}
-  labeling: {rA: rA, rB: rB, rC: rC}
-  objective: 13.0
-  separation: {a1: 0.0, a2: 1.3333333333333333}
+  labeling: {rA: rB, rB: rA, rC: IGNORED}
+  objective: 8.0
+  separation: {a1: 0, a2: 1.3333333333333333}
   variables:
     a:
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
       ? !!python/tuple [a2, 8]
       : 1.0
       ? !!python/tuple [a2, 9]
@@ -33,8 +23,16 @@ results:
       : 1.0
       ? !!python/tuple [a2, 13]
       : 1.0
-    o: {a1: 5.0, a2: 8.0}
+    o: {a2: 8.0}
     z:
+      ? !!python/tuple [a1, -1]
+      : 1.0
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
       ? !!python/tuple [a1, 3]
       : 1.0
       ? !!python/tuple [a1, 4]
@@ -134,5 +132,5 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
 search_strategy: tabu
-solver_statistics: {evaluations: 146, iterations: 27, stall count: 25, unique solutions: 25}
+solver_statistics: {evaluations: 224, iterations: 39, stall count: 25, unique solutions: 53}
 timesteps: 30

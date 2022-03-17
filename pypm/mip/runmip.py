@@ -205,7 +205,14 @@ def summarize(*, model, M, pm, obs):
         results['datetime_alignment'] = datetime_alignment
     #
     if hasattr(M, 'activity_length'):
-        results['separation'] = {i:0 if alignment[i].get('pre',False) or alignment[i].get('post',False) else fracval(pe.value(M.weighted_activity_length[i]),pe.value(M.activity_length[i])) - fracval(pe.value(M.weighted_nonactivity_length[i]),pe.value(M.nonactivity_length[i])) for i in M.activity_length}
+        results['separation'] = {}
+        for i in M.activity_length:
+            if alignment[i].get('pre',False) or alignment[i].get('post',False):
+                results['separation'][i] = 0
+            else:
+                activity = fracval(pe.value(M.weighted_activity_length[i]),pe.value(M.activity_length[i]))
+                nonactivity = fracval(pe.value(M.weighted_nonactivity_length[i]),pe.value(M.nonactivity_length[i]))
+                results['separation'][i] = max(0, activity - nonactivity)
     #
     return results
 

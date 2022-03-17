@@ -90,5 +90,5 @@ results:
       ? !!python/tuple [a1, 29]
       : 1.0
 search_strategy: tabu
-solver_statistics: {evaluations: 86, iterations: 26, stall count: 25, unique solutions: 9}
+solver_statistics: {evaluations: 92, iterations: 26, stall count: 25, unique solutions: 16}
 timesteps: 30

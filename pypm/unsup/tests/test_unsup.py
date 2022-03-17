@@ -15,7 +15,7 @@ def run(testname, debug=False, verify=False):
         data = yaml.safe_load(INPUT)
     assert testname.startswith(data['_options']['process'][:-5])
 
-    config = load_config(data=data, dirname=currdir, debug=debug, tee=debug)
+    config = load_config(data=data, dirname=currdir, debug=debug, tee=debug, model='tabu')
 
     results = run_tabu(config)
     #results = runmip_from_datafile(data=data, model=data['_options']['model'], dirname=currdir, debug=debug, tee=debug)
@@ -83,4 +83,7 @@ def test107_12():
 
 def test300_12():
     run('test300_12')
+
+def test301_12():
+    run('test301_12')
 

@@ -13,8 +13,9 @@ class LabelSearch(CachedTabuSearch):
     def __init__(self, config=None, nresources=None, nfeatures=None):
         CachedTabuSearch.__init__(self)
         self.config = config
-        self.nresources = len(config.pm.resources)
-        self.resources = list(sorted(k for k in self.config.pm.resources))
+        self.verbose = self.config.get('verbose',False)
+        self.nresources = len(config.pm.resources)+1
+        self.resources = list(sorted(k for k in self.config.pm.resources)) + ['IGNORED']
         self.nfeatures = len(config.obs['observations'])
         self.features = list(sorted(config.obs['observations'].keys()))
         #
@@ -65,6 +66,9 @@ class LabelSearch(CachedTabuSearch):
         observations = {k: [0]*self.config.obs.timesteps for k in self.resources}
         for index, i in enumerate(self.features):
             k = self.resources[point[index]]
+            if k == len(self.resources) - 1:
+                # The last category of resources is ignored
+                continue
             for t in range(self.config.obs.timesteps):
                 #print(index,k,i,t)
                 #print(list(observations.keys()))
@@ -84,7 +88,12 @@ class LabelSearch(CachedTabuSearch):
         point_ = {i: self.resources[point[index]] for index,i in enumerate(self.features)}
         self.results[point] = point_, results
         # 
-        return - sum(max(0,value) for value in results['results'][0]['separation'].values())
+        if self.verbose:
+            print(results['results'][0]['separation'])
+            for k in observations:
+                print(k, observations[k])
+        #
+        return - sum(value for value in results['results'][0]['separation'].values())
 
 
 def run_tabu(config):

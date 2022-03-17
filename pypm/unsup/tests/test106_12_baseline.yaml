@@ -6,7 +6,7 @@ results:
 - alignment:
     a1: {first: 19, last: 23}
     a2: {post: true}
-  labeling: {rA: rB, rB: rB, rC: rC}
+  labeling: {rA: IGNORED, rB: rC, rC: rC}
   objective: 5.0
   separation: {a1: 1.0, a2: 0}
   variables:
@@ -46,5 +46,5 @@ results:
       ? !!python/tuple [a1, 29]
       : 1.0
 search_strategy: tabu
-solver_statistics: {evaluations: 156, iterations: 26, stall count: 25, unique solutions: 27}
+solver_statistics: {evaluations: 156, iterations: 26, stall count: 25, unique solutions: 49}
 timesteps: 30

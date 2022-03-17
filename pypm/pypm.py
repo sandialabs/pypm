@@ -117,7 +117,7 @@ def main():                     # pragma: nocover
             OUTPUT.write(yaml.dump(results, default_flow_style=None))
 
     elif args.func == 'unsup':
-        config = load_config(datafile=args.datafile, index=int(args.index))
+        config = load_config(datafile=args.datafile, index=int(args.index), model='tabu')
         if config.solver_strategy == 'tabu':
             results = pypm.unsup.ts_labeling.run_tabu(config)
         elif config.solver_strategy == 'simple':

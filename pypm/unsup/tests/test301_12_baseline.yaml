@@ -4,26 +4,26 @@ indicators: None
 model: model13
 results:
 - alignment:
-    a1: {first: 3, last: 9}
-    a2: {first: 10, last: 14}
-  labeling: {rA: rA, rB: rC, rC: rB}
-  objective: 19.0
-  separation: {a1: 1.9130434782608696, a2: 1.0}
+    a1: {first: 1, last: 5}
+    a2: {first: 8, last: 13}
+  labeling: {rA: rA, rB: rB, rC: IGNORED, rD: rC}
+  objective: 17.0
+  separation: {a1: 1.0, a2: 2.0}
   variables:
     a:
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
       ? !!python/tuple [a1, 3]
       : 1.0
       ? !!python/tuple [a1, 4]
       : 1.0
       ? !!python/tuple [a1, 5]
       : 1.0
-      ? !!python/tuple [a1, 6]
+      ? !!python/tuple [a2, 8]
       : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-      ? !!python/tuple [a1, 8]
-      : 1.0
-      ? !!python/tuple [a1, 9]
+      ? !!python/tuple [a2, 9]
       : 1.0
       ? !!python/tuple [a2, 10]
       : 1.0
@@ -33,10 +33,12 @@ results:
       : 1.0
       ? !!python/tuple [a2, 13]
       : 1.0
-      ? !!python/tuple [a2, 14]
-      : 1.0
-    o: {a1: 14.0, a2: 5.0}
+    o: {a1: 5.0, a2: 12.0}
     z:
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
       ? !!python/tuple [a1, 3]
       : 1.0
       ? !!python/tuple [a1, 4]
@@ -91,6 +93,10 @@ results:
       : 1.0
       ? !!python/tuple [a1, 29]
       : 1.0
+      ? !!python/tuple [a2, 8]
+      : 1.0
+      ? !!python/tuple [a2, 9]
+      : 1.0
       ? !!python/tuple [a2, 10]
       : 1.0
       ? !!python/tuple [a2, 11]
@@ -132,5 +138,5 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
 search_strategy: tabu
-solver_statistics: {evaluations: 134, iterations: 26, stall count: 25, unique solutions: 36}
+solver_statistics: {evaluations: 174, iterations: 29, stall count: 25, unique solutions: 66}
 timesteps: 30
