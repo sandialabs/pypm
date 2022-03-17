@@ -7,6 +7,7 @@ results:
     a1: {first: 5, last: 11}
     a2: {first: 13, last: 17}
   objective: 19.0
+  separation: {a1: 2.0, a2: 1.0}
   variables:
     a:
       ? !!python/tuple [a1, 5]

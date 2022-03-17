@@ -7,6 +7,7 @@ results:
     a1: {first: 5, last: 11}
     a2: {first: 15, last: 19}
   objective: 19.0
+  separation: {a1: 2.0, a2: 1.0}
   variables:
     a:
       ? !!python/tuple [a1, 5]
@@ -35,11 +36,11 @@ results:
       : 1.0
     m:
       ? !!python/tuple [rA, rA]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [rB, rB]
       : 1.0
       ? !!python/tuple [rC, rB]
-      : 0.999999999999999
+      : 1.0
     o: {a1: 14.0, a2: 5.0}
     r:
       ? !!python/tuple [a1, rB, 5]
@@ -63,21 +64,21 @@ results:
       ? !!python/tuple [a1, rC, 7]
       : 1.0
       ? !!python/tuple [a1, rC, 8]
-      : 0.999999999999998
+      : 1.0
       ? !!python/tuple [a1, rC, 9]
       : 1.0
       ? !!python/tuple [a1, rC, 10]
-      : 0.999999999999998
+      : 1.0
       ? !!python/tuple [a1, rC, 11]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a2, rA, 15]
       : 1.0
       ? !!python/tuple [a2, rA, 16]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a2, rA, 17]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a2, rA, 18]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a2, rA, 19]
       : 1.0
     z:

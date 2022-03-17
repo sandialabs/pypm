@@ -13,7 +13,9 @@ class LabelSearch(CachedTabuSearch):
     def __init__(self, config=None, nresources=None, nfeatures=None):
         CachedTabuSearch.__init__(self)
         self.config = config
-        self.verbose = self.config.get('verbose',False)
+        self.verbose = self.config.options.get('verbose',False)
+        if 'max_stall_count' in self.config.options:
+            self.max_stall_count = self.config.options.get('max_stall_count')
         self.nresources = len(config.pm.resources)+1
         self.resources = list(sorted(k for k in self.config.pm.resources)) + ['IGNORED']
         self.nfeatures = len(config.obs['observations'])
@@ -77,7 +79,7 @@ class LabelSearch(CachedTabuSearch):
         #
         # Setup the configuration object to use these observations
         #
-        self.config_clone.obs = Munch(observations=observations, header="None", timesteps=self.config.obs.timesteps, datetime=None)
+        self.config_clone.obs = Munch(observations=observations, header="None", timesteps=self.config.obs.timesteps, datetime=self.config.obs.datetime)
         #
         # Execute the mip
         #
@@ -88,7 +90,7 @@ class LabelSearch(CachedTabuSearch):
         point_ = {i: self.resources[point[index]] for index,i in enumerate(self.features)}
         self.results[point] = point_, results
         # 
-        if self.verbose:
+        if False and self.verbose:
             print(results['results'][0]['separation'])
             for k in observations:
                 print(k, observations[k])

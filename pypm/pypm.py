@@ -3,6 +3,7 @@ import yaml
 from pypm.util import runsim
 from pypm.mip import runmip_from_datafile, load_config, runmip
 from pypm.vis import create_gannt_chart
+from pypm.vis import create_gannt_chart_with_separation_metric
 from pypm.vis import create_labelling_matrix
 from pypm.chunk import chunk_process, chunk_csv
 import pypm.unsup.ts_labeling
@@ -82,7 +83,7 @@ def main():                     # pragma: nocover
     parser_vis.add_argument('results', help='YAML results file')
     parser_vis.add_argument('-o', '--output', help='HTML file where results are stored', default=None)
     parser_vis.add_argument('-i', '--index', help='Index of alignment that is visualized', default=0)
-    parser_vis.add_argument('-t', '--type', help='Indicates the type of visualization generated: gannt or labelling', default='gannt')
+    parser_vis.add_argument('-t', '--type', help='Indicates the type of visualization generated: gannt, gannt-separation or labelling', default='gannt')
     parser_vis.set_defaults(func='vis')
 
     #
@@ -129,6 +130,8 @@ def main():                     # pragma: nocover
     elif args.func == 'vis':
         if args.type == 'gannt':
             create_gannt_chart(args.process, args.results, output_fname=args.output, index=int(args.index))
+        elif args.type == 'gannt-separation':
+            create_gannt_chart_with_separation_metric(args.process, args.results, output_fname=args.output, index=int(args.index))
         elif args.type == 'labelling':
             create_labelling_matrix(args.process, args.results, output_fname=args.output, index=int(args.index))
         else:

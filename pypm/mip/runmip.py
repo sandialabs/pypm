@@ -386,7 +386,7 @@ def runmip(config):
             #
             res['results'].append( results )
 
-        elif solver_strategy == 'enum_labelling':
+        elif config.solver_strategy == 'enum_labelling':
             M.cuts = pe.ConstraintList()
             i = 0
             maxiters = 10

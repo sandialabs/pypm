@@ -833,6 +833,7 @@ def create_pyomo_model11_12(*, K, Tmax, J, E, p, q, O, S, U, observations=None, 
         add_rdef_constraints_unsupervised(M=M, K=Kall, JK=JK, T=T, O=O, U=U, verbose=verbose)
     add_z_constraints(M=M, T=T, J=J, p=p, q=q, E=E, min_delay=min_delay, gamma=gamma, Tmax=Tmax, verbose=verbose)
     add_simultenaity_constraints(M=M, J=J, sigma=sigma, T=T, Kall=Kall, count=count, J_k=J_k, verbose=verbose)
+    add_aux_measures(M=M, J=J, K=K, T=T, O=O)
 
     return M
 
