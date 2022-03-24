@@ -163,6 +163,9 @@ def test106_11():
 def test107_11():
     run('test107_11')
 
+def test108_11():
+    run('test108_11')
+
 
 def test1_12():
     run('test1_12')
