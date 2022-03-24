@@ -1,9 +1,6 @@
 import yaml
 import os.path
-#import datetime
 from munch import Munch
-
-#from .utils import load_projects, load_priorities, _tuplize, to_str, load_scheduled_projects
 from .mip.runmip import load_config, runmip
 from .unsup.ts_labeling import run_tabu
 
