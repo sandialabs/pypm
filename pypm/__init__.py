@@ -25,6 +25,7 @@ __doc__ = __doc__ % __version__
 
 __all__ = ('__version__')
 
+from . import api
 from . import util
 from . import pypm
 from . import mip

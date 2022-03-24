@@ -1,5 +1,6 @@
 # pymp.mip.runmip
 
+
 import yaml
 import pprint
 import csv
@@ -7,6 +8,7 @@ import sys
 from munch import Munch
 import pandas as pd
 from os.path import join
+import os.path
 from pypm.util.load import load_process
 from pypm.mip.models import create_model1, create_model2, create_model3, create_model4, create_model5, create_model78, create_model10, create_model11_12, create_model13_14
 import pyomo.environ as pe
@@ -236,6 +238,8 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     model = options.get('model', 'model3') if model is None else model
     solver = options.get('solver', 'glpk') if solver is None else solver
     solver_options = options.get('solver_options', {})
+    if dirname is None and datafile is not None:
+        dirname = os.path.dirname(os.path.abspath(datafile))
     pm = load_process(options['process'], dirname=dirname)
     solver_strategy = options.get('solver_strategy', 'simple')
 
@@ -255,10 +259,10 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
 
     return Munch(savefile=savefile, tee=tee, verbose=verbose, model=model, solver=solver, solver_options=solver_options,
                     pm=pm, solver_strategy=solver_strategy, obs=obs,
-                    options=options, datafile=datafile, index=index, debug=debug, seed=seed)
+                    options=options, datafile=datafile, index=index, debug=debug, seed=seed, process=options['process'])
 
 
-def runmip(config):
+def runmip(config, constraints=[]):
 
     print("Creating model")
     if config.model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8', 'model10', 'model11', 'model12', 'model13', 'model14']:

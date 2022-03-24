@@ -5,8 +5,6 @@ import copy
 import random
 from munch import Munch
 from .tabu_search import CachedTabuSearch
-from pypm.mip import runmip
-
 
 class LabelSearch(CachedTabuSearch):
 
@@ -21,18 +19,20 @@ class LabelSearch(CachedTabuSearch):
         self.nfeatures = len(config.obs['observations'])
         self.features = list(sorted(config.obs['observations'].keys()))
         #
-        # Clone the config without observation data (config.obs)
-        #
-        obs = config.obs
-        config.obs = None
-        self.config_clone = copy.deepcopy(config)
-        config.obs = obs
-        self.config_clone.solver_strategy = 'simple'
-        self.config_clone.model = 'model13'         # or model11?
-        #
         self.tabu_tenure = round(0.25 * self.nfeatures) + 1
         #
         self.results = {}
+        #
+        # Setup MIP solver, using a clone of the config without observation data (config.obs)
+        #
+        from pypm.api import PYPM
+        self.mip_sup = PYPM.supervised_mip()
+        obs = config.obs
+        config.obs = None
+        self.mip_sup.config = copy.deepcopy(config)
+        self.mip_sup.config.solver_strategy = 'simple'
+        self.mip_sup.config.model = 'model13'         # or model11?
+        config.obs = obs
 
     def initial_solution(self):
         # Each feature is randomly labeled as a resource
@@ -79,11 +79,11 @@ class LabelSearch(CachedTabuSearch):
         #
         # Setup the configuration object to use these observations
         #
-        self.config_clone.obs = Munch(observations=observations, header="None", timesteps=self.config.obs.timesteps, datetime=self.config.obs.datetime)
+        self.mip_sup.config.obs = Munch(observations=observations, header="None", timesteps=self.config.obs.timesteps, datetime=self.config.obs.datetime)
         #
         # Execute the mip
         #
-        results = runmip(self.config_clone)
+        results = self.mip_sup.run()
         #
         # Cache results
         #
@@ -98,7 +98,7 @@ class LabelSearch(CachedTabuSearch):
         return - sum(value for value in results['results'][0]['separation'].values())
 
 
-def run_tabu(config):
+def run_tabu(config, constraints=[]):
     random.seed(config.seed)
     ls = LabelSearch(config)
     ls.max_iterations = config.options.get('max_iterations',100)
@@ -108,5 +108,5 @@ def run_tabu(config):
     results['results'][0]['labeling'] = point_
     results['search_strategy'] = 'tabu'
     results['solver_statistics'] = {'iterations':ls.iteration, 'stall count':ls.stall_count, 'unique solutions':len(ls.cache), 'evaluations': ls.num_moves_evaluated}
-    return results
+    return results.results
 

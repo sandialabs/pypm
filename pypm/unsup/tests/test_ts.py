@@ -1,6 +1,6 @@
-from pypm.unsup.tabu_search import CachedTabuSearch
 import math
 import random
+from pypm.unsup.tabu_search import CachedTabuSearch
 
 
 class Search(CachedTabuSearch):

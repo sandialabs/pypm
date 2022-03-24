@@ -1,12 +1,11 @@
 import argparse
 import yaml
+from pypm.api import PYPM
 from pypm.util import runsim
-from pypm.mip import runmip_from_datafile, load_config, runmip
 from pypm.vis import create_gannt_chart
 from pypm.vis import create_gannt_chart_with_separation_metric
 from pypm.vis import create_labelling_matrix
 from pypm.chunk import chunk_process, chunk_csv
-import pypm.unsup.ts_labeling
 
 
 def main():                     # pragma: nocover
@@ -106,26 +105,32 @@ def main():                     # pragma: nocover
         runsim(configfile=args.config_file, processfile=args.process_file, supervised=not args.unsupervised, outputfile=prefix+"_sim.yaml")
 
     elif args.func == 'mip':
-        results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
-        with open(args.output, 'w') as OUTPUT:
-            print("Writing file: {}".format(args.output))
-            OUTPUT.write(yaml.dump(results, default_flow_style=None))
+        driver = PYPM.supervised_mip()
+        driver.load_config(args.datafile, index=int(args.index))
+        results = driver.run()
+        results.write(args.output)
 
     elif args.func == 'sup':
-        results = runmip_from_datafile(datafile=args.datafile, index=int(args.index))
-        with open(args.output, 'w') as OUTPUT:
-            print("Writing file: {}".format(args.output))
-            OUTPUT.write(yaml.dump(results, default_flow_style=None))
+        driver = PYPM.supervised_mip()
+        driver.load_config(args.datafile, index=int(args.index))
+        results = driver.run()
+        results.write(args.output)
 
     elif args.func == 'unsup':
-        config = load_config(datafile=args.datafile, index=int(args.index), model='tabu')
-        if config.solver_strategy == 'tabu':
-            results = pypm.unsup.ts_labeling.run_tabu(config)
-        elif config.solver_strategy == 'simple':
-            results = runmip(config)
-        with open(args.output, 'w') as OUTPUT:
-            print("Writing file: {}".format(args.output))
-            OUTPUT.write(yaml.dump(results, default_flow_style=None))
+        with open(args.datafile, 'r') as INPUT:
+            config = yaml.safe_load(INPUT)
+        solver_strategy = config['_options'].get('solver_strategy','simple')
+        if solver_strategy == 'tabu':
+            driver = PYPM.tabu_labeling()
+            driver.load_config(args.datafile, index=int(args.index))
+            results = driver.run()
+            results.write(args.output)
+
+        elif solver_strategy == 'simple':
+            driver = PYPM.unsupervised_mip()
+            driver.load_config(args.datafile, index=int(args.index))
+            results = driver.run()
+            results.write(args.output)
 
     elif args.func == 'vis':
         if args.type == 'gannt':

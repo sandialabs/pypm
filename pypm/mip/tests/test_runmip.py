@@ -4,7 +4,7 @@ import yaml
 import pytest
 import pyutilib.misc
 from pypm.util import runsim
-from pypm.mip import runmip_from_datafile
+from pypm.api import PYPM
 from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
@@ -13,12 +13,19 @@ def run(model, example, sim, supervised):
     processfile = join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(example))
     configfile =  join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(sim))
     data = runsim(processfile=processfile, configfile=configfile, model=model, supervised=supervised=='sup')
-    open(join(currdir, "{}_{}_{}_{}_sim.yaml".format(example, sim, model, supervised)), 'w').write(yaml.dump(data, default_flow_style=None))
-    results = runmip_from_datafile(data=data, model=model)
-    output = yaml.dump(results, default_flow_style=None) 
+    sim_config = join(currdir, "{}_{}_{}_{}_sim.yaml".format(example, sim, model, supervised))
+    open(sim_config, 'w').write(yaml.dump(data, default_flow_style=None))
+
+    driver = PYPM.supervised_mip()
+
+    driver.load_config(sim_config)
+    driver.config.dirname = currdir
+    driver.config.datafile = None                           # Ignore this for the test
+
+    results = driver.run()
     outputfile = join(currdir, "{}_{}_{}_{}_results.yaml".format(example, sim, model, supervised))
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
+    results.write(outputfile)
+
     baselinefile = join(currdir, "{}_{}_{}_{}_baseline.yaml".format(example, sim, model, supervised))
     tmp = pyutilib.misc.compare_file( outputfile, baselinefile, tolerance=1e-7)
     assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)

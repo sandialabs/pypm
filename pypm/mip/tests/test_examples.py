@@ -3,22 +3,24 @@ from os.path import join
 import yaml
 import pytest
 import pyutilib.misc
-from pypm.mip import runmip_from_datafile
+from pypm.api import PYPM
 from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
 
 def run(testname, debug=False, verify=False):
-    configfile = processfile = '{}.yaml'.format(testname)
-    with open(join(currdir, processfile), 'r') as INPUT:
-        data = yaml.safe_load(INPUT)
-    assert testname.startswith(data['_options']['process'][:-5])
+    driver = PYPM.supervised_mip()
 
-    results = runmip_from_datafile(data=data, model=data['_options']['model'], dirname=currdir, debug=debug, tee=debug)
-    output = yaml.dump(results, default_flow_style=None) 
+    driver.load_config(join(currdir, '{}.yaml'.format(testname)))
+    driver.config.dirname = currdir
+    driver.config.debug = debug
+    driver.config.tee = debug
+    driver.config.datafile = None                           # Ignore this for the test
+    assert testname.startswith(driver.config.process[:-5])
+
+    results = driver.run()
     outputfile = join(currdir, "{}_results.yaml".format(testname))
-    with open(outputfile, "w") as OUTPUT:
-        OUTPUT.write(output)
+    results.write(outputfile)
 
     if verify:
         alignment = results['results'][0]['alignment']
@@ -29,8 +31,6 @@ def run(testname, debug=False, verify=False):
     tmp = pyutilib.misc.compare_file(outputfile, baselinefile, tolerance=1e-7)
     assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)
-
-
 
 
 def test1():
