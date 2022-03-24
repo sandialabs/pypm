@@ -102,8 +102,8 @@ class LabelSearch(CachedTabuSearch):
 def run_tabu(config, constraints=[]):
     random.seed(config.seed)
     ls = LabelSearch(config)
-    ls.max_iterations = config.options.get('max_iterations',100)
-    ls.tabu_tenure = config.options.get('tabu_tenure',4)
+    ls.options.max_iterations = config.options.get('max_iterations',100)
+    ls.options.tabu_tenure = config.options.get('tabu_tenure',4)
     x, f = ls.run()
     point_, results = ls.results[x]
     results['results'][0]['labeling'] = point_

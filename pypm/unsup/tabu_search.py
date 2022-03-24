@@ -69,7 +69,7 @@ class TabuSearch(object):
                 move_, x_, f_ = move, neighbor, value
 
         if move_ is not None:
-            self.tabu_time[move_] = self.iteration + self.tabu_tenure
+            self.tabu_time[move_] = self.iteration + self.options.tabu_tenure
 
         return x_, f_, tabu
 
@@ -171,7 +171,7 @@ class LabelSearch(CachedTabuSearch):
             self.nresources = nresources
             self.nfeatures = nfeatures
         #
-        self.tabu_tenure = round(0.25 * self.nfeatures) + 1
+        self.options.tabu_tenure = round(0.25 * self.nfeatures) + 1
 
     def initial_solution(self):
         # Each feature is randomly labeled as a resource
@@ -204,6 +204,6 @@ class LabelSearch(CachedTabuSearch):
 if __name__ == "__main__":
     random.seed(39483098)
     ls = LabelSearch(nresources=6, nfeatures=7)
-    ls.max_iterations = 100
-    ls.tabu_tenure = 4
+    ls.options.max_iterations = 100
+    ls.options.tabu_tenure = 4
     ls.run()
