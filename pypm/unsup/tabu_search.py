@@ -9,13 +9,15 @@ import math
 class TabuSearch(object):
 
     def __init__(self):
+        self.options = Munch()
+        self.options.max_iterations = 100
+        self.options.max_stall_count = self.options.max_iterations/4
+        self.options.tabu_tenure = 2
+        self.options.verbose = False
+        #
         self.iteration = 0
-        self.max_iterations = 100
         self.stall_count = 0
-        self.max_stall_count = self.max_iterations/4
-        self.tabu_tenure = 2
         self.tabu_time = {}
-        self.verbose = False
 
     def initial_solution(self):
         #
@@ -52,7 +54,7 @@ class TabuSearch(object):
             if value is None:
                 value = self.evaluate(neighbor)
             if move in self.tabu_time and self.tabu_time[move] >= self.iteration:
-                if self.verbose:
+                if self.options.verbose:
                     print("#   TABU Move: {}  TABU Time: {}".format(move, self.tabu_time[move]))
                 # Aspiration criteria: Always keep best point found so far
                 if value < f_best:
@@ -107,17 +109,17 @@ class TabuSearch(object):
             #
             self.end_iteration()
             self.iteration += 1
-            if self.verbose:
+            if self.options.verbose:
                 print("\n# Iteration: {}\n# Best objective: {}\n# Current Objective: {}\n# Current Point: {}\n".format(self.iteration, f_best, f_x, x))
             else:
                 print("# Iteration: {}  Best objective: {}  Current Objective: {}".format(self.iteration, f_best, f_x))
             #
             # Check termination
             #
-            if self.iteration >= self.max_iterations:
+            if self.iteration >= self.options.max_iterations:
                 print("# Termination at iteration {}".format(self.iteration))
                 break
-            if self.stall_count >= self.max_stall_count:
+            if self.stall_count >= self.options.max_stall_count:
                 print("# Termination after {} stalled iterations.".format(self.stall_count))
                 break
 
@@ -138,7 +140,7 @@ class CachedTabuSearch(TabuSearch):
         if value is None:
             cached = False
             value = self.cache[point] = self.compute_solution_value(point)
-        if self.verbose:
+        if self.options.verbose:
             print("POINT: {}  VALUE: {}  Cached: {}".format(point, value, cached))
         return value
 
@@ -150,7 +152,7 @@ class CachedTabuSearch(TabuSearch):
         print("#   Num Unique Solutions Evaluated: {}".format(len(self.cache)))
         print("#   Num Solutions Evaluated: {}".format(self.num_moves_evaluated))
 
-        if self.verbose:
+        if self.options.verbose:
             print("\nFinal TABU Table")
             for move in sorted(self.tabu_time.keys()):
                 print(move,self.tabu_time[move])
@@ -196,6 +198,7 @@ class LabelSearch(CachedTabuSearch):
             yield tuple(nhbr), (i,rorder[(j+1) % self.nresources]), None
 
     def compute_solution_value(self, point):
+        # This is a dummy value used to test this searcher
         return sum((i+1)*(1+math.sin(i/10.0)) for i in point)
                     
 if __name__ == "__main__":

@@ -11,15 +11,16 @@ class LabelSearch(CachedTabuSearch):
     def __init__(self, config=None, nresources=None, nfeatures=None):
         CachedTabuSearch.__init__(self)
         self.config = config
-        self.verbose = self.config.options.get('verbose',False)
-        if 'max_stall_count' in self.config.options:
-            self.max_stall_count = self.config.options.get('max_stall_count')
+        #
         self.nresources = len(config.pm.resources)+1
         self.resources = list(sorted(k for k in self.config.pm.resources)) + ['IGNORED']
         self.nfeatures = len(config.obs['observations'])
         self.features = list(sorted(config.obs['observations'].keys()))
         #
-        self.tabu_tenure = round(0.25 * self.nfeatures) + 1
+        self.options.verbose = self.config.options.get('verbose',False)
+        if 'max_stall_count' in self.config.options:
+            self.options.max_stall_count = self.config.options.get('max_stall_count')
+        self.options.tabu_tenure = round(0.25 * self.nfeatures) + 1
         #
         self.results = {}
         #
@@ -90,7 +91,7 @@ class LabelSearch(CachedTabuSearch):
         point_ = {i: self.resources[point[index]] for index,i in enumerate(self.features)}
         self.results[point] = point_, results
         # 
-        if False and self.verbose:
+        if False and self.options.verbose:
             print(results['results'][0]['separation'])
             for k in observations:
                 print(k, observations[k])
