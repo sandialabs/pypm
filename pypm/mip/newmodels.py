@@ -133,6 +133,9 @@ class Z_Repn_Model(BaseModel):
         return ans
 
 
+#
+# This is the GSF model in Figure 3.2
+#
 class Model11(Z_Repn_Model):
 
     def __init__(self):
@@ -230,5 +233,7 @@ class Model11(Z_Repn_Model):
 
 def create_model(name):
     if name == 'model11':
+        return Model11()
+    elif name == 'GSF':
         return Model11()
 
