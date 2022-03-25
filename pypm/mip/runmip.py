@@ -11,6 +11,7 @@ from os.path import join
 import os.path
 from pypm.util.load import load_process
 from pypm.mip.models import create_model1, create_model2, create_model3, create_model4, create_model5, create_model78, create_model10, create_model11_12, create_model13_14
+from pypm.mip.newmodels import create_model
 import pyomo.environ as pe
 from pyomo.opt import TerminationCondition as tc
 
@@ -183,6 +184,24 @@ def perform_optimization(*, M, model, solver, options, tee, debug, obs, pm):
     return summarize(model=model, M=M, obs=obs, pm=pm)
 
 
+def new_perform_optimization(*, M, solver, options, tee, debug):
+    opt = pe.SolverFactory(solver)
+    if tee:
+        print("-- Solver Output Begins --")
+    if options:
+        results = opt.solve(M.M, options=options, tee=tee)
+    else:
+        results = opt.solve(M.M, tee=tee)
+    if tee:
+        print("-- Solver Output Ends --")
+    if results.solver.termination_condition not in {tc.optimal, tc.locallyOptimal, tc.feasible}:
+        return None
+    if debug:           #pragma:nocover
+        M.M.pprint()
+        M.M.display()
+    return M.summarize()
+
+
 def fracval(num,denom):
     if denom != 0:
         return num/denom
@@ -276,8 +295,47 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
 
 
 def runmip(config, constraints=[]):
-
     print("Creating model")
+    M = create_model(config.model)
+    if M is None:
+        return old_runmip(config)
+    
+    M(config, constraints=constraints)
+
+    if config.savefile:
+        print("Writing file:",config.savefile)
+        M.M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
+        #M.pprint()
+        #M.display()
+        return dict()
+
+    #
+    # Setup results YAML data
+    #
+    res = dict( solver=dict(search_strategy=config.search_strategy, model=dict(name=config.model)), 
+                data=dict(  datafile=config.datafile,
+                            timesteps=config.obs.timesteps,
+                            indicators=config.obs.header,
+                            index=config.index),
+                results=[])
+    res['data']['datetime'] = config.obs.datetime
+
+    if config.search_strategy == 'mip':
+        #
+        # Perform optimization
+        #
+        print("Optimizing model")
+        results = new_perform_optimization(M=M, solver=config.solver, options=config.solver_options, tee=config.tee, debug=config.debug)
+
+        #
+        # Append results to YAML data
+        #
+        res['results'].append( results )
+
+    return res
+
+
+def old_runmip(config):
     if config.model in ['model1', 'model2', 'model3', 'model4', 'model5', 'model7', 'model8', 'model10', 'model11', 'model12', 'model13', 'model14']:
         if config.model == 'model1':
             M = create_model1(observations=config.obs.observations,
@@ -370,6 +428,10 @@ def runmip(config, constraints=[]):
                             gamma=config.options.get('gamma',0),
                             count_data=set(config.options.get('count_data',[])),
                             verbose=config.verbose)
+        else:
+            M = create_model(config.model)
+            M(config, constraints=constraints)
+            config.search_strategy = 'newmip'
 
         if config.savefile:
             print("Writing file:",config.savefile)
