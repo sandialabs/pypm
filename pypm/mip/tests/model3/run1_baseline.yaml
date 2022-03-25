@@ -1,0 +1,78 @@
+data:
+  datafile: null
+  datetime: null
+  index: 0
+  indicators: [rA, rB, rC]
+  timesteps: 30
+results:
+- goals: {}
+  objective: 13.999999999999995
+  schedule:
+    a1: {first: 7, last: 11}
+    a2: {first: 14, last: 18}
+  variables:
+    a:
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a1, 10]
+      : 1.0
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+      ? !!python/tuple [a2, 16]
+      : 1.0
+      ? !!python/tuple [a2, 17]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0
+    d: {a1: 5.0, a2: 5.0}
+    g: {}
+    r:
+      ? !!python/tuple [a1, rB, 7]
+      : 1.0
+      ? !!python/tuple [a1, rB, 8]
+      : 1.0
+      ? !!python/tuple [a1, rB, 9]
+      : 1.0
+      ? !!python/tuple [a1, rB, 10]
+      : 1.0
+      ? !!python/tuple [a1, rB, 11]
+      : 0.999999999999999
+      ? !!python/tuple [a1, rC, 7]
+      : 1.0
+      ? !!python/tuple [a1, rC, 8]
+      : 1.0
+      ? !!python/tuple [a1, rC, 9]
+      : 1.0
+      ? !!python/tuple [a1, rC, 10]
+      : 1.0
+      ? !!python/tuple [a1, rC, 11]
+      : 0.999999999999999
+      ? !!python/tuple [a2, rA, 15]
+      : 1.0
+      ? !!python/tuple [a2, rA, 16]
+      : 0.999999999999999
+      ? !!python/tuple [a2, rA, 17]
+      : 1.0
+      ? !!python/tuple [a2, rA, 18]
+      : 1.0
+    x:
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+    y:
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0
+solver:
+  model: {name: model3}
+  search_strategy: mip

@@ -1,136 +1,30 @@
-datafile: null
-index: 0
-indicators: None
-model: model13
 results:
-- alignment:
-    a1: {first: 3, last: 9}
-    a2: {first: 10, last: 14}
-  labeling: {rA: rA, rB: rC, rC: rB}
-  objective: 19.0
-  separation: {a1: 1.9130434782608696, a2: 1.0}
-  variables:
-    a:
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-      ? !!python/tuple [a1, 8]
-      : 1.0
-      ? !!python/tuple [a1, 9]
-      : 1.0
-      ? !!python/tuple [a2, 10]
-      : 1.0
-      ? !!python/tuple [a2, 11]
-      : 1.0
-      ? !!python/tuple [a2, 12]
-      : 1.0
-      ? !!python/tuple [a2, 13]
-      : 1.0
-      ? !!python/tuple [a2, 14]
-      : 1.0
-    o: {a1: 14.0, a2: 5.0}
-    z:
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-      ? !!python/tuple [a1, 8]
-      : 1.0
-      ? !!python/tuple [a1, 9]
-      : 1.0
-      ? !!python/tuple [a1, 10]
-      : 1.0
-      ? !!python/tuple [a1, 11]
-      : 1.0
-      ? !!python/tuple [a1, 12]
-      : 1.0
-      ? !!python/tuple [a1, 13]
-      : 1.0
-      ? !!python/tuple [a1, 14]
-      : 1.0
-      ? !!python/tuple [a1, 15]
-      : 1.0
-      ? !!python/tuple [a1, 16]
-      : 1.0
-      ? !!python/tuple [a1, 17]
-      : 1.0
-      ? !!python/tuple [a1, 18]
-      : 1.0
-      ? !!python/tuple [a1, 19]
-      : 1.0
-      ? !!python/tuple [a1, 20]
-      : 1.0
-      ? !!python/tuple [a1, 21]
-      : 1.0
-      ? !!python/tuple [a1, 22]
-      : 1.0
-      ? !!python/tuple [a1, 23]
-      : 1.0
-      ? !!python/tuple [a1, 24]
-      : 1.0
-      ? !!python/tuple [a1, 25]
-      : 1.0
-      ? !!python/tuple [a1, 26]
-      : 1.0
-      ? !!python/tuple [a1, 27]
-      : 1.0
-      ? !!python/tuple [a1, 28]
-      : 1.0
-      ? !!python/tuple [a1, 29]
-      : 1.0
-      ? !!python/tuple [a2, 10]
-      : 1.0
-      ? !!python/tuple [a2, 11]
-      : 1.0
-      ? !!python/tuple [a2, 12]
-      : 1.0
-      ? !!python/tuple [a2, 13]
-      : 1.0
-      ? !!python/tuple [a2, 14]
-      : 1.0
-      ? !!python/tuple [a2, 15]
-      : 1.0
-      ? !!python/tuple [a2, 16]
-      : 1.0
-      ? !!python/tuple [a2, 17]
-      : 1.0
-      ? !!python/tuple [a2, 18]
-      : 1.0
-      ? !!python/tuple [a2, 19]
-      : 1.0
-      ? !!python/tuple [a2, 20]
-      : 1.0
-      ? !!python/tuple [a2, 21]
-      : 1.0
-      ? !!python/tuple [a2, 22]
-      : 1.0
-      ? !!python/tuple [a2, 23]
-      : 1.0
-      ? !!python/tuple [a2, 24]
-      : 1.0
-      ? !!python/tuple [a2, 25]
-      : 1.0
-      ? !!python/tuple [a2, 26]
-      : 1.0
-      ? !!python/tuple [a2, 27]
-      : 1.0
-      ? !!python/tuple [a2, 28]
-      : 1.0
-      ? !!python/tuple [a2, 29]
-      : 1.0
-search_strategy: tabu
-solver_statistics: {evaluations: 134, iterations: 26, stall count: 25, unique solutions: 36}
-timesteps: 30
+- feature_label:
+    rA: rA
+    rB: rC
+    rC: rB
+  goals:
+    match:
+      a1: 14.0
+      a2: 5.0
+    separation:
+      a1: 1.9130434782608696
+      a2: 1.0
+    total_match: 19.0
+    total_separation: 2.9130434782608696
+  schedule:
+    a1:
+      first: 3
+      last: 9
+    a2:
+      first: 10
+      last: 14
+  solver_statistics:
+    evaluations: 134
+    iterations: 26
+    stall count: 25
+    unique solutions: 36
+solver:
+  model:
+    name: model13
+  search_strategy: tabu

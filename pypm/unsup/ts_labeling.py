@@ -31,7 +31,7 @@ class LabelSearch(CachedTabuSearch):
         obs = config.obs
         config.obs = None
         self.mip_sup.config = copy.deepcopy(config)
-        self.mip_sup.config.solver_strategy = 'simple'
+        self.mip_sup.config.search_strategy = 'mip'
         self.mip_sup.config.model = 'model13'         # or model11?
         config.obs = obs
 
@@ -92,11 +92,11 @@ class LabelSearch(CachedTabuSearch):
         self.results[point] = point_, results
         # 
         if False and self.options.verbose:
-            print(results['results'][0]['separation'])
+            print(results['results'][0]['goals']['separation'])
             for k in observations:
                 print(k, observations[k])
         #
-        return - sum(value for value in results['results'][0]['separation'].values())
+        return - results['results'][0]['goals']['total_separation']
 
 
 def run_tabu(config, constraints=[]):
@@ -106,8 +106,8 @@ def run_tabu(config, constraints=[]):
     ls.options.tabu_tenure = config.options.get('tabu_tenure',4)
     x, f = ls.run()
     point_, results = ls.results[x]
-    results['results'][0]['labeling'] = point_
-    results['search_strategy'] = 'tabu'
-    results['solver_statistics'] = {'iterations':ls.iteration, 'stall count':ls.stall_count, 'unique solutions':len(ls.cache), 'evaluations': ls.num_moves_evaluated}
+    results['solver']['search_strategy'] = 'tabu'
+    results['results'][0]['feature_label'] = point_
+    results['results'][0]['solver_statistics'] = {'iterations':ls.iteration, 'stall count':ls.stall_count, 'unique solutions':len(ls.cache), 'evaluations': ls.num_moves_evaluated}
     return results.results
 

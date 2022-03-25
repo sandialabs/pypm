@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for fname in `ls *results.yaml`; do
+    nname=`echo $fname | sed 's#\(.*\)_results\.yaml#\1_baseline.yaml#'`
+    echo $nname
+    mv $fname $nname
+done

@@ -1,0 +1,98 @@
+data:
+  datafile: null
+  datetime: null
+  index: 0
+  indicators: []
+  timesteps: 30
+results:
+- goals: {}
+  objective: 18.999999999999996
+  schedule:
+    a1: {first: 2, last: 11}
+    a2: {first: 15, last: 19}
+  variables:
+    a:
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
+      ? !!python/tuple [a1, 5]
+      : 1.0
+      ? !!python/tuple [a1, 6]
+      : 1.0
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a1, 10]
+      : 1.0
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+      ? !!python/tuple [a2, 16]
+      : 1.0
+      ? !!python/tuple [a2, 17]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0
+      ? !!python/tuple [a2, 19]
+      : 1.0
+    d: {a1: 10.0, a2: 5.0}
+    g: {}
+    r:
+      ? !!python/tuple [a1, rB, 5]
+      : 0.999999999999997
+      ? !!python/tuple [a1, rB, 6]
+      : 1.0
+      ? !!python/tuple [a1, rB, 7]
+      : 1.0
+      ? !!python/tuple [a1, rB, 8]
+      : 1.0
+      ? !!python/tuple [a1, rB, 9]
+      : 1.0
+      ? !!python/tuple [a1, rB, 10]
+      : 1.0
+      ? !!python/tuple [a1, rB, 11]
+      : 1.0
+      ? !!python/tuple [a1, rC, 5]
+      : 1.0
+      ? !!python/tuple [a1, rC, 6]
+      : 1.0
+      ? !!python/tuple [a1, rC, 7]
+      : 1.0
+      ? !!python/tuple [a1, rC, 8]
+      : 1.0
+      ? !!python/tuple [a1, rC, 9]
+      : 1.0
+      ? !!python/tuple [a1, rC, 10]
+      : 1.0
+      ? !!python/tuple [a1, rC, 11]
+      : 1.0
+      ? !!python/tuple [a2, rA, 15]
+      : 1.0
+      ? !!python/tuple [a2, rA, 16]
+      : 1.0
+      ? !!python/tuple [a2, rA, 17]
+      : 1.0
+      ? !!python/tuple [a2, rA, 18]
+      : 1.0
+      ? !!python/tuple [a2, rA, 19]
+      : 1.0
+    x:
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+    y:
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 19]
+      : 1.0
+solver:
+  model: {name: model3}
+  search_strategy: mip

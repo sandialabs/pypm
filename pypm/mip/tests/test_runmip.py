@@ -10,23 +10,25 @@ from pypm.util.fileutils import this_file_dir
 currdir = this_file_dir()
 
 def run(model, example, sim, supervised):
+    datadir = join(currdir, model)
+
     processfile = join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(example))
     configfile =  join(dirname(dirname(currdir)), 'util', 'tests', '{}.yaml'.format(sim))
     data = runsim(processfile=processfile, configfile=configfile, model=model, supervised=supervised=='sup')
-    sim_config = join(currdir, "{}_{}_{}_{}_sim.yaml".format(example, sim, model, supervised))
+    sim_config = join(datadir, "{}_{}_{}_sim.yaml".format(example, sim, supervised))
     open(sim_config, 'w').write(yaml.dump(data, default_flow_style=None))
 
     driver = PYPM.supervised_mip()
 
     driver.load_config(sim_config)
-    driver.config.dirname = currdir
+    driver.config.dirname = datadir
     driver.config.datafile = None                           # Ignore this for the test
 
     results = driver.run()
-    outputfile = join(currdir, "{}_{}_{}_{}_results.yaml".format(example, sim, model, supervised))
-    results.write(outputfile)
+    outputfile = join(datadir, "{}_{}_{}_results.yaml".format(example, sim, supervised))
+    results.write(outputfile, verbose=True)
 
-    baselinefile = join(currdir, "{}_{}_{}_{}_baseline.yaml".format(example, sim, model, supervised))
+    baselinefile = join(datadir, "{}_{}_{}_baseline.yaml".format(example, sim, supervised))
     tmp = pyutilib.misc.compare_file( outputfile, baselinefile, tolerance=1e-7)
     assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)

@@ -1,3 +1,4 @@
+import copy
 import yaml
 import os.path
 from munch import Munch
@@ -16,10 +17,23 @@ class Results(object):
     def __setitem__(self, key, value):
         self.results[key] = value
 
-    def write(self, yamlfile):
-        with open(yamlfile, 'w') as OUTPUT:
-            print("Writing file: {}".format(yamlfile))
-            OUTPUT.write(yaml.dump(self.results, default_flow_style=None))
+    def write(self, yamlfile, verbose=False):
+        if verbose:
+            with open(yamlfile, 'w') as OUTPUT:
+                print("Writing file: {}".format(yamlfile))
+                OUTPUT.write(yaml.dump(self.results, default_flow_style=None))
+        else:
+            # 
+            # Copy the results and delete extraneous stuff used for debugging
+            #
+            tmp = copy.deepcopy(self.results)
+            del tmp['data']
+            for res in tmp['results']:
+                del res['objective']
+                del res['variables']
+            with open(yamlfile, 'w') as OUTPUT:
+                print("Writing file: {}".format(yamlfile))
+                OUTPUT.write(yaml.dump(tmp, default_flow_style=False))
 
     def print_stats(self):
         print("Matching Statistics")
@@ -29,13 +43,19 @@ class Results(object):
 
 class SupervisedMIP(object):
 
-    def __init__(self):
+    def __init__(self, model=None):
+        self.model = model
         self.config = Munch()
         self.constraints = []
         self.objective = Munch(goal="total_match_score")
 
     def load_config(self, yamlfile, index=0):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
+        if self.model is None:
+            if self.config.model is None:
+                self.config.model = 'model13'
+        else:
+            self.config.model = self.model
 
     def run(self):
         return Results(runmip(self.config, constraints=self.constraints))
@@ -103,7 +123,8 @@ class TabuLabeling(UnsupervisedMIP):
         self.constraints = []
 
     def load_config(self, yamlfile, index=0):
-        self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0, model='tabu')
+        self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
+        self.config.model = 'tabu'
 
     def run(self):
         return Results(run_tabu(self.config, constraints=self.constraints))

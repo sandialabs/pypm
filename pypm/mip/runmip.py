@@ -195,26 +195,39 @@ def summarize(*, model, M, pm, obs):
     #
     variables = variables=get_nonzero_variables(M)
     alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
-    results=dict(objective=pe.value(M.objective), variables=variables, alignment=alignment)
+    results=dict(objective=pe.value(M.objective), variables=variables, schedule=alignment, goals=dict())
     #
     if not obs.datetime is None:
         datetime_alignment = {key:{} for key in alignment}
+        lastv = max(v for v in obs.datetime)
         for key,value in alignment.items():
             for k,v in value.items():
-                datetime_alignment[key][k] = obs.datetime[v]
+                if k == 'pre':
+                    datetime_alignment[key][k] = obs.datetime[0]
+                elif k == 'post':
+                    datetime_alignment[key][k] = obs.datetime[lastv]
+                else:
+                    datetime_alignment[key][k] = obs.datetime[v]
             if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
                 datetime_alignment[key]['stop'] = obs.datetime[v+1]
-        results['datetime_alignment'] = datetime_alignment
+        results['datetime_schedule'] = datetime_alignment
     #
     if hasattr(M, 'activity_length'):
-        results['separation'] = {}
+        results['goals']['separation'] = {}
         for i in M.activity_length:
             if alignment[i].get('pre',False) or alignment[i].get('post',False):
-                results['separation'][i] = 0
+                results['goals']['separation'][i] = 0
             else:
                 activity = fracval(pe.value(M.weighted_activity_length[i]),pe.value(M.activity_length[i]))
                 nonactivity = fracval(pe.value(M.weighted_nonactivity_length[i]),pe.value(M.nonactivity_length[i]))
-                results['separation'][i] = max(0, activity - nonactivity)
+                results['goals']['separation'][i] = max(0, activity - nonactivity)
+        results['goals']['total_separation'] = sum(val for val in results['goals']['separation'].values())
+    #
+    if 'o' in variables:
+        results['goals']['match'] = {}
+        for activity, value in variables['o'].items():
+            results['goals']['match'][activity] = value
+        results['goals']['total_match'] = sum(val for val in results['goals']['match'].values())
     #
     return results
 
@@ -235,13 +248,13 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     tee = options.get('tee', False) if tee is None else tee
     seed = options.get('seed', False) if seed is None else seed
     verbose = options.get('verbose', True) if verbose is None else verbose
-    model = options.get('model', 'model3') if model is None else model
+    model = options.get('model', None) if model is None else model
     solver = options.get('solver', 'glpk') if solver is None else solver
     solver_options = options.get('solver_options', {})
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
     pm = load_process(options['process'], dirname=dirname)
-    solver_strategy = options.get('solver_strategy', 'simple')
+    search_strategy = options.get('search_strategy', 'mip')
 
     obs = load_observations(data['data'], 
                             options.get('timesteps', None),
@@ -258,7 +271,7 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
     return Munch(savefile=savefile, tee=tee, verbose=verbose, model=model, solver=solver, solver_options=solver_options,
-                    pm=pm, solver_strategy=solver_strategy, obs=obs,
+                    pm=pm, search_strategy=search_strategy, obs=obs,
                     options=options, datafile=datafile, index=index, debug=debug, seed=seed, process=options['process'])
 
 
@@ -369,16 +382,15 @@ def runmip(config, constraints=[]):
         #
         # Setup results YAML data
         #
-        res = dict( datafile=config.datafile,
-                    index=config.index,
-                    model=config.model, 
-                    indicators=config.obs.header,
-                    timesteps=config.obs.timesteps,
+        res = dict( solver=dict(search_strategy=config.search_strategy, model=dict(name=config.model)), 
+                    data=dict(  datafile=config.datafile,
+                                timesteps=config.obs.timesteps,
+                                indicators=config.obs.header,
+                                index=config.index),
                     results=[])
-        if not config.obs.datetime is None:
-            res['datetime'] = config.obs.datetime
+        res['data']['datetime'] = config.obs.datetime
 
-        if config.solver_strategy == 'simple':
+        if config.search_strategy == 'mip':
             #
             # Perform optimization
             #
@@ -390,7 +402,7 @@ def runmip(config, constraints=[]):
             #
             res['results'].append( results )
 
-        elif config.solver_strategy == 'enum_labelling':
+        elif config.search_strategy == 'enum_labelling':
             M.cuts = pe.ConstraintList()
             i = 0
             maxiters = 10
