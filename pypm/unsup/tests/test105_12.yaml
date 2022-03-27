@@ -2,7 +2,7 @@ _options:
   comments: 
     - confirming that last activity is included if it's short enough
   model: model11
-  solver_strategy: tabu
+  search_strategy: tabu
   verbose: false
   process: test105_12.yaml
   solver: glpk

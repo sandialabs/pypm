@@ -3,7 +3,7 @@ _options:
     - Mimicing example1_sim1_model3_sup
     - Activity 2 isn't scheduled because there are no observations
   model: model11
-  solver_strategy: tabu
+  search_strategy: tabu
   process: test1_12.yaml
   solver: glpk
   tee: true

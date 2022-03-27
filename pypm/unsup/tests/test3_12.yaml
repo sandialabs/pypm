@@ -2,7 +2,7 @@ _options:
   comments: 
     - Mimicing test1 with delay before a1
   model: model11
-  solver_strategy: tabu
+  search_strategy: tabu
   process: test3_12.yaml
   solver: glpk
   tee: false

@@ -63,8 +63,9 @@ class BaseModel(object):
         results=dict(objective=pe.value(self.M.objective), variables=variables, schedule=alignment, goals=dict())
 
         if not self.config.obs.datetime is None:
+            obs = self.config.obs
             datetime_alignment = {key:{} for key in alignment}
-            lastv = max(v for v in obs.datetime)
+            lastv = max(v for v in self.config.obs.datetime)
             for key,value in alignment.items():
                 for k,v in value.items():
                     if k == 'pre':
@@ -188,7 +189,8 @@ class Model11(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
+            #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
+            tprev = max(t- (Q[j]+Gamma[j]), -1)
             return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 

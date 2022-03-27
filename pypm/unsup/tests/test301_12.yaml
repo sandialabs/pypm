@@ -1,7 +1,7 @@
 _options:
   comments: 
     - testing behavior when only second activity matches
-  solver_strategy: tabu
+  search_strategy: tabu
   verbose: false
   process: test301_12.yaml
   solver: glpk

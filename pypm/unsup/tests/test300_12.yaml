@@ -2,7 +2,7 @@ _options:
   comments: 
     - testing behavior when only second activity matches
   model: model11
-  solver_strategy: tabu
+  search_strategy: tabu
   process: test300_12.yaml
   solver: glpk
   tee: true

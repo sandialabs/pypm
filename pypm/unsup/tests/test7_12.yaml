@@ -2,7 +2,7 @@ _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
   model: model11
-  solver_strategy: tabu
+  search_strategy: tabu
   process: test7_12.yaml
   solver: glpk
   tee: true

@@ -2,7 +2,7 @@ _options:
   comments: 
     - confirming that last activity is not included if there are no observations
   model: model11
-  solver_strategy: tabu
+  search_strategy: tabu
   process: test106_12.yaml
   solver: glpk
   tee: true

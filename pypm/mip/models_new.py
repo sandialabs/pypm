@@ -54,6 +54,55 @@ def add_objective_o(*, M, J, T, S, K, O, count_data=[], ar_count=None, JK=None, 
     if verbose:
         toc("add_objective_o")
 
+def add_objective_sep(*, M, J, T, S, K, O, p, count_data=[], ar_count=None, JK=None, verbose=False, supervised=True):
+    if verbose:
+        tic("add_objective_sep")
+
+    def objective_(m):
+        return sum(m.o[j] for j in J)
+    M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
+
+    M.sep = pe.Var(JK, within=pe.NonNegativeReals)
+    def c_sep_(m,j,k):
+        wal  = sum(O[k][t] * m.a[j,t]     for t in T)
+        wnal = sum(O[k][t] * (1-m.a[j,t]) for t in T)
+        M.sep[j,k] <= wal / p[j] - wnal / (len(T) - p[j])
+    M.c_sep = pe.Var(JK, rule=c_sep_)
+
+    if supervised:
+        def odef_(m, j):
+            m.o[j] = 
+                
+
+
+
+        if len(count_data) == 0:
+            def odef_(m, j):
+                return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
+        else:
+            def odef_(m, j):
+                e1 = sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j].difference(count_data)) for t in T)
+                e2 = sum(sum(S[j,k]*m.r[j,k,t] for k in K[j].intersection(count_data)) for t in T)
+                return m.o[j] == e1 + e2
+    else:
+        def odef_(m, j):
+            return m.o[j] == sum(sum(S[j,k]*m.r[j,k,t] for k in K[j]) for t in T)
+    M.odef = pe.Constraint(J, rule=odef_)
+
+    if supervised and len(count_data) > 0:
+        def radef_(m, j, k, t):
+            if k in count_data:
+                return m.r[j,k,t] <= m.a[j,t]
+            return pe.Constraint.Skip
+        M.radef = pe.Constraint(JK, T, rule=radef_)
+
+        def rsum_(m, k, t):
+            return sum(ar_count[j,k] * M.r[j,k,t] for j in J if (j,k) in JK) <= O[k][t]
+        M.rsum = pe.Constraint(count_data, T, rule=rsum_)
+
+    if verbose:
+        toc("add_objective_sep")
+
 def add_aux_measures(*, M, J, K, T, O, verbose=False):
     if verbose:
         tic("add_objective_o")
@@ -295,7 +344,7 @@ def add_z_constraints(*, M, T, J, p, q, min_delay, gamma, E, Tmax, verbose=False
     M.firsta = pe.Constraint(J, T, rule=firsta_)
 
     def activity_start_(m, j, t):
-        tprev = max(t- (q[j]+gamma[j]), -1)
+        tprev = max(t- (q[j]+gamma[j]+min_delay[j]), -1)
         return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
     M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
