@@ -1,0 +1,7 @@
+_options:
+  process: process.yaml
+  solver: glpk
+  tee: true
+  verbose: true
+data:
+  filename: data.csv
