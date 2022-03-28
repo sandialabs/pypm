@@ -25,6 +25,8 @@ def run():
     #
     # Constraints
     #
+    # Set the activity min/max lengths to be equal to the min value
+    #
     pm.maximize_total_match_score()
     for j in length:
         pm.set_activity_duration(j, length[j].min, length[j].min)

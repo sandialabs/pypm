@@ -24,7 +24,7 @@ def fracval(num,denom):
 
 class ProcessModelData(object):
 
-    def __init__(self, data):
+    def __init__(self, data, constraints=None):
         pm = data.pm
         Kall = list(sorted(name for name in pm.resources))
 
@@ -54,6 +54,15 @@ class ProcessModelData(object):
             self.Gamma = {j:data.get('gamma',0) for j in self.J}
         self.Upsilon = data.get('sigma',None)
         self.S = {(j,k):1 if k in self.K[j] else 0 for j in pm for k in Kall}
+
+        if constraints:
+            for con in constraints:
+                if con is None:
+                    continue
+                if con.constraint == "activity_duration":
+                    j = con.activity
+                    self.P[j] = con.minval
+                    self.Q[j] = con.maxval
 
 
 class BaseModel(object):
@@ -236,6 +245,109 @@ class Model11(Z_Repn_Model):
 
     def __call__(self, config, constraints=[]):
         self.config = config
+        d = self.data = ProcessModelData(config, constraints)
+        self.constraints = constraints
+
+        self.M = self.create_model(objective=config.objective,
+                                J=d.J, T=d.T, S=d.S, K=d.K, 
+                                O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
+                                Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                verbose=config.verbose)
+
+        self.enforce_constraints(self.M, constraints, verbose=config.verbose)
+
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+
+        assert objective == 'total_match_score', "Model11 can not optimize the goal {}".format(objective)
+
+        M = pe.ConcreteModel()
+
+        M.z = pe.Var(J, [-1]+T, within=pe.Binary)
+        M.a = pe.Var(J, T, within=pe.Binary)
+        M.o = pe.Var(J, bounds=(0,None))
+
+        # Objective
+
+        def objective_(m):
+            return sum(m.o[j] for j in J)
+        M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
+
+        def odef_(m, j):
+            return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
+        M.odef = pe.Constraint(J, rule=odef_)
+
+        # Simultenaity constraints
+
+        if not Upsilon is None:
+            def activity_limit_(m, t):
+                return sum(m.a[j,t] for j in J) <= Upsilon
+            M.activity_limit = pe.Constraint(T, rule=activity_limit_)
+
+        # Z constraints
+
+        def zstep_(m, j, t):
+            return m.z[j,t] - m.z[j, t-1] >= 0
+        M.zstep = pe.Constraint(J, T, rule=zstep_)
+
+        def firsta_(m, j, t):
+            return m.z[j,t] - m.z[j,t-1] <= m.a[j,t]
+        M.firsta = pe.Constraint(J, T, rule=firsta_)
+
+        def activity_start_(m, j, t):
+            #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
+            tprev = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+
+        def length_lower_(m, j):
+            return sum(m.a[j,t] for t in T) >= P[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+        M.length_lower = pe.Constraint(J, rule=length_lower_)
+
+        def length_upper_(m, j):
+            return sum(m.a[j,t] for t in T) <= Q[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+        M.length_upper = pe.Constraint(J, rule=length_upper_)
+
+        def precedence_lb_(m, i, j, t):
+            tprev = max(t- (P[i]+Omega[i]), -1)
+            return m.z[i,tprev] - m.z[j,t] >= 0
+        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+        def activity_stop_(m, i, j, t):
+            return 1 - m.z[j,t] >= m.a[i,t]
+        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+
+        # Auxilliary computed values
+
+        def activity_length_(m, j):
+            return sum(m.a[j,t] for t in T)
+        M.activity_length = pe.Expression(J, rule=activity_length_)
+
+        def weighted_activity_length_(m, j):
+            return sum(O[k][t] * m.a[j,t] for k in K[j] for t in T)
+        M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+
+        def nonactivity_length_(m, j):
+            return sum( (1-m.a[j,t]) for t in T)
+        M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+
+        def weighted_nonactivity_length_(m, j):
+            return sum(O[k][t] * (1-m.a[j,t]) for k in K[j] for t in T)
+        M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
+
+        return M
+
+
+#
+# This is the GSF-ED model in Figure 4.1
+#
+class Model13(Z_Repn_Model):
+
+    def __init__(self):
+        self.name = 'model13'
+        self.description = 'Supervised process matching maximizing match score, including both continuous and count data'
+
+    def __call__(self, config, constraints=[]):
+        self.config = config
         d = self.data = ProcessModelData(config)
         self.constraints = constraints
 
@@ -334,4 +446,9 @@ def create_model(name):
         return Model11()
     elif name == 'GSF':
         return Model11()
+
+    elif name == 'model13-new':
+        return Model13()
+    elif name == 'GSF-ED':
+        return Model13()
 

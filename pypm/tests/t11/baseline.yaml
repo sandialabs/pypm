@@ -1,17 +1,15 @@
 results:
 - datetime_schedule:
     Activity1:
-      first: '2021-01-02 07:00:00'
-      last: '2021-01-02 16:00:00'
-      stop: '2021-01-02 17:00:00'
+      pre: '2021-01-01 03:00:00'
     Activity2:
-      first: '2021-01-08 01:00:00'
-      last: '2021-01-09 16:00:00'
-      stop: '2021-01-09 17:00:00'
+      first: '2021-01-01 03:00:00'
+      last: '2021-01-02 18:00:00'
+      stop: '2021-01-02 19:00:00'
     Activity3:
-      first: '2021-01-18 01:00:00'
-      last: '2021-01-18 10:00:00'
-      stop: '2021-01-18 11:00:00'
+      first: '2021-01-11 03:00:00'
+      last: '2021-01-11 12:00:00'
+      stop: '2021-01-11 13:00:00'
     Activity4:
       first: '2021-01-27 15:00:00'
       last: '2021-01-29 16:00:00'
@@ -24,29 +22,27 @@ results:
       post: '2021-02-11 23:00:00'
   goals:
     match:
-      Activity1: 20.0
-      Activity2: 10.0
+      Activity2: 30.0
       Activity4: 10.0
       Activity5: 20.0
     separation:
-      Activity1: 1.899497487437186
-      Activity2: 0.1878238341968912
+      Activity1: 0
+      Activity2: 0.7085492227979274
       Activity3: 0
       Activity4: 0.13717277486910995
       Activity5: 1.899497487437186
       Activity6: 0
     total_match: 60.0
-    total_separation: 4.123991583940373
+    total_separation: 2.745219485104223
   schedule:
     Activity1:
-      first: 28
-      last: 37
+      pre: true
     Activity2:
-      first: 166
-      last: 205
+      first: 0
+      last: 39
     Activity3:
-      first: 406
-      last: 415
+      first: 240
+      last: 249
     Activity4:
       first: 636
       last: 685

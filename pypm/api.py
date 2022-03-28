@@ -107,6 +107,10 @@ class SupervisedMIP(object):
         self.constraints.append( Munch(activity=activity, constraint="relax_start") )
         return len(self.constraints)-1
 
+    def set_activity_duration(self, activity, minval, maxval):
+        self.constraints.append( Munch(activity=activity, constraint="activity_duration", minval=minval, maxval=maxval) )
+        return len(self.constraints)-1
+
     #
     # Matching goals
     #
