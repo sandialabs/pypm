@@ -17,7 +17,7 @@ def run(testname, debug=False, verify=False):
     driver.config.tee = debug
     driver.config.datafile = None                           # Ignore this for the test
 
-    results = driver.run()
+    results = driver.generate_schedule()
     outputfile = join(currdir, "model3/{}_results.yaml".format(testname))
     results.write(outputfile, verbose=True)
 

@@ -4,7 +4,7 @@
 from pypm.api import PYPM
 
 def run():
-    #PYPM.options['verbose'] = False
+    #PYPM.options['verbose'] = True
 
     #
     # Configure process matching api
@@ -16,7 +16,7 @@ def run():
     #
     pm.solver_options['name'] = 'glpk'
     #pm.solver_options['show_solver_output'] = True
-    results = pm.run()
+    results = pm.generate_schedule()
     #
     # Save results
     #

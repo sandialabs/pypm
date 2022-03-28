@@ -50,16 +50,22 @@ class SupervisedMIP(object):
         self.config = Munch()
         self.constraints = []
         self.objective = Munch(goal="total_match_score")
+        self.solver_options = Munch(name="glpk", show_solver_output=False)
 
     def load_config(self, yamlfile, index=0):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
         if self.model is None:
             if self.config.model is None:
-                self.config.model = 'model13'
+                self.config.model = 'model11'
         else:
             self.config.model = self.model
+        self.config.solver = self.solver_options.name
 
-    def run(self):
+    def generate_schedule(self):
+        self.config.solver = self.solver_options.name
+        self.config.tee = self.solver_options.show_solver_output
+        if PYPM.options.verbose is not None:
+            self.config.verbose = PYPM.options.verbose
         return Results(runmip(self.config, constraints=self.constraints))
 
     #
@@ -75,8 +81,8 @@ class SupervisedMIP(object):
     def include(self, activity):
         self.constraints.append( Munch(activity=activity, constraint="include") )
 
-    def exclude(self, activity):
-        self.constraints.append( Munch(activity=activity, constraint="exclude") )
+    #def exclude(self, activity):
+    #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
 
     def set_earliest_start_date(self, activity, startdate):
         self.constraints.append( Munch(activity=activity, constraint="earliest_start", startdate=startdate) )
@@ -118,7 +124,7 @@ class UnsupervisedMIP(SupervisedMIP):
     pass
 
 
-class TabuLabeling(UnsupervisedMIP):
+class TabuLabeling(object):
 
     def __init__(self):
         self.config = Munch()
@@ -128,14 +134,14 @@ class TabuLabeling(UnsupervisedMIP):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
         self.config.model = 'tabu'
 
-    def run(self):
+    def generate_labeling_and_schedule(self):
         return Results(run_tabu(self.config, constraints=self.constraints))
 
 
 class PYPM_api(object):
 
     def __init__(self):
-        self.options = Munch(verbose=False)
+        self.options = Munch(verbose=None)
 
     def supervised_mip(self):
         return SupervisedMIP()

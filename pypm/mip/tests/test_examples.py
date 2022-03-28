@@ -19,7 +19,7 @@ def run(testname, dirname, debug=False, verify=False):
     driver.config.datafile = None                           # Ignore this for the test
     assert testname.startswith(driver.config.process[:-5])
 
-    results = driver.run()
+    results = driver.generate_schedule()
     outputfile = join(dirname, "{}_results.yaml".format(testname))
     results.write(outputfile, verbose=True)
 

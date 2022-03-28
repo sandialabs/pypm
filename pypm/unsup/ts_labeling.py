@@ -84,7 +84,7 @@ class LabelSearch(CachedTabuSearch):
         #
         # Execute the mip
         #
-        results = self.mip_sup.run()
+        results = self.mip_sup.generate_schedule()
         #
         # Cache results
         #

@@ -16,7 +16,7 @@ def run(testname, debug=False, verify=False):
     driver.config.datafile = None
     assert testname.startswith(driver.config.process[:-5])
 
-    results = driver.run()
+    results = driver.generate_labeling_and_schedule()
     outputfile = join(currdir, "{}_results.yaml".format(testname))
     results.write(outputfile)
 

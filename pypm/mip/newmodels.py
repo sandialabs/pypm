@@ -1,3 +1,4 @@
+import datetime
 import pyomo.environ as pe
 
 #
@@ -133,6 +134,98 @@ class Z_Repn_Model(BaseModel):
                 ans[j]['last'] = t
         return ans
 
+    def enforce_constraints(self, M, constraints, verbose=False):
+        if self.config.obs.datetime is None:
+            invdatetime = {}
+        else:
+            invdatetime = {datetime.datetime.fromisoformat(v):k for k,v in self.config.obs.datetime.items()}
+        #
+        # Set constraints by fixing variables in the model
+        #
+        for con in constraints:
+            if con is None:
+                continue
+
+            j = con.activity
+            if con.constraint == 'include':
+                m.z[j,-1].fix(0)
+                m.z[j,self.Tmax-1].fix(1)
+
+            elif con.constraint == 'earliest_start':
+                if len(invdatetime) == 0:
+                    print("WARNING: attemping to apply fix_start constraint with data that does not specify datetime values.")
+                    continue
+                start = con.startdate
+                if isinstance(start, str):
+                    start = datetime.datetime.fromisoformat(start)
+                t = invdatetime.get(start,None)
+
+                for dd,tt in invdatetime.items():
+                    diff = dd - start
+                    if diff.hours < 0:
+                        m.z[j,t].fix(0)
+
+            elif con.constraint == 'latest_start':
+                if len(invdatetime) == 0:
+                    print("WARNING: attemping to apply fix_start constraint with data that does not specify datetime values.")
+                    continue
+                start = con.startdate
+                if isinstance(start, str):
+                    start = datetime.datetime.fromisoformat(start)
+                t = invdatetime.get(start,None)
+
+                for dd,tt in invdatetime.items():
+                    diff = dd - start
+                    if diff.hours > 0:
+                        m.z[j,t].fix(1)
+
+            elif con.constraint == 'fix_start':
+                if len(invdatetime) == 0:
+                    print("WARNING: attemping to apply fix_start constraint with data that does not specify datetime values.")
+                    continue
+                start = con.startdate
+                if isinstance(start, str):
+                    start = datetime.datetime.fromisoformat(start)
+                t = invdatetime.get(start,None)
+
+                if t is not None:
+                    m.z[j,t].fix(1)
+                    m.z[j,t-1].fix(0)
+                else:
+                    print("WARNING: the fix_start constraint for activity {} specifies the date {} that is not in the time window.".format(activity, con.startdate))
+                    mindiff = float('inf')
+                    nextd = None
+                    for dd,tt in invdatetime.items():
+                        diff = dd - start
+                        if diff.hours > 0:
+                            if nextd is None or diff.hours < mindiff:
+                                mindiff = diff.hours
+                                nextd = dd
+                    if nextd is None:
+                        print("\tThe startdate is after the process matching time window.")
+                    else:
+                        print("\tThe next valid startdate is {}".format(nextd))
+
+            elif con.constraint == 'relax':
+                m.z[j,-1].unfix(0)
+                m.z[j,self.Tmax-1].unfix()
+                for t in self.data.T:
+                    m.z[j,t].unfix()
+
+            elif con.constraint == 'relax_startdate':
+                for t in self.data.T:
+                    m.z[j,t].unfix()
+
+        if verbose:
+            print("Summary of fixed variables")
+            for j,t in M.a:
+                if M.a[j,t].fixed:
+                    print(M.a[j,t], M.a[j,t].value)
+            for j,t in M.z:
+                if M.z[j,t].fixed:
+                    print(M.z[j,t], M.z[j,t].value)
+
+
 
 #
 # This is the GSF model in Figure 3.2
@@ -152,6 +245,8 @@ class Model11(Z_Repn_Model):
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
                                 verbose=config.verbose)
+
+        self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
     def create_model(self, *, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
 

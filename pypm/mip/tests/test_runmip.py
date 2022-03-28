@@ -24,7 +24,7 @@ def run(model, example, sim, supervised):
     driver.config.dirname = datadir
     driver.config.datafile = None                           # Ignore this for the test
 
-    results = driver.run()
+    results = driver.generate_schedule()
     outputfile = join(datadir, "{}_{}_{}_results.yaml".format(example, sim, supervised))
     results.write(outputfile, verbose=True)
 
