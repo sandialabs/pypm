@@ -113,13 +113,13 @@ def main():                     # pragma: nocover
     elif args.func == 'mip':
         driver = PYPM.supervised_mip()
         driver.load_config(args.datafile, index=int(args.index))
-        results = driver.run()
+        results = driver.generate_schedule()
         results.write(args.output, verbose=args.verbose)
 
     elif args.func == 'sup':
         driver = PYPM.supervised_mip()
         driver.load_config(args.datafile, index=int(args.index))
-        results = driver.run()
+        results = driver.generate_schedule()
         results.write(args.output, verbose=args.verbose)
 
     elif args.func == 'unsup':
@@ -129,13 +129,13 @@ def main():                     # pragma: nocover
         if search_strategy == 'tabu':
             driver = PYPM.tabu_labeling()
             driver.load_config(args.datafile, index=int(args.index))
-            results = driver.run()
+            results = driver.generate_labels_and_schedule()
             results.write(args.output, verbose=args.verbose)
 
         elif search_strategy == 'mip':
             driver = PYPM.unsupervised_mip()
             driver.load_config(args.datafile, index=int(args.index))
-            results = driver.run()
+            results = driver.generate_schedule()
             results.write(args.output, verbose=args.verbose)
 
     elif args.func == 'vis':
