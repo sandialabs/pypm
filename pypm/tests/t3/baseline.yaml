@@ -1,0 +1,61 @@
+results:
+- datetime_schedule:
+    Activity1:
+      first: '2021-01-02 08:00:00'
+      last: '2021-01-02 17:00:00'
+      stop: '2021-01-02 18:00:00'
+    Activity2:
+      first: '2021-01-09 07:00:00'
+      last: '2021-01-10 22:00:00'
+      stop: '2021-01-10 23:00:00'
+    Activity3:
+      first: '2021-01-20 13:00:00'
+      last: '2021-01-20 22:00:00'
+      stop: '2021-01-20 23:00:00'
+    Activity4:
+      first: '2021-01-29 07:00:00'
+      last: '2021-01-31 08:00:00'
+      stop: '2021-01-31 09:00:00'
+    Activity5:
+      first: '2021-02-06 07:00:00'
+      last: '2021-02-06 16:00:00'
+      stop: '2021-02-06 17:00:00'
+    Activity6:
+      post: '2021-02-11 23:00:00'
+  goals:
+    match:
+      Activity1: 18.0
+      Activity2: 10.0
+      Activity4: 10.0
+      Activity5: 20.0
+    separation:
+      Activity1: 1.6974874371859296
+      Activity2: 0.1878238341968912
+      Activity3: 0
+      Activity4: 0.13717277486910995
+      Activity5: 1.899497487437186
+      Activity6: 0
+    total_match: 58.0
+    total_separation: 3.9219815336891166
+  schedule:
+    Activity1:
+      first: 29
+      last: 38
+    Activity2:
+      first: 196
+      last: 235
+    Activity3:
+      first: 466
+      last: 475
+    Activity4:
+      first: 676
+      last: 725
+    Activity5:
+      first: 868
+      last: 877
+    Activity6:
+      post: true
+solver:
+  model:
+    name: model11
+  search_strategy: mip

@@ -40,3 +40,21 @@ def run(testname):
 def test_t1():
     run('t1')
 
+def test_t2():
+    run('t2')
+
+def test_t3():
+    run('t3')
+
+def test_t4():
+    run('t4')
+
+def test_t5():
+    run('t5')
+
+def test_t6():
+    run('t6')
+
+def test_t7():
+    run('t7')
+

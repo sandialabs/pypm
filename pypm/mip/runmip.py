@@ -266,7 +266,7 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     savefile = options.get('write', None)
     tee = options.get('tee', False) if tee is None else tee
     seed = options.get('seed', False) if seed is None else seed
-    verbose = options.get('verbose', True) if verbose is None else verbose
+    verbose = options.get('verbose', False) if verbose is None else verbose
     model = options.get('model', None) if model is None else model
     solver = options.get('solver', 'glpk') if solver is None else solver
     solver_options = options.get('solver_options', {})

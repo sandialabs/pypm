@@ -148,8 +148,8 @@ class Z_Repn_Model(BaseModel):
 
             j = con.activity
             if con.constraint == 'include':
-                m.z[j,-1].fix(0)
-                m.z[j,self.Tmax-1].fix(1)
+                M.z[j,-1].fix(0)
+                M.z[j,self.data.Tmax-1].fix(1)
 
             elif con.constraint == 'earliest_start':
                 if len(invdatetime) == 0:
@@ -158,12 +158,11 @@ class Z_Repn_Model(BaseModel):
                 start = con.startdate
                 if isinstance(start, str):
                     start = datetime.datetime.fromisoformat(start)
-                t = invdatetime.get(start,None)
 
                 for dd,tt in invdatetime.items():
                     diff = dd - start
-                    if diff.hours < 0:
-                        m.z[j,t].fix(0)
+                    if diff.total_seconds() < 0:
+                        M.z[j,tt].fix(0)
 
             elif con.constraint == 'latest_start':
                 if len(invdatetime) == 0:
@@ -172,12 +171,11 @@ class Z_Repn_Model(BaseModel):
                 start = con.startdate
                 if isinstance(start, str):
                     start = datetime.datetime.fromisoformat(start)
-                t = invdatetime.get(start,None)
 
                 for dd,tt in invdatetime.items():
                     diff = dd - start
-                    if diff.hours > 0:
-                        m.z[j,t].fix(1)
+                    if diff.total_seconds() >= 0:
+                        M.z[j,tt].fix(1)
 
             elif con.constraint == 'fix_start':
                 if len(invdatetime) == 0:
@@ -189,17 +187,17 @@ class Z_Repn_Model(BaseModel):
                 t = invdatetime.get(start,None)
 
                 if t is not None:
-                    m.z[j,t].fix(1)
-                    m.z[j,t-1].fix(0)
+                    M.z[j,t].fix(1)
+                    M.z[j,t-1].fix(0)
                 else:
                     print("WARNING: the fix_start constraint for activity {} specifies the date {} that is not in the time window.".format(activity, con.startdate))
                     mindiff = float('inf')
                     nextd = None
                     for dd,tt in invdatetime.items():
                         diff = dd - start
-                        if diff.hours > 0:
-                            if nextd is None or diff.hours < mindiff:
-                                mindiff = diff.hours
+                        if diff.total_seconds() > 0:
+                            if nextd is None or diff.total_seconds() < mindiff:
+                                mindiff = diff.total_seconds()
                                 nextd = dd
                     if nextd is None:
                         print("\tThe startdate is after the process matching time window.")
@@ -207,23 +205,23 @@ class Z_Repn_Model(BaseModel):
                         print("\tThe next valid startdate is {}".format(nextd))
 
             elif con.constraint == 'relax':
-                m.z[j,-1].unfix(0)
-                m.z[j,self.Tmax-1].unfix()
+                M.z[j,-1].unfix()
+                M.z[j,self.data.Tmax-1].unfix()
                 for t in self.data.T:
-                    m.z[j,t].unfix()
+                    M.z[j,t].unfix()
 
-            elif con.constraint == 'relax_startdate':
+            elif con.constraint == 'relax_start':
                 for t in self.data.T:
-                    m.z[j,t].unfix()
+                    M.z[j,t].unfix()
 
         if verbose:
             print("Summary of fixed variables")
             for j,t in M.a:
                 if M.a[j,t].fixed:
-                    print(M.a[j,t], M.a[j,t].value)
+                    print(" ",M.a[j,t], M.a[j,t].value)
             for j,t in M.z:
                 if M.z[j,t].fixed:
-                    print(M.z[j,t], M.z[j,t].value)
+                    print(" ",M.z[j,t], M.z[j,t].value)
 
 
 
