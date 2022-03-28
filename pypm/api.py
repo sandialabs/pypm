@@ -66,6 +66,7 @@ class SupervisedMIP(object):
         self.config.tee = self.solver_options.show_solver_output
         if PYPM.options.verbose is not None:
             self.config.verbose = PYPM.options.verbose
+        self.config.objective = self.objective.goal
         return Results(runmip(self.config, constraints=self.constraints))
 
     #

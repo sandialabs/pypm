@@ -9,7 +9,7 @@ from pypm.util.fileutils import this_file_dir
 currdir = this_file_dir()
 
 
-def run(testname):
+def run(testname, retval=True):
     cwd = os.getcwd()
     newdir = os.path.abspath(os.path.join(currdir,testname))
     os.chdir(newdir)
@@ -20,12 +20,13 @@ def run(testname):
         runval = module.run()
     except:                         #pragma:nocover
         runval = None
-    assert runval == True, "Unexpected return value for test {}".format(testname)
+    assert runval == retval, "Unexpected return value for test {}".format(testname)
     sys.path = sys.path[1:]
     #
-    tmp = pyutilib.misc.compare_file('results.yaml', 'baseline.yaml')
-    assert tmp[0] == False, "Files differ:  diff {} {}".format('results.yaml', 'baseline.yaml')
-    os.remove('results.yaml')
+    if retval:
+        tmp = pyutilib.misc.compare_file('results.yaml', 'baseline.yaml')
+        assert tmp[0] == False, "Files differ:  diff {} {}".format('results.yaml', 'baseline.yaml')
+        os.remove('results.yaml')
     #
     if os.path.exists('baseline.lp'):
         tmp = pyutilib.misc.compare_file('results.lp', 'baseline.lp')
@@ -57,4 +58,7 @@ def test_t6():
 
 def test_t7():
     run('t7')
+
+def test_e1():
+    run('e1', retval=None)
 

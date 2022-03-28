@@ -239,14 +239,17 @@ class Model11(Z_Repn_Model):
         d = self.data = ProcessModelData(config)
         self.constraints = constraints
 
-        self.M = self.create_model(J=d.J, T=d.T, S=d.S, K=d.K, 
+        self.M = self.create_model(objective=config.objective,
+                                J=d.J, T=d.T, S=d.S, K=d.K, 
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+
+        assert objective == 'total_match_score', "Model11 can not optimize the goal {}".format(objective)
 
         M = pe.ConcreteModel()
 
