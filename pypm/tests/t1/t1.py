@@ -11,6 +11,12 @@ def run():
     #
     pm = PYPM.supervised_mip()
     pm.load_config('config.yaml')
+
+    #
+    # Constraints
+    #
+    pm.maximize_total_match_score()
+
     #
     # Configure and run solver
     #

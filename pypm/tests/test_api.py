@@ -59,6 +59,15 @@ def test_t6():
 def test_t7():
     run('t7')
 
+def test_t8():
+    run('t8')
+
+def test_t9():
+    run('t9')
+
+def test_t10():
+    run('t10')
+
 def test_e1():
     run('e1', retval=None)
 

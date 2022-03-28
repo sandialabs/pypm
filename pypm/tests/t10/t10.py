@@ -1,10 +1,10 @@
 #
-# Same as t3, but set the earliest start date for Activity1 using a fractional hour date
+# Same as t1, but set the earliest start date for Activity1 until right after the time horizon
 #
 from pypm.api import PYPM
 
 def run():
-    PYPM.options['verbose'] = True
+    #PYPM.options['verbose'] = True
 
     #
     # Configure process matching api
@@ -16,7 +16,7 @@ def run():
     # Constraints
     #
     pm.maximize_total_match_score()
-    pm.set_earliest_start_date('Activity1', '2021-01-02 08:15:00')
+    pm.fix_start_date('Activity1', '2021-01-01 04:00:00')
 
     #
     # Configure and run solver

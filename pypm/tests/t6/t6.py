@@ -15,6 +15,7 @@ def run():
     #
     # Constraints
     #
+    pm.maximize_total_match_score()
     pm.set_latest_start_date('Activity6', '2021-01-28 16:00:00')
     pm.relax_start_date('Activity6')
 

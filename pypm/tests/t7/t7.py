@@ -15,6 +15,7 @@ def run():
     #
     # Constraints
     #
+    pm.maximize_total_match_score()
     pm.include('Activity6')
     pm.relax('Activity6')
 

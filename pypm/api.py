@@ -81,24 +81,31 @@ class SupervisedMIP(object):
 
     def include(self, activity):
         self.constraints.append( Munch(activity=activity, constraint="include") )
+        return len(self.constraints)-1
 
     #def exclude(self, activity):
     #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
+    #    return len(self.constraints)-1
 
     def set_earliest_start_date(self, activity, startdate):
         self.constraints.append( Munch(activity=activity, constraint="earliest_start", startdate=startdate) )
+        return len(self.constraints)-1
 
     def set_latest_start_date(self, activity, startdate):
         self.constraints.append( Munch(activity=activity, constraint="latest_start", startdate=startdate) )
+        return len(self.constraints)-1
 
     def fix_start_date(self, activity, startdate):
         self.constraints.append( Munch(activity=activity, constraint="fix_start", startdate=startdate) )
+        return len(self.constraints)-1
 
     def relax(self, activity):
         self.constraints.append( Munch(activity=activity, constraint="relax") )
+        return len(self.constraints)-1
 
     def relax_start_date(self, activity):
         self.constraints.append( Munch(activity=activity, constraint="relax_start") )
+        return len(self.constraints)-1
 
     #
     # Matching goals
