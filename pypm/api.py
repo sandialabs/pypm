@@ -73,17 +73,17 @@ class SupervisedMIP(object):
             self.config.verbose = PYPM.options.verbose
         self.config.objective = self.objective.goal
 
-        if self.config.verbose:
-            print("SuperisedMIP Configuration")
-            print("--------------------------")
-            print("verbose",self.config.verbose)
-            print("tee",self.config.tee)
-            print("objective",self.config.objective)
-            print("model",self.config.model)
-            print("solver",self.config.solver)
-            print("solver_options")
-            pprint.pprint(self.config.solver_options)
-            
+        print("")
+        print("SupervisedMIP Configuration")
+        print("--------------------------")
+        print("verbose",self.config.verbose)
+        print("tee",self.config.tee)
+        print("objective",self.config.objective)
+        print("model",self.config.model)
+        print("solver",self.config.solver)
+        print("solver_options")
+        pprint.pprint(self.config.solver_options, indent=4)
+        print("")
 
         return Results(runmip(self.config, constraints=self.constraints))
 
