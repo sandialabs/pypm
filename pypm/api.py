@@ -2,6 +2,7 @@ import copy
 import yaml
 import os.path
 from munch import Munch
+import pprint
 from .mip.runmip import load_config, runmip
 from .unsup.ts_labeling import run_tabu
 
@@ -50,10 +51,12 @@ class SupervisedMIP(object):
         self.config = Munch()
         self.constraints = []
         self.objective = Munch(goal="total_match_score")
-        self.solver_options = Munch(name="glpk", show_solver_output=False)
+        self.solver_options = Munch(name="glpk", show_solver_output=None)
 
     def load_config(self, yamlfile, index=0):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
+
+    def generate_schedule(self):
         if self.model is None:
             if self.config.model is None:
                 if len(self.config.count_data) > 0:
@@ -62,14 +65,26 @@ class SupervisedMIP(object):
                     self.config.model = 'GSF'       # model11
         else:
             self.config.model = self.model
-        self.config.solver = self.solver_options.name
-
-    def generate_schedule(self):
-        self.config.solver = self.solver_options.name
-        self.config.tee = self.solver_options.show_solver_output
+        if not hasattr(self.config, 'solver'):
+            self.config.solver = self.solver_options.name
+        if self.solver_options.show_solver_output is not None:
+            self.config.tee = self.solver_options.show_solver_output
         if PYPM.options.verbose is not None:
             self.config.verbose = PYPM.options.verbose
         self.config.objective = self.objective.goal
+
+        if self.config.verbose:
+            print("SuperisedMIP Configuration")
+            print("--------------------------")
+            print("verbose",self.config.verbose)
+            print("tee",self.config.tee)
+            print("objective",self.config.objective)
+            print("model",self.config.model)
+            print("solver",self.config.solver)
+            print("solver_options")
+            pprint.pprint(self.config.solver_options)
+            
+
         return Results(runmip(self.config, constraints=self.constraints))
 
     #
