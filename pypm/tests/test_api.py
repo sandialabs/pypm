@@ -71,6 +71,9 @@ def test_t10():
 def test_t11():
     run('t11')
 
+def test_t12():
+    run('t12')
+
 def test_e1():
     run('e1', retval=None)
 

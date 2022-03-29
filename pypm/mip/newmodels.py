@@ -54,6 +54,7 @@ class ProcessModelData(object):
             self.Gamma = {j:data.get('gamma',0) for j in self.J}
         self.Upsilon = data.get('sigma',None)
         self.S = {(j,k):1 if k in self.K[j] else 0 for j in pm for k in Kall}
+        self.C = {(j,k):pm[j]['resources'][k] for j in pm for k in pm[j]['resources']}
 
         if constraints:
             for con in constraints:
@@ -237,7 +238,7 @@ class Z_Repn_Model(BaseModel):
 #
 # This is the GSF model in Figure 3.2
 #
-class Model11(Z_Repn_Model):
+class GSF_TotalMatchScore(Z_Repn_Model):
 
     def __init__(self):
         self.name = 'model11'
@@ -340,7 +341,7 @@ class Model11(Z_Repn_Model):
 #
 # This is the GSF-ED model in Figure 4.1
 #
-class Model13(Z_Repn_Model):
+class GSFED_TotalMatchScore(Z_Repn_Model):
 
     def __init__(self):
         self.name = 'model13'
@@ -352,14 +353,15 @@ class Model13(Z_Repn_Model):
         self.constraints = constraints
 
         self.M = self.create_model(objective=config.objective,
-                                J=d.J, T=d.T, S=d.S, K=d.K, 
+                                J=d.J, T=d.T, S=d.S, K=d.K, JK=d.JK,
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                C=d.C, count_data=config.count_data,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+    def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, count_data, C, verbose):
 
         assert objective == 'total_match_score', "Model11 can not optimize the goal {}".format(objective)
 
@@ -368,6 +370,8 @@ class Model13(Z_Repn_Model):
         M.z = pe.Var(J, [-1]+T, within=pe.Binary)
         M.a = pe.Var(J, T, within=pe.Binary)
         M.o = pe.Var(J, bounds=(0,None))
+        if len(count_data) > 0:
+            M.r = pe.Var([(j,k) for (j,k) in JK if k in count_data], T, bounds=(0,1))
 
         # Objective
 
@@ -376,8 +380,25 @@ class Model13(Z_Repn_Model):
         M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
 
         def odef_(m, j):
-            return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
+            if len(count_data) == 0:
+                return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
+            else:
+                e1 = sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j].difference(count_data)) for t in T)
+                e2 = sum(sum(S[j,k]*m.r[j,k,t] for k in K[j].intersection(count_data)) for t in T)
+                return m.o[j] == e1 + e2
         M.odef = pe.Constraint(J, rule=odef_)
+
+        # Limit the max value of r_jkt
+
+        def maxr_a_(m, j, k, t):
+            if k in count_data:
+                return m.r[j,k,t] <= m.a[j,t]
+            return pe.Constraint.Skip
+        M.maxr_a = pe.Constraint(JK, T, rule=maxr_a_)
+
+        def maxr_O_(m, k, t):
+            return sum(C[j,k] * M.r[j,k,t] for j in J if (j,k) in JK and k in count_data) <= O[k][t]
+        M.maxr_O = pe.Constraint(count_data, T, rule=maxr_O_)
 
         # Simultenaity constraints
 
@@ -440,15 +461,14 @@ class Model13(Z_Repn_Model):
         return M
 
 
-
 def create_model(name):
     if name == 'model11':
-        return Model11()
+        return GSF_TotalMatchScore()
     elif name == 'GSF':
-        return Model11()
+        return GSF_TotalMatchScore()
 
-    elif name == 'model13-new':
-        return Model13()
+    elif name == 'model13':
+        return GSFED_TotalMatchScore()
     elif name == 'GSF-ED':
-        return Model13()
+        return GSFED_TotalMatchScore()
 

@@ -56,7 +56,10 @@ class SupervisedMIP(object):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
         if self.model is None:
             if self.config.model is None:
-                self.config.model = 'model11'
+                if len(self.config.count_data) > 0:
+                    self.config.model = 'GSF-ED'    # model13
+                else:
+                    self.config.model = 'GSF'       # model11
         else:
             self.config.model = self.model
         self.config.solver = self.solver_options.name

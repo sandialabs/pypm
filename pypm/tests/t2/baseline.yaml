@@ -50,5 +50,5 @@ results:
       last: 731
 solver:
   model:
-    name: model11
+    name: GSF
   search_strategy: mip

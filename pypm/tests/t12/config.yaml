@@ -1,0 +1,7 @@
+_options:
+  process: process.yaml
+  count_data:
+    A:
+    C:
+data:
+  filename: data.csv

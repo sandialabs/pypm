@@ -53,5 +53,5 @@ results:
       post: true
 solver:
   model:
-    name: model11
+    name: GSF
   search_strategy: mip
