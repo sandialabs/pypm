@@ -10,9 +10,8 @@ Python software package for Process Matching.
 
 ## Example
 
-* cd examples/linear1
-* pypm sim sim.yaml linear1.yaml
-* pypm mip linear1\_sim.yaml
+* cd examples/simple
+* python run.py
 
 ## Testing
 
