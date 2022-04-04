@@ -32,7 +32,6 @@ class ProcessModelData(object):
         self.T = list(range(self.Tmax))
 
         self.O = data.obs.observations
-        #self.U = list(sorted(self.O.keys()))
         self.E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
         self.P = {j:pm[j]['duration']['min_hours'] for j in pm}
         self.Q = {j:pm[j]['duration']['max_hours'] for j in pm}
@@ -461,6 +460,212 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         return M
 
 
+class UPM_ProcessModelData(object):
+
+    def __init__(self, data, constraints=None):
+        ProcessModelData.__init__(self, data, constraints)
+
+        self.K_count = set()
+        for r in data.pm.resources:
+            count = data.pm.resources.count(r)
+            if count is not None and count > 1:
+                self.K_count.add(count)
+
+        self.Kall = set(name for name in data.pm.resources)
+        self.U = set(self.O.keys())
+
+#
+# This is the UPM model in Figure 2-1
+#
+# WEH: This model is closely related to model12 and model14, but I haven't tried to confirm that it's exactly 
+#           equivalent.
+#
+class UPM_TotalMatchScore(Z_Repn_Model):
+
+    def __init__(self):
+        self.name = 'UPM'
+        self.description = 'Unsupervised process matching maximizing match score, including both continuous and count data'
+
+    def __call__(self, config, constraints=[]):
+        self.config = config
+        d = self.data = UPM_ProcessModelData(config)
+        self.constraints = constraints
+
+        self.M = self.create_model(objective=config.objective,
+                                J=d.J, T=d.T, S=d.S, K=d.K, JK=d.JK,
+                                O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
+                                Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                C=d.C, 
+                                U=d.U, U_count=config.count_data,
+                                Kall=d.Kall, K_count=d.K_count,
+                                Delta=config.get('Delta',0),
+                                Xi=config.get('Xi',1),
+                                verbose=config.verbose)
+
+        self.enforce_constraints(self.M, constraints, verbose=config.verbose)
+
+    def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, C, Delta, Xi, U, U_count, Kall, K_count, verbose):
+
+        assert objective == 'total_match_score', "UPM can not optimize the goal {}".format(objective)
+
+        #
+        # If Delta>0, then we add 2*Delta unknown resources to each activity.  The
+        # model is more flexible than this, but it's unclear how many resources to add and to which activities.
+        #
+        # Note that we always add one continuous and one count resource
+        #
+        H = set()
+        for i in range(2*Delta):
+            # Continuous resource
+            k = len(Kall)
+            H.add(k)
+            Kall.add(k)
+            for j in J:
+                JK.add( (j,k) )
+                K[j].add(k)
+            # Count resource
+            k = len(Kall)
+            H.add(k)
+            Kall.add(k)
+            for j in J:
+                JK.add( (j,k) )
+                K[j].add(k)
+            K_count.add(k)
+
+        M = pe.ConcreteModel()
+
+        M.z = pe.Var(J, [-1]+T, within=pe.Binary)
+        M.a = pe.Var(J, T, within=pe.Binary)
+        M.o = pe.Var(J, bounds=(0,None))
+        M.r = pe.Var(JK, T, bounds=(0,1))
+        M.m = pe.Var(Kall, U, bounds=(0,1))
+        if Delta > 0:
+            M.delta = pe.Var(J, H, within=pe.Binary)
+
+        # Objective
+
+        def objective_(m):
+            return sum(m.o[j] for j in J)
+        M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
+
+        def odef_(m, j):
+            return m.o[j] == sum(sum(S[j,k]*m.r[j,k,t] for k in K[j]) for t in T)
+        M.odef = pe.Constraint(J, rule=odef_)
+
+        # Define m
+
+        def mdef_label_(m, u):
+            return sum(m.m[k,u] for k in Kall) <= 1
+        M.mdef_label = pe.Constraint(U, rule=mdef_label_)
+
+        for k in Kall.difference(K_count):
+            for u in U_count:
+                M.m[k,u].fix(0)
+        for k in K_count:
+            for u in U.difference(U_count):
+                M.m[k,u].fix(0)
+
+        def w_(m, k, t):
+            return sum(m.m[k,u] * O[u][t] for u in U)
+        M.w = pe.Expression(Kall, T, rule=w_)
+
+        def mdef_mean_(m, k):
+            return sum(m.m[k,u] for u in U) <= 1
+        M.mdef_mean = pe.Constraint(Kall, rule=mdef_mean_)
+
+        # Limit the max value of r_jkt
+
+        def rmax_a_(m, j, k, t):
+            return m.r[j,k,t] <= m.a[j,t]
+        M.rmax_a = pe.Constraint(JK, T, rule=rmax_a_)
+
+        M.rmax_w = pe.ConstraintList()
+        for j,k in JK:
+            if k in K_count:
+                continue
+            for t in T:
+                M.rmax_w.add( M.r[j,k,t] <= M.w[k,t] )
+
+        if len(K_count) > 0:
+            M.rmax_count = pe.ConstraintList()
+            for k in K_count:
+                for t in T:
+                    M.rmax_count.add( sum(C[j,k]*M.r[j,k,t] for j in J if (j,k) in JK) <= M.w[k,t] )
+
+        if Delta > 0:
+            def rmax_delta_(m,k,j,t):
+                return m.r[j,k,t] <= m.delta[j,k]
+            m.r_delta = pe.Constraint(H, J, T, rule=r_delta_)
+
+            def Delta_(m, j):
+                return sum(m.delta[j,k] for k in H) <= Delta
+            m.Delta = pe.Constraint(J, rule=delta1_)
+
+            def Xi_(m, j):
+                return sum(m.delta[j,k] for j in J) <= Xi
+            m.Xi = pe.Constraint(H, rule=Xi_)
+
+        # Simultenaity constraints
+
+        if not Upsilon is None:
+            def activity_limit_(m, t):
+                return sum(m.a[j,t] for j in J) <= Upsilon
+            M.activity_limit = pe.Constraint(T, rule=activity_limit_)
+
+        # Z constraints
+
+        def zstep_(m, j, t):
+            return m.z[j,t] - m.z[j, t-1] >= 0
+        M.zstep = pe.Constraint(J, T, rule=zstep_)
+
+        def firsta_(m, j, t):
+            return m.z[j,t] - m.z[j,t-1] <= m.a[j,t]
+        M.firsta = pe.Constraint(J, T, rule=firsta_)
+
+        def activity_start_(m, j, t):
+            #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
+            tprev = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+
+        def length_lower_(m, j):
+            return sum(m.a[j,t] for t in T) >= P[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+        M.length_lower = pe.Constraint(J, rule=length_lower_)
+
+        def length_upper_(m, j):
+            return sum(m.a[j,t] for t in T) <= Q[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+        M.length_upper = pe.Constraint(J, rule=length_upper_)
+
+        def precedence_lb_(m, i, j, t):
+            tprev = max(t- (P[i]+Omega[i]), -1)
+            return m.z[i,tprev] - m.z[j,t] >= 0
+        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+        def activity_stop_(m, i, j, t):
+            return 1 - m.z[j,t] >= m.a[i,t]
+        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+
+        # Auxilliary computed values
+
+        def activity_length_(m, j):
+            return sum(m.a[j,t] for t in T)
+        M.activity_length = pe.Expression(J, rule=activity_length_)
+
+        def weighted_activity_length_(m, j):
+            return sum(O[k][t] * m.a[j,t] for k in K[j] for t in T)
+        M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+
+        def nonactivity_length_(m, j):
+            return sum( (1-m.a[j,t]) for t in T)
+        M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+
+        def weighted_nonactivity_length_(m, j):
+            return sum(O[k][t] * (1-m.a[j,t]) for k in K[j] for t in T)
+        M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
+
+        return M
+
+
 def create_model(name):
     if name == 'model11':
         return GSF_TotalMatchScore()
@@ -471,4 +676,7 @@ def create_model(name):
         return GSFED_TotalMatchScore()
     elif name == 'GSF-ED':
         return GSFED_TotalMatchScore()
+
+    elif name == 'UPM':
+        return UPM_TotalMatchScore()
 

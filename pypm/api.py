@@ -57,6 +57,9 @@ class SupervisedMIP(object):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
 
     def generate_schedule(self):
+        #
+        # Setup the self.config data using class data
+        #
         if self.model is None:
             if self.config.model is None:
                 if len(self.config.count_data) > 0:
@@ -75,7 +78,7 @@ class SupervisedMIP(object):
 
         print("")
         print("SupervisedMIP Configuration")
-        print("--------------------------")
+        print("---------------------------")
         print("verbose",self.config.verbose)
         print("tee",self.config.tee)
         print("objective",self.config.objective)
@@ -151,7 +154,44 @@ class SupervisedMIP(object):
 
 
 class UnsupervisedMIP(SupervisedMIP):
-    pass
+
+    def __init__(self):
+        SupervisedMIP.__init__(self)
+        self.model = "UPM"
+
+    def generate_schedule(self):
+        #
+        # Setup the self.config data using class data
+        #
+        if self.model is None:
+            if self.config.model is None:
+                if len(self.config.count_data) > 0:
+                    self.config.model = 'GSF-ED'    # model13
+                else:
+                    self.config.model = 'GSF'       # model11
+        else:
+            self.config.model = self.model
+        if not hasattr(self.config, 'solver'):
+            self.config.solver = self.solver_options.name
+        if self.solver_options.show_solver_output is not None:
+            self.config.tee = self.solver_options.show_solver_output
+        if PYPM.options.verbose is not None:
+            self.config.verbose = PYPM.options.verbose
+        self.config.objective = self.objective.goal
+
+        print("")
+        print("UnsupervisedMIP Configuration")
+        print("-----------------------------")
+        print("verbose",self.config.verbose)
+        print("tee",self.config.tee)
+        print("objective",self.config.objective)
+        print("model",self.config.model)
+        print("solver",self.config.solver)
+        print("solver_options")
+        pprint.pprint(self.config.solver_options, indent=4)
+        print("")
+
+        return Results(runmip(self.config, constraints=self.constraints))
 
 
 class TabuLabeling(object):

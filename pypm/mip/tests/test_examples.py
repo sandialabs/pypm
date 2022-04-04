@@ -9,8 +9,12 @@ from pypm.util.fileutils import this_file_dir
 currdir = this_file_dir()
 
 def run(testname, dirname, debug=False, verify=False):
+    unsupervised = dirname in ['UPM']
     dirname = join(currdir, dirname)
-    driver = PYPM.supervised_mip()
+    if unsupervised:
+        driver = PYPM.unsupervised_mip()
+    else:
+        driver = PYPM.supervised_mip()
 
     driver.load_config(join(dirname, '{}.yaml'.format(testname)))
     driver.config.dirname = dirname
@@ -262,4 +266,51 @@ def test107_13():
 
 def test201_13():
     run('test201', 'model13')
+
+
+def test1_UPM():
+    run('test1', 'UPM')
+
+def test2_UPM():
+    run('test2', 'UPM')
+
+def test3_UPM():
+    run('test3', 'UPM')
+
+def test4_UPM():
+    run('test4', 'UPM')
+
+def test5_UPM():
+    run('test5', 'UPM')
+
+def test6_UPM():
+    run('test6', 'UPM')
+
+def test7_UPM():
+    run('test7', 'UPM')
+
+def test100_UPM():
+    run('test100', 'UPM')
+
+def test101_UPM():
+    run('test101', 'UPM')
+
+def test102_UPM():
+    run('test102', 'UPM')
+
+def test103_UPM():
+    run('test103', 'UPM')
+
+def test104_UPM():
+    run('test104', 'UPM')
+
+def test105_UPM():
+    run('test105', 'UPM')
+
+def test106_UPM():
+    run('test106', 'UPM')
+
+def test107_UPM():
+    run('test107', 'UPM')
+
 
