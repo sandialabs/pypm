@@ -43,7 +43,7 @@ results:
     m:
       ? !!python/tuple [rA, rA]
       : 1.0
-      ? !!python/tuple [rB, rB]
+      ? !!python/tuple [rB, rC]
       : 1.0
       ? !!python/tuple [rC, rB]
       : 1.0

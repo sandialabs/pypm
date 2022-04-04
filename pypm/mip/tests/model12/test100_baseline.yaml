@@ -29,7 +29,7 @@ results:
       ? !!python/tuple [a2, 10]
       : 1.0
     m:
-      ? !!python/tuple [rA, rA]
+      ? !!python/tuple [rA, rB]
       : 1.0
       ? !!python/tuple [rB, rA]
       : 1.0

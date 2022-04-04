@@ -39,7 +39,7 @@ results:
     m:
       ? !!python/tuple [rA, rA]
       : 1.0
-      ? !!python/tuple [rB, rB]
+      ? !!python/tuple [rB, rC]
       : 1.0
       ? !!python/tuple [rC, rB]
       : 1.0
@@ -50,9 +50,9 @@ results:
       ? !!python/tuple [a1, rB, 6]
       : 1.0
       ? !!python/tuple [a1, rB, 7]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 8]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 9]
       : 1.0
       ? !!python/tuple [a1, rC, 5]

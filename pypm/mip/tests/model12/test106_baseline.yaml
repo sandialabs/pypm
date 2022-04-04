@@ -6,11 +6,11 @@ data:
   timesteps: 30
 results:
 - goals:
-    match: {a2: 10.0}
+    match: {a2: 5.0}
     separation: {a1: 0, a2: 0}
-    total_match: 10.0
+    total_match: 5.0
     total_separation: 0
-  objective: 10.0
+  objective: 5.0
   schedule:
     a1: {pre: true}
     a2: {first: 19, last: 24}
@@ -31,9 +31,7 @@ results:
     m:
       ? !!python/tuple [rA, rC]
       : 1.0
-      ? !!python/tuple [rB, rC]
-      : 1.0
-    o: {a2: 10.0}
+    o: {a2: 5.0}
     r:
       ? !!python/tuple [a2, rA, 19]
       : 1.0
@@ -44,16 +42,6 @@ results:
       ? !!python/tuple [a2, rA, 22]
       : 1.0
       ? !!python/tuple [a2, rA, 23]
-      : 1.0
-      ? !!python/tuple [a2, rB, 19]
-      : 1.0
-      ? !!python/tuple [a2, rB, 20]
-      : 1.0
-      ? !!python/tuple [a2, rB, 21]
-      : 1.0
-      ? !!python/tuple [a2, rB, 22]
-      : 1.0
-      ? !!python/tuple [a2, rB, 23]
       : 1.0
     z:
       ? !!python/tuple [a1, -1]

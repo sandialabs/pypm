@@ -44,13 +44,13 @@ results:
       ? !!python/tuple [rA, rA]
       : 1.0
       ? !!python/tuple [rB, rB]
-      : 0.999999999999999
-      ? !!python/tuple [rC, rB]
-      : 0.999999999999999
+      : 1.0
+      ? !!python/tuple [rC, rC]
+      : 1.0
     o: {a1: 14.0, a2: 5.0}
     r:
       ? !!python/tuple [a1, rB, 2]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rB, 3]
       : 1.0
       ? !!python/tuple [a1, rB, 4]
@@ -60,11 +60,11 @@ results:
       ? !!python/tuple [a1, rB, 6]
       : 1.0
       ? !!python/tuple [a1, rB, 7]
-      : 1.0
-      ? !!python/tuple [a1, rB, 8]
-      : 1.0
-      ? !!python/tuple [a1, rC, 2]
       : 0.999999999999999
+      ? !!python/tuple [a1, rB, 8]
+      : 0.999999999999999
+      ? !!python/tuple [a1, rC, 2]
+      : 1.0
       ? !!python/tuple [a1, rC, 3]
       : 1.0
       ? !!python/tuple [a1, rC, 4]
@@ -72,7 +72,7 @@ results:
       ? !!python/tuple [a1, rC, 5]
       : 1.0
       ? !!python/tuple [a1, rC, 6]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a1, rC, 7]
       : 1.0
       ? !!python/tuple [a1, rC, 8]

@@ -677,6 +677,10 @@ def create_model(name):
     elif name == 'GSF-ED':
         return GSFED_TotalMatchScore()
 
+    elif name == 'model12':
+        return UPM_TotalMatchScore()
+    elif name == 'model14':
+        return UPM_TotalMatchScore()
     elif name == 'UPM':
         return UPM_TotalMatchScore()
 
