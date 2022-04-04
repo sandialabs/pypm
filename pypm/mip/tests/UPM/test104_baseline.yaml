@@ -29,19 +29,19 @@ results:
       ? !!python/tuple [a2, 24]
       : 1.0
     m:
-      ? !!python/tuple [rA, rC]
+      ? !!python/tuple [rB, rC]
       : 1.0
     o: {a2: 5.0}
     r:
-      ? !!python/tuple [a2, rA, 19]
+      ? !!python/tuple [a2, rB, 19]
       : 1.0
-      ? !!python/tuple [a2, rA, 20]
+      ? !!python/tuple [a2, rB, 20]
       : 1.0
-      ? !!python/tuple [a2, rA, 21]
+      ? !!python/tuple [a2, rB, 21]
       : 1.0
-      ? !!python/tuple [a2, rA, 22]
+      ? !!python/tuple [a2, rB, 22]
       : 1.0
-      ? !!python/tuple [a2, rA, 23]
+      ? !!python/tuple [a2, rB, 23]
       : 1.0
     z:
       ? !!python/tuple [a1, -1]

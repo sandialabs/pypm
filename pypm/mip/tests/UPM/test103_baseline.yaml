@@ -10,7 +10,7 @@ results:
     separation: {a1: 0, a2: 2.0}
     total_match: 12.0
     total_separation: 2.0
-  objective: 12.0
+  objective: 12.000000000000002
   schedule:
     a1: {pre: true}
     a2: {first: 5, last: 10}
@@ -29,9 +29,9 @@ results:
       ? !!python/tuple [a2, 10]
       : 1.0
     m:
-      ? !!python/tuple [rA, rB]
+      ? !!python/tuple [rA, rA]
       : 1.0
-      ? !!python/tuple [rB, rA]
+      ? !!python/tuple [rB, rB]
       : 1.0
     o: {a2: 12.0}
     r:
@@ -52,7 +52,7 @@ results:
       ? !!python/tuple [a2, rB, 6]
       : 1.0
       ? !!python/tuple [a2, rB, 7]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a2, rB, 8]
       : 1.0
       ? !!python/tuple [a2, rB, 9]

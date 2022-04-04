@@ -240,7 +240,7 @@ class Z_Repn_Model(BaseModel):
 class GSF_TotalMatchScore(Z_Repn_Model):
 
     def __init__(self):
-        self.name = 'model11'
+        self.name = 'GSF'
         self.description = 'Supervised process matching maximizing match score'
 
     def __call__(self, config, constraints=[]):
@@ -343,7 +343,7 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 class GSFED_TotalMatchScore(Z_Repn_Model):
 
     def __init__(self):
-        self.name = 'model13'
+        self.name = 'GSF-ED'
         self.description = 'Supervised process matching maximizing match score, including both continuous and count data'
 
     def __call__(self, config, constraints=[]):
