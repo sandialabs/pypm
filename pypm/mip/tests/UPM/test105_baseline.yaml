@@ -7,9 +7,9 @@ data:
 results:
 - goals:
     match: {a0: 10.0, a1: 5.0, a2: 1.0}
-    separation: {a0: 0, a1: 0.23999999999999977, a2: 0}
+    separation: {a0: 0, a1: 2.220446049250313e-16, a2: 0}
     total_match: 16.0
-    total_separation: 0.23999999999999977
+    total_separation: 2.220446049250313e-16
   objective: 16.0
   schedule:
     a0: {first: 9, last: 18}
