@@ -29,8 +29,16 @@ activities:
     max_hours: 6
     min_hours: 6
   resources:
-    rA:
     rB:
+
+- name: a3
+  dependencies:
+  - a2
+  duration:
+    max_hours: 10 
+    min_hours: 10
+  resources:
+    rA:
 
 data:
 - ground_truth:
@@ -38,7 +46,7 @@ data:
     a2: {start: 6, stop: 10}
   observations:
     rA: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rB: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0]
     rC: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

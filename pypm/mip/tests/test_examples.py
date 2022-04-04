@@ -172,50 +172,50 @@ def test108_11():
     run('test108', 'model11')
 
 
-def test1_12():
-    run('test1', 'model12')
+#def test1_12():
+#    run('test1', 'model12')
 
-def test2_12():
-    run('test2', 'model12')
+#def test2_12():
+#    run('test2', 'model12')
 
-def test3_12():
-    run('test3', 'model12')
+#def test3_12():
+#    run('test3', 'model12')
 
-def test4_12():
-    run('test4', 'model12')
+#def test4_12():
+#    run('test4', 'model12')
 
-def test5_12():
-    run('test5', 'model12')
+#def test5_12():
+#    run('test5', 'model12')
 
-def test6_12():
-    run('test6', 'model12')
+#def test6_12():
+#    run('test6', 'model12')
 
-def test7_12():
-    run('test7', 'model12')
+#def test7_12():
+#    run('test7', 'model12')
 
-def test100_12():
-    run('test100', 'model12')
+#def test100_12():
+#    run('test100', 'model12')
 
-def test101_12():
-    run('test101', 'model12')
+#def test101_12():
+#    run('test101', 'model12')
 
-def test102_12():
-    run('test102', 'model12')
+#def test102_12():
+#    run('test102', 'model12')
 
-def test103_12():
-    run('test103', 'model12')
+#def test103_12():
+#    run('test103', 'model12')
 
-def test104_12():
-    run('test104', 'model12')
+#def test104_12():
+#    run('test104', 'model12')
 
-def test105_12():
-    run('test105', 'model12')
+#def test105_12():
+#    run('test105', 'model12')
 
-def test106_12():
-    run('test106', 'model12')
+#def test106_12():
+#    run('test106', 'model12')
 
-def test107_12():
-    run('test107', 'model12')
+#def test107_12():
+#    run('test107', 'model12')
 
 
 def test1_13():

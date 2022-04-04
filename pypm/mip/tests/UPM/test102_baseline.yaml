@@ -6,14 +6,15 @@ data:
   timesteps: 30
 results:
 - goals:
-    match: {a2: 12.0}
-    separation: {a1: 0, a2: 2.0}
-    total_match: 12.0
-    total_separation: 2.0
-  objective: 12.0
+    match: {a2: 6.0, a3: 10.0}
+    separation: {a1: 0, a2: 0, a3: 0}
+    total_match: 16.0
+    total_separation: 0
+  objective: 15.999999999999998
   schedule:
     a1: {pre: true}
     a2: {first: 5, last: 10}
+    a3: {first: 11, last: 20}
   variables:
     a:
       ? !!python/tuple [a2, 5]
@@ -28,12 +29,32 @@ results:
       : 1.0
       ? !!python/tuple [a2, 10]
       : 1.0
+      ? !!python/tuple [a3, 11]
+      : 1.0
+      ? !!python/tuple [a3, 12]
+      : 1.0
+      ? !!python/tuple [a3, 13]
+      : 1.0
+      ? !!python/tuple [a3, 14]
+      : 1.0
+      ? !!python/tuple [a3, 15]
+      : 1.0
+      ? !!python/tuple [a3, 16]
+      : 1.0
+      ? !!python/tuple [a3, 17]
+      : 1.0
+      ? !!python/tuple [a3, 18]
+      : 1.0
+      ? !!python/tuple [a3, 19]
+      : 1.0
+      ? !!python/tuple [a3, 20]
+      : 1.0
     m:
       ? !!python/tuple [rA, rA]
       : 1.0
       ? !!python/tuple [rB, rB]
       : 1.0
-    o: {a2: 12.0}
+    o: {a2: 6.0, a3: 10.0}
     r:
       ? !!python/tuple [a2, rA, 5]
       : 1.0
@@ -47,17 +68,25 @@ results:
       : 1.0
       ? !!python/tuple [a2, rA, 10]
       : 1.0
-      ? !!python/tuple [a2, rB, 5]
+      ? !!python/tuple [a3, rB, 11]
       : 1.0
-      ? !!python/tuple [a2, rB, 6]
+      ? !!python/tuple [a3, rB, 12]
       : 1.0
-      ? !!python/tuple [a2, rB, 7]
+      ? !!python/tuple [a3, rB, 13]
       : 1.0
-      ? !!python/tuple [a2, rB, 8]
+      ? !!python/tuple [a3, rB, 14]
       : 1.0
-      ? !!python/tuple [a2, rB, 9]
+      ? !!python/tuple [a3, rB, 15]
       : 1.0
-      ? !!python/tuple [a2, rB, 10]
+      ? !!python/tuple [a3, rB, 16]
+      : 1.0
+      ? !!python/tuple [a3, rB, 17]
+      : 1.0
+      ? !!python/tuple [a3, rB, 18]
+      : 1.0
+      ? !!python/tuple [a3, rB, 19]
+      : 1.0
+      ? !!python/tuple [a3, rB, 20]
       : 1.0
     z:
       ? !!python/tuple [a1, -1]
@@ -171,6 +200,44 @@ results:
       ? !!python/tuple [a2, 28]
       : 1.0
       ? !!python/tuple [a2, 29]
+      : 1.0
+      ? !!python/tuple [a3, 11]
+      : 1.0
+      ? !!python/tuple [a3, 12]
+      : 1.0
+      ? !!python/tuple [a3, 13]
+      : 1.0
+      ? !!python/tuple [a3, 14]
+      : 1.0
+      ? !!python/tuple [a3, 15]
+      : 1.0
+      ? !!python/tuple [a3, 16]
+      : 1.0
+      ? !!python/tuple [a3, 17]
+      : 1.0
+      ? !!python/tuple [a3, 18]
+      : 1.0
+      ? !!python/tuple [a3, 19]
+      : 1.0
+      ? !!python/tuple [a3, 20]
+      : 1.0
+      ? !!python/tuple [a3, 21]
+      : 1.0
+      ? !!python/tuple [a3, 22]
+      : 1.0
+      ? !!python/tuple [a3, 23]
+      : 1.0
+      ? !!python/tuple [a3, 24]
+      : 1.0
+      ? !!python/tuple [a3, 25]
+      : 1.0
+      ? !!python/tuple [a3, 26]
+      : 1.0
+      ? !!python/tuple [a3, 27]
+      : 1.0
+      ? !!python/tuple [a3, 28]
+      : 1.0
+      ? !!python/tuple [a3, 29]
       : 1.0
 solver:
   model: {name: UPM}

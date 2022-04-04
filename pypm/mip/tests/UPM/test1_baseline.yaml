@@ -6,11 +6,11 @@ data:
   timesteps: 30
 results:
 - goals:
-    match: {a1: 16.0}
-    separation: {a1: 2.0, a2: 0}
-    total_match: 16.0
-    total_separation: 2.0
-  objective: 16.0
+    match: {a1: 8.0}
+    separation: {a1: 0, a2: 0}
+    total_match: 8.0
+    total_separation: 0
+  objective: 8.0
   schedule:
     a1: {first: 0, last: 7}
     a2: {post: true}
@@ -33,11 +33,9 @@ results:
       ? !!python/tuple [a1, 7]
       : 1.0
     m:
-      ? !!python/tuple [rB, rC]
+      ? !!python/tuple [rB, rB]
       : 1.0
-      ? !!python/tuple [rC, rB]
-      : 1.0
-    o: {a1: 16.0}
+    o: {a1: 8.0}
     r:
       ? !!python/tuple [a1, rB, 0]
       : 1.0
@@ -54,22 +52,6 @@ results:
       ? !!python/tuple [a1, rB, 6]
       : 1.0
       ? !!python/tuple [a1, rB, 7]
-      : 1.0
-      ? !!python/tuple [a1, rC, 0]
-      : 1.0
-      ? !!python/tuple [a1, rC, 1]
-      : 1.0
-      ? !!python/tuple [a1, rC, 2]
-      : 1.0
-      ? !!python/tuple [a1, rC, 3]
-      : 1.0
-      ? !!python/tuple [a1, rC, 4]
-      : 1.0
-      ? !!python/tuple [a1, rC, 5]
-      : 1.0
-      ? !!python/tuple [a1, rC, 6]
-      : 1.0
-      ? !!python/tuple [a1, rC, 7]
       : 1.0
     z:
       ? !!python/tuple [a1, 0]

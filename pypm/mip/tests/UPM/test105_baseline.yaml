@@ -6,16 +6,37 @@ data:
   timesteps: 30
 results:
 - goals:
-    match: {a1: 5.00000000000001, a2: 1.0}
-    separation: {a1: 1.0, a2: 0.16666666666666666}
-    total_match: 6.00000000000001
-    total_separation: 1.1666666666666667
-  objective: 6.00000000000001
+    match: {a0: 10.0, a1: 5.0, a2: 1.0}
+    separation: {a0: 0, a1: 0.23999999999999977, a2: 0}
+    total_match: 16.0
+    total_separation: 0.23999999999999977
+  objective: 16.0
   schedule:
+    a0: {first: 9, last: 18}
     a1: {first: 19, last: 23}
     a2: {first: 24, last: 29}
   variables:
     a:
+      ? !!python/tuple [a0, 9]
+      : 1.0
+      ? !!python/tuple [a0, 10]
+      : 1.0
+      ? !!python/tuple [a0, 11]
+      : 1.0
+      ? !!python/tuple [a0, 12]
+      : 1.0
+      ? !!python/tuple [a0, 13]
+      : 1.0
+      ? !!python/tuple [a0, 14]
+      : 1.0
+      ? !!python/tuple [a0, 15]
+      : 1.0
+      ? !!python/tuple [a0, 16]
+      : 1.0
+      ? !!python/tuple [a0, 17]
+      : 1.0
+      ? !!python/tuple [a0, 18]
+      : 1.0
       ? !!python/tuple [a1, 19]
       : 1.0
       ? !!python/tuple [a1, 20]
@@ -39,12 +60,34 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
     m:
-      ? !!python/tuple [rB, rA]
+      ? !!python/tuple [rA, rB]
       : 1.0
+      ? !!python/tuple [rB, rA]
+      : 0.999999999999999
       ? !!python/tuple [rC, rC]
       : 1.0
-    o: {a1: 5.00000000000001, a2: 1.0}
+    o: {a0: 10.0, a1: 5.0, a2: 1.0}
     r:
+      ? !!python/tuple [a0, rA, 9]
+      : 1.0
+      ? !!python/tuple [a0, rA, 10]
+      : 1.0
+      ? !!python/tuple [a0, rA, 11]
+      : 1.0
+      ? !!python/tuple [a0, rA, 12]
+      : 1.0
+      ? !!python/tuple [a0, rA, 13]
+      : 1.0
+      ? !!python/tuple [a0, rA, 14]
+      : 1.0
+      ? !!python/tuple [a0, rA, 15]
+      : 1.0
+      ? !!python/tuple [a0, rA, 16]
+      : 1.0
+      ? !!python/tuple [a0, rA, 17]
+      : 1.0
+      ? !!python/tuple [a0, rA, 18]
+      : 1.0
       ? !!python/tuple [a1, rC, 19]
       : 1.0
       ? !!python/tuple [a1, rC, 20]
@@ -56,8 +99,50 @@ results:
       ? !!python/tuple [a1, rC, 23]
       : 1.0
       ? !!python/tuple [a2, rB, 29]
-      : 1.0
+      : 0.999999999999999
     z:
+      ? !!python/tuple [a0, 9]
+      : 1.0
+      ? !!python/tuple [a0, 10]
+      : 1.0
+      ? !!python/tuple [a0, 11]
+      : 1.0
+      ? !!python/tuple [a0, 12]
+      : 1.0
+      ? !!python/tuple [a0, 13]
+      : 1.0
+      ? !!python/tuple [a0, 14]
+      : 1.0
+      ? !!python/tuple [a0, 15]
+      : 1.0
+      ? !!python/tuple [a0, 16]
+      : 1.0
+      ? !!python/tuple [a0, 17]
+      : 1.0
+      ? !!python/tuple [a0, 18]
+      : 1.0
+      ? !!python/tuple [a0, 19]
+      : 1.0
+      ? !!python/tuple [a0, 20]
+      : 1.0
+      ? !!python/tuple [a0, 21]
+      : 1.0
+      ? !!python/tuple [a0, 22]
+      : 1.0
+      ? !!python/tuple [a0, 23]
+      : 1.0
+      ? !!python/tuple [a0, 24]
+      : 1.0
+      ? !!python/tuple [a0, 25]
+      : 1.0
+      ? !!python/tuple [a0, 26]
+      : 1.0
+      ? !!python/tuple [a0, 27]
+      : 1.0
+      ? !!python/tuple [a0, 28]
+      : 1.0
+      ? !!python/tuple [a0, 29]
+      : 1.0
       ? !!python/tuple [a1, 19]
       : 1.0
       ? !!python/tuple [a1, 20]

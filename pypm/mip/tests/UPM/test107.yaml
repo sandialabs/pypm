@@ -13,8 +13,17 @@ resources:
 
 activities:
 
+- name: a0
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+    rB:
+
 - name: a1
   dependencies:
+  - a0
   duration:
     max_hours: 5
     min_hours: 5
@@ -37,7 +46,7 @@ data:
     a2: {post: True}
   observations:
     rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0]
-    rB: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0]
     rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0]
   seed: 0
   trial: 0
