@@ -514,7 +514,6 @@ class UPM_TotalMatchScore(Z_Repn_Model):
             separation = {}
             for j in activity_length:
                 separation[j] = 0
-                print("Activity",j)
                 for k in self.config.pm[j]['resources']:
                     if len(rmap.get(k,[])) > 0:
                         activity    = sum(max(self.config.obs.observations[col][t] * self.M.a[j,t].value     for col in rmap.get(k,[])) for t in self.M.T)
