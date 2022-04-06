@@ -1,3 +1,4 @@
+import sys
 import argparse
 import yaml
 from pypm.api import PYPM
@@ -111,10 +112,16 @@ def main():                     # pragma: nocover
         runsim(configfile=args.config_file, processfile=args.process_file, supervised=not args.unsupervised, outputfile=prefix+"_sim.yaml")
 
     elif args.func == 'mip':
-        driver = PYPM.supervised_mip()
-        driver.load_config(args.datafile, index=int(args.index))
-        results = driver.generate_schedule()
-        results.write(args.output, verbose=args.verbose)
+        print("ERROR: The 'pypm mip' sub-command is disabled.")
+        print("")
+        print("  Use the 'pypm sup' sub-command for supervised process matching.")
+        print("  Use the 'pypm unsup' sub-command for unsupervised process matching.")
+        print("")
+        sys.exit(1)
+        #driver = PYPM.supervised_mip()
+        #driver.load_config(args.datafile, index=int(args.index))
+        #results = driver.generate_schedule()
+        #results.write(args.output, verbose=args.verbose)
 
     elif args.func == 'sup':
         driver = PYPM.supervised_mip()
@@ -156,6 +163,9 @@ def main():                     # pragma: nocover
             chunk_process(args.process, args.output, args.step)
         else:
             print("pypm chunk - expected --csv or --process option!")
+
+    else:
+        print("ERROR: unexpected sub-command '{}'".format(args.func))
 
 #
 # This is used for interactive testing
