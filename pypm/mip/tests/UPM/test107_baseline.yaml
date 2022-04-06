@@ -5,12 +5,13 @@ data:
   indicators: []
   timesteps: 30
 results:
-- goals:
-    match: {a0: 9.99999999999999, a1: 5.0}
-    separation: {a0: 0, a1: 0, a2: 0}
-    total_match: 14.99999999999999
-    total_separation: 0
-  objective: 15.0
+- feature_label: {rB: rB, rC: rC}
+  goals:
+    match: {a0: 10.0, a1: 5.0}
+    separation: {a0: 1.0, a1: 1.0, a2: 0}
+    total_match: 15.0
+    total_separation: 2.0
+  objective: 14.999999999999998
   schedule:
     a0: {first: 10, last: 19}
     a1: {first: 20, last: 24}
@@ -52,10 +53,10 @@ results:
       : 1.0
       ? !!python/tuple [rC, rC]
       : 1.0
-    o: {a0: 9.99999999999999, a1: 5.0}
+    o: {a0: 10.0, a1: 5.0}
     r:
       ? !!python/tuple [a0, rB, 10]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a0, rB, 11]
       : 1.0
       ? !!python/tuple [a0, rB, 12]
@@ -65,25 +66,25 @@ results:
       ? !!python/tuple [a0, rB, 14]
       : 1.0
       ? !!python/tuple [a0, rB, 15]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a0, rB, 16]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a0, rB, 17]
       : 1.0
       ? !!python/tuple [a0, rB, 18]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a0, rB, 19]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [a1, rC, 20]
       : 1.0
       ? !!python/tuple [a1, rC, 21]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [a1, rC, 22]
       : 1.0
       ? !!python/tuple [a1, rC, 23]
       : 1.0
       ? !!python/tuple [a1, rC, 24]
-      : 1.0
+      : 0.999999999999999
     z:
       ? !!python/tuple [a0, 10]
       : 1.0

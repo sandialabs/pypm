@@ -5,11 +5,12 @@ data:
   indicators: []
   timesteps: 30
 results:
-- goals:
+- feature_label: {rC: rC}
+  goals:
     match: {a1: 8.0}
-    separation: {a1: 0, a2: 0}
+    separation: {a1: 1.0, a2: 0}
     total_match: 8.0
-    total_separation: 0
+    total_separation: 1.0
   objective: 8.0
   schedule:
     a1: {first: 1, last: 8}

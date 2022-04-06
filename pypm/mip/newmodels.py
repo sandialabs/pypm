@@ -104,15 +104,16 @@ class Z_Repn_Model(BaseModel):
     def summarize(self):
         results = BaseModel.summarize(self)
         #
-        results['goals']['separation'] = {}
-        for i in self.M.activity_length:
-            if results['schedule'][i].get('pre',False) or results['schedule'][i].get('post',False):
-                results['goals']['separation'][i] = 0
-            else:
-                activity = fracval(pe.value(self.M.weighted_activity_length[i]),pe.value(self.M.activity_length[i]))
-                nonactivity = fracval(pe.value(self.M.weighted_nonactivity_length[i]),pe.value(self.M.nonactivity_length[i]))
-                results['goals']['separation'][i] = max(0, activity - nonactivity)
-        results['goals']['total_separation'] = sum(val for val in results['goals']['separation'].values())
+        if hasattr(self.M, 'activity_length'):
+            results['goals']['separation'] = {}
+            for i in self.M.activity_length:
+                if results['schedule'][i].get('pre',False) or results['schedule'][i].get('post',False):
+                    results['goals']['separation'][i] = 0
+                else:
+                    activity = fracval(pe.value(self.M.weighted_activity_length[i]),pe.value(self.M.activity_length[i]))
+                    nonactivity = fracval(pe.value(self.M.weighted_nonactivity_length[i]),pe.value(self.M.nonactivity_length[i]))
+                    results['goals']['separation'][i] = max(0, activity - nonactivity)
+            results['goals']['total_separation'] = sum(val for val in results['goals']['separation'].values())
         #
         results['goals']['match'] = {}
         for activity, value in results['variables']['o'].items():
@@ -486,6 +487,51 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         self.name = 'UPM'
         self.description = 'Unsupervised process matching maximizing match score, including both continuous and count data'
 
+    def summarize(self):
+        results = Z_Repn_Model.summarize(self)
+
+        results['feature_label'] = {}
+        for (k,u) in self.M.m:
+            if pe.value(self.M.m[k,u]) > 1-1e-7:
+                results['feature_label'][u] = k
+
+        Delta = self.config.get('Delta',0)
+        if Delta == 0:
+            rmap = {}
+            for u in results['feature_label']:
+                k = results['feature_label'][u]
+                if k not in rmap:
+                    rmap[k] = set()
+                rmap[k].add(u)
+
+            activity_length = {}
+            for j in self.M.o:
+                activity_length[j] = sum(self.M.a[j,t].value for t in self.M.T)
+            nonactivity_length = {}
+            for j in self.M.o:
+                nonactivity_length[j] = len(self.M.T) - activity_length[j]
+
+            separation = {}
+            for j in activity_length:
+                separation[j] = 0
+                print("Activity",j)
+                for k in self.config.pm[j]['resources']:
+                    if len(rmap.get(k,[])) > 0:
+                        activity    = sum(max(self.config.obs.observations[col][t] * self.M.a[j,t].value     for col in rmap.get(k,[])) for t in self.M.T)
+                        nonactivity = sum(max(self.config.obs.observations[col][t] * (1-self.M.a[j,t].value) for col in rmap.get(k,[])) for t in self.M.T)
+                    else:
+                        activity = 0
+                        nonactivity = 0
+                    separation[j] += max(0, fracval(activity,activity_length[j]) - fracval(nonactivity,nonactivity_length[j]))
+
+            results['goals']['separation'] = separation
+            results['goals']['total_separation'] = sum(separation[j] for j in separation)
+        else:
+            print("WARNING: Cannot compute separation with unknown resources (yet)")
+            
+
+        return results
+
     def __call__(self, config, constraints=[]):
         self.config = config
         d = self.data = UPM_ProcessModelData(config)
@@ -533,12 +579,13 @@ class UPM_TotalMatchScore(Z_Repn_Model):
             K_count.add(k)
 
         M = pe.ConcreteModel()
+        M.T = T
 
         M.z = pe.Var(J, [-1]+T, within=pe.Binary)
         M.a = pe.Var(J, T, within=pe.Binary)
         M.o = pe.Var(J, bounds=(0,None))
         M.r = pe.Var(JK, T, bounds=(0,1))
-        M.m = pe.Var(Kall, U, bounds=(0,1))
+        M.m = pe.Var(Kall, U, bounds=(0,1), within=pe.Binary)
         if Delta > 0:
             M.delta = pe.Var(J, H, within=pe.Binary)
 
@@ -647,21 +694,21 @@ class UPM_TotalMatchScore(Z_Repn_Model):
 
         # Auxilliary computed values
 
-        def activity_length_(m, j):
-            return sum(m.a[j,t] for t in T)
-        M.activity_length = pe.Expression(J, rule=activity_length_)
+        #def activity_length_(m, j):
+        #    return sum(m.a[j,t] for t in T)
+        #M.activity_length = pe.Expression(J, rule=activity_length_)
 
-        def weighted_activity_length_(m, j):
-            return sum(m.r[j,k,t] for k in K[j] for t in T)
-        M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+        #def weighted_activity_length_(m, j):
+        #    return sum(m.r[j,k,t] for k in K[j] for t in T)
+        #M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
 
-        def nonactivity_length_(m, j):
-            return sum( 1-m.a[j,t] for t in T)
-        M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+        #def nonactivity_length_(m, j):
+        #    return sum( 1-m.a[j,t] for t in T)
+        #M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
 
-        def weighted_nonactivity_length_(m, j):
-            return sum( 1- m.r[j,k,t] for k in K[j] for t in T)
-        M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
+        #def weighted_nonactivity_length_(m, j):
+        #    return sum( 1- m.r[j,k,t] for k in K[j] for t in T)
+        #M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
 
         return M
 
