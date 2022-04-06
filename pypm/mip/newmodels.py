@@ -47,11 +47,12 @@ class ProcessModelData(object):
         #    for k in self.K[j]:
         #        self.J_k[k].append(j)
 
-        if hasattr(data,'gamma') and type(data.gamma) is dict:
-            self.Gamma = data.gamma
+        if 'Gamma' in data.options and type(data.options['Gamma']) is dict:
+            self.Gamma = data.options['Gamma']
         else:
-            self.Gamma = {j:data.get('gamma',0) for j in self.J}
-        self.Upsilon = data.get('sigma',None)
+            self.Gamma = {j:data.options.get('Gamma',0) for j in self.J}
+        self.Upsilon = data.options.get('Upsilon',None)
+
         self.S = {(j,k):1 if k in self.K[j] else 0 for j in pm for k in Kall}
         self.C = {(j,k):pm[j]['resources'][k] for j in pm for k in pm[j]['resources']}
 
@@ -258,6 +259,15 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
     def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+
+        if verbose:
+            print("")
+            print("Model Options")
+            if type(self.config.options.get('Gamma',0)) is dict:
+                print("  Gamma",Gamma)
+            else:
+                print("  Gamma",self.config.options.get('Gamma',0))
+            print("  Upsilon",Upsilon)
 
         assert objective == 'total_match_score', "Model11 can not optimize the goal {}".format(objective)
 
@@ -475,6 +485,9 @@ class UPM_ProcessModelData(object):
         self.Kall = set(name for name in data.pm.resources)
         self.U = set(self.O.keys())
 
+        self.Delta = data.options.get('Delta',0)
+        self.Xi = data.options.get('Xi',0)
+
 #
 # This is the UPM model in Figure 2-1
 #
@@ -495,7 +508,7 @@ class UPM_TotalMatchScore(Z_Repn_Model):
             if pe.value(self.M.m[k,u]) > 1-1e-7:
                 results['feature_label'][u] = k
 
-        Delta = self.config.get('Delta',0)
+        Delta = self.data.Delta
         if Delta == 0:
             rmap = {}
             for u in results['feature_label']:
@@ -543,8 +556,8 @@ class UPM_TotalMatchScore(Z_Repn_Model):
                                 C=d.C, 
                                 U=d.U, U_count=config.count_data,
                                 Kall=d.Kall, K_count=d.K_count,
-                                Delta=config.get('Delta',0),
-                                Xi=config.get('Xi',1),
+                                Delta=d.Delta,
+                                Xi=d.Xi,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
@@ -552,6 +565,15 @@ class UPM_TotalMatchScore(Z_Repn_Model):
     def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, C, Delta, Xi, U, U_count, Kall, K_count, verbose):
 
         assert objective == 'total_match_score', "UPM can not optimize the goal {}".format(objective)
+
+        if verbose:
+            print("")
+            print("Model Options")
+            print("  Delta",Delta)
+            print("  Gamma",Gamma)
+            print("  Omega",Omega)
+            print("  Xi",Xi)
+            print("  Upsilon",Upsilon)
 
         #
         # If Delta>0, then we add 2*Delta unknown resources to each activity.  The

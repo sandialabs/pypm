@@ -271,6 +271,7 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     solver = options.get('solver', 'glpk') if solver is None else solver
     solver_options = options.get('solver_options', {})
     count_data = set(options.get('count_data', []))
+
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
     pm = load_process(options['process'], dirname=dirname)
@@ -292,7 +293,8 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
 
     return Munch(savefile=savefile, tee=tee, verbose=verbose, model=model, solver=solver, solver_options=solver_options,
                     pm=pm, search_strategy=search_strategy, obs=obs,
-                    options=options, datafile=datafile, index=index, debug=debug, seed=seed, process=options['process'],
+                    options=options, 
+                    datafile=datafile, index=index, debug=debug, seed=seed, process=options['process'],
                     count_data=count_data)
 
 
