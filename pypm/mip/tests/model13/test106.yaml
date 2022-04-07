@@ -1,11 +1,11 @@
 _options:
   comments: 
     - confirming that last activity is not included if there are no observations
-  model: model13
   process: test106.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

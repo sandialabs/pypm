@@ -1,11 +1,11 @@
 _options:
   comments: 
     - Mimicing test1 with delay before a1
-  model: model11
   process: test2.yaml
   solver: glpk
   tee: false
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

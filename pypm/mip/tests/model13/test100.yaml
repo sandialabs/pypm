@@ -1,11 +1,11 @@
 _options:
   comments: 
     - testing behavior when only second activity matches
-  model: model13
   process: test100.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

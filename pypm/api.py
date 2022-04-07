@@ -32,8 +32,10 @@ class Results(object):
                 del tmp['data']
             if 'results' in tmp:
                 for res in tmp['results']:
-                    del res['objective']
-                    del res['variables']
+                    if 'objective' in res:
+                        del res['objective']
+                    if 'variables' in res:
+                        del res['variables']
             with open(yamlfile, 'w') as OUTPUT:
                 print("Writing file: {}".format(yamlfile))
                 OUTPUT.write(yaml.dump(tmp, default_flow_style=False))

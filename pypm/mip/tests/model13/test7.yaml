@@ -1,11 +1,11 @@
 _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
-  model: model13
   process: test7.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

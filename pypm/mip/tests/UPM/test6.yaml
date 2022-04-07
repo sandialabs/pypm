@@ -6,6 +6,7 @@ _options:
   tee: false
   timesteps: 30
   #max_delay: 2
+  Gamma: 0
 
 resources:
   rA:

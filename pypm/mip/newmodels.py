@@ -50,7 +50,7 @@ class ProcessModelData(object):
         if 'Gamma' in data.options and type(data.options['Gamma']) is dict:
             self.Gamma = data.options['Gamma']
         else:
-            self.Gamma = {j:data.options.get('Gamma',0) for j in self.J}
+            self.Gamma = {j:data.options.get('Gamma',None) for j in self.J}
         self.Upsilon = data.options.get('Upsilon',None)
 
         self.S = {(j,k):1 if k in self.K[j] else 0 for j in pm for k in Kall}
@@ -263,10 +263,10 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         if verbose:
             print("")
             print("Model Options")
-            if type(self.config.options.get('Gamma',0)) is dict:
+            if type(self.config.options.get('Gamma',None)) is dict:
                 print("  Gamma",Gamma)
             else:
-                print("  Gamma",self.config.options.get('Gamma',0))
+                print("  Gamma",self.config.options.get('Gamma',None))
             print("  Upsilon",Upsilon)
 
         assert objective == 'total_match_score', "Model11 can not optimize the goal {}".format(objective)
@@ -305,8 +305,10 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
-            tprev = max(t- (Q[j]+Gamma[j]), -1)
+            if Gamma[j] is None:
+                tprev = -1
+            else:
+                tprev = max(t- (Q[j]+Gamma[j]), -1)
             return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
@@ -429,7 +431,10 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
 
         def activity_start_(m, j, t):
             #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
-            tprev = max(t- (Q[j]+Gamma[j]), -1)
+            if Gamma[j] is None:
+                tprev = -1
+            else:
+                tprev = max(t- (Q[j]+Gamma[j]), -1)
             return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
@@ -691,8 +696,10 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
-            tprev = max(t- (Q[j]+Gamma[j]), -1)
+            if Gamma[j] is None:
+                tprev = -1
+            else:
+                tprev = max(t- (Q[j]+Gamma[j]), -1)
             return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 

@@ -1,11 +1,11 @@
 _options:
   comments: 
     - confirming that first activity is not included if it's too long
-  model: model13
   process: test102.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

@@ -1,11 +1,11 @@
 _options:
   comments: 
     - confirming that last activities with no resources have appropriate start/stop values
-  model: model11
   process: test108.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

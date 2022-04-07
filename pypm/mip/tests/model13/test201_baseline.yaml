@@ -112,5 +112,5 @@ results:
       ? !!python/tuple [a1, 29]
       : 1.0
 solver:
-  model: {name: model13}
+  model: {name: GSF-ED}
   search_strategy: mip

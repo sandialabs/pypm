@@ -1,11 +1,12 @@
 _options:
   comments: 
     - confirming that last activity is not included if it doesn't fit
-  model: model11
   process: test107.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
+  Gamma: 0
 
 resources:
   rA:

@@ -2,11 +2,11 @@ _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
     - Activity 2 isn't scheduled because there are no observations
-  model: model11
   process: test1.yaml
   solver: glpk
   tee: true
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:

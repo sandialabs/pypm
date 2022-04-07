@@ -3,13 +3,13 @@ _options:
     - Mimicing example1_sim1_model3_sup
     - Activity 2 isn't scheduled because there are no observations
     - Two of rC resources are used by a1
-  model: model13
   process: test201.yaml
   solver: glpk
   tee: true
   timesteps: 30
   count_data:
     - rC
+  Gamma: 0
 
 resources:
   rA:
