@@ -14,7 +14,7 @@ results:
     total_separation: 2.9130434782608696
   schedule:
     a1:
-      first: 3
+      first: 2
       last: 9
     a2:
       first: 10

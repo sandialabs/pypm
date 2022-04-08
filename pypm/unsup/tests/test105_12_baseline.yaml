@@ -20,10 +20,10 @@ results:
       first: 24
       last: 29
   solver_statistics:
-    evaluations: 160
+    evaluations: 155
     iterations: 27
     stall count: 25
-    unique solutions: 45
+    unique solutions: 40
 solver:
   model:
     name: model13

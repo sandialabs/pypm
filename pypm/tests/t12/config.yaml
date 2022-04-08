@@ -1,5 +1,6 @@
 _options:
   process: process.yaml
+  Gamma: 0
   count_data:
     A:
     C:

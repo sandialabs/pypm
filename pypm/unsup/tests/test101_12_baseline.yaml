@@ -1,7 +1,7 @@
 results:
 - feature_label:
-    rA: rA
-    rB: rB
+    rA: rB
+    rB: rA
     rC: rC
   goals:
     match:
@@ -20,10 +20,10 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 146
-    iterations: 31
+    evaluations: 133
+    iterations: 30
     stall count: 25
-    unique solutions: 39
+    unique solutions: 54
 solver:
   model:
     name: model13

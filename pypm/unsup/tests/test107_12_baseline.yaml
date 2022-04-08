@@ -21,7 +21,7 @@ results:
     evaluations: 152
     iterations: 26
     stall count: 25
-    unique solutions: 49
+    unique solutions: 46
 solver:
   model:
     name: model13
