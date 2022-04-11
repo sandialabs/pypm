@@ -92,7 +92,7 @@ def summarize_alignment(v, model, pm, timesteps=None):
     return ans
  
 
-def load_observations(data, timesteps, dirname, index, strict=False):
+def load_observations(data, timesteps, dirname, index, count_data, strict=False):
     observations_ = {}
     header = []
     if type(data) is list:
@@ -139,20 +139,30 @@ def load_observations(data, timesteps, dirname, index, strict=False):
     # Check that observations are in the interval [0,1]
     #
     for key in observations_:
-        for row in range(len(observations_[key])):
-            val = observations_[key][row]
-            #print(key,row,val)
-            if val < 0 or val > 1:
-                if strict:
-                    print("ERROR: invalid observation value {} (col={}, row={}). Must be in the interval [0,1].".format(val, key, row))
-                    sys.exit(1)
-                else:
-                    if val < 0:
-                        print("WARNING: invalid observation value {} (col={}, row={}). Moving value to 0.".format(val, key, row))
-                        observations_[key][row] = 0
-                    if val > 1:
-                        print("WARNING: invalid observation value {} (col={}, row={}). Moving value to 1.".format(val, key, row))
-                        observations_[key][row] = 1
+        if key in count_data:
+            for row in range(len(observations_[key])):
+                val = observations_[key][row]
+                if val < 0:
+                    print("WARNING: invalid observation value {} (col={}, row={}). Moving value to 0.".format(val, key, row))
+                    observations_[key][row] = 0
+                elif type(val) is float and not val.is_integer():
+                    print("WARNING: invalid observation value {} (col={}, row={}). Moving value to {}.".format(val, key, row, int(val)))
+                    observations_[key][row] = int(val)
+        else:
+            for row in range(len(observations_[key])):
+                val = observations_[key][row]
+                #print(key,row,val)
+                if val < 0 or val > 1:
+                    if strict:
+                        print("ERROR: invalid observation value {} (col={}, row={}). Must be in the interval [0,1].".format(val, key, row))
+                        sys.exit(1)
+                    else:
+                        if val < 0:
+                            print("WARNING: invalid observation value {} (col={}, row={}). Moving value to 0.".format(val, key, row))
+                            observations_[key][row] = 0
+                        if val > 1:
+                            print("WARNING: invalid observation value {} (col={}, row={}). Moving value to 1.".format(val, key, row))
+                            observations_[key][row] = 1
     #
     # Get the value of 'timesteps'
     #
@@ -280,7 +290,8 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     obs = load_observations(data['data'], 
                             options.get('timesteps', None),
                             dirname,
-                            index)
+                            index,
+                            count_data)
 
     if model in ['model1', 'model3', 'model5', 'model7', 'model11', 'model13']:
         #
