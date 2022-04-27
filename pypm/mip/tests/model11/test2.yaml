@@ -1,6 +1,6 @@
 _options:
   comments: 
-    - Mimicing test1 with delay before a1
+    - Mimicing test1 with no delay allowed after a1
   process: test2.yaml
   solver: glpk
   tee: false

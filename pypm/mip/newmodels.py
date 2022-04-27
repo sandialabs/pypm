@@ -105,15 +105,28 @@ class Z_Repn_Model(BaseModel):
     def summarize(self):
         results = BaseModel.summarize(self)
         #
-        if hasattr(self.M, 'activity_length'):
-            results['goals']['separation'] = {}
-            for i in self.M.activity_length:
-                if results['schedule'][i].get('pre',False) or results['schedule'][i].get('post',False):
-                    results['goals']['separation'][i] = 0
-                else:
-                    activity = fracval(pe.value(self.M.weighted_activity_length[i]),pe.value(self.M.activity_length[i]))
-                    nonactivity = fracval(pe.value(self.M.weighted_nonactivity_length[i]),pe.value(self.M.nonactivity_length[i]))
-                    results['goals']['separation'][i] = max(0, activity - nonactivity)
+        if hasattr(self.M,"activity_length"):
+            obs = {}
+            for k in self.config.obs.observations:
+                obs[k] = set()
+            for j in self.config.pm:
+                for k in self.config.pm[j]['resources']:
+                    for t in range(self.data.Tmax):
+                        if self.M.a[j,t].value > 1-1e-7:
+                            obs[k].add(t)
+
+            feature_total = {}
+            feature_len = {}
+            separation = {}
+            for k in self.config.obs.observations:
+                feature_total = sum(self.config.obs.observations[k][t] for t in range(self.data.Tmax) if t not in obs[k])
+                feature_len = self.data.Tmax - len(obs[k])
+                activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
+                activity_len = len(obs[k])
+                print(k, activity_total, activity_len, feature_total, feature_len)
+                separation[k] = max(0, fracval(activity_total, activity_len) - fracval(feature_total,feature_len))
+            results['goals']['separation'] = separation
+
             results['goals']['total_separation'] = sum(val for val in results['goals']['separation'].values())
         #
         results['goals']['match'] = {}
@@ -522,27 +535,47 @@ class UPM_TotalMatchScore(Z_Repn_Model):
                     rmap[k] = set()
                 rmap[k].add(u)
 
-            activity_length = {}
-            for j in self.M.o:
-                activity_length[j] = sum(self.M.a[j,t].value for t in self.M.T)
-            nonactivity_length = {}
-            for j in self.M.o:
-                nonactivity_length[j] = len(self.M.T) - activity_length[j]
-
-            separation = {}
-            for j in activity_length:
-                separation[j] = 0
+            obs = {}
+            for col in results['feature_label']:
+                obs[col] = set()
+            for j in self.config.pm:
                 for k in self.config.pm[j]['resources']:
-                    if len(rmap.get(k,[])) > 0:
-                        activity    = sum(max(self.config.obs.observations[col][t] * self.M.a[j,t].value     for col in rmap.get(k,[])) for t in self.M.T)
-                        nonactivity = sum(max(self.config.obs.observations[col][t] * (1-self.M.a[j,t].value) for col in rmap.get(k,[])) for t in self.M.T)
-                    else:
-                        activity = 0
-                        nonactivity = 0
-                    separation[j] += max(0, fracval(activity,activity_length[j]) - fracval(nonactivity,nonactivity_length[j]))
+                    for col in rmap.get(k,[]):
+                        for t in range(self.data.Tmax):
+                            if self.M.a[j,t].value > 1-1e-7:
+                                obs[col].add(t)
+
+            feature_total = {}
+            feature_len = {}
+            separation = {}
+            for k in obs:
+                feature_total = sum(self.config.obs.observations[k][t] for t in range(self.data.Tmax) if t not in obs[k])
+                feature_len = self.data.Tmax - len(obs[k])
+                activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
+                activity_len = len(obs[k])
+                separation[k] = max(0, fracval(activity_total, activity_len) - fracval(feature_total,feature_len))
+
+            #activity_length = {}
+            #for j in self.M.o:
+            #    activity_length[j] = sum(self.M.a[j,t].value for t in self.M.T)
+            #nonactivity_length = {}
+            #for j in self.M.o:
+            #    nonactivity_length[j] = len(self.M.T) - activity_length[j]
+
+            #separation = {}
+            #for j in activity_length:
+            #    separation[j] = 0
+            #    for k in self.config.pm[j]['resources']:
+            #        if len(rmap.get(k,[])) > 0:
+            #            activity    = sum(max(self.config.obs.observations[col][t] * self.M.a[j,t].value     for col in rmap.get(k,[])) for t in self.M.T)
+            #            nonactivity = sum(max(self.config.obs.observations[col][t] * (1-self.M.a[j,t].value) for col in rmap.get(k,[])) for t in self.M.T)
+            #        else:
+            #            activity = 0
+            #            nonactivity = 0
+            #        separation[j] += max(0, fracval(activity,activity_length[j]) - fracval(nonactivity,nonactivity_length[j]))
 
             results['goals']['separation'] = separation
-            results['goals']['total_separation'] = sum(separation[j] for j in separation)
+            results['goals']['total_separation'] = sum(val for val in separation.values())
         else:
             print("WARNING: Cannot compute separation with unknown resources (yet)")
             

@@ -8,7 +8,7 @@ results:
 - feature_label: {rC: rC}
   goals:
     match: {a1: 5.0}
-    separation: {a1: 1.0, a2: 0}
+    separation: {rC: 1.0}
     total_match: 5.0
     total_separation: 1.0
   objective: 5.0

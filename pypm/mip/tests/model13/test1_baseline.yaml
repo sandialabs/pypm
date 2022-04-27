@@ -7,7 +7,7 @@ data:
 results:
 - goals:
     match: {a1: 16.0}
-    separation: {a1: 2.0, a2: 0}
+    separation: {rB: 1.0, rC: 1.0}
     total_match: 16.0
     total_separation: 2.0
   objective: 16.0
