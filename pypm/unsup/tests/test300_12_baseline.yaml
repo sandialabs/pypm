@@ -7,8 +7,10 @@ results:
     match:
       a2: 8.0
     separation:
-      a1: 0
-      a2: 1.3333333333333333
+      IGNORED: 0
+      rA: 0.6666666666666666
+      rB: 0.6666666666666666
+      rC: 0
     total_match: 8.0
     total_separation: 1.3333333333333333
   schedule:
@@ -18,10 +20,10 @@ results:
       first: 8
       last: 13
   solver_statistics:
-    evaluations: 224
+    evaluations: 229
     iterations: 39
     stall count: 25
-    unique solutions: 53
+    unique solutions: 56
 solver:
   model:
     name: model13

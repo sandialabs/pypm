@@ -29,14 +29,13 @@ results:
       Activity4: 10.0
       Activity5: 20.0
     separation:
-      Activity1: 1.899497487437186
-      Activity2: 0.1878238341968912
-      Activity3: 0
-      Activity4: 0.13717277486910995
-      Activity5: 1.899497487437186
-      Activity6: 0
+      A: 0.9593908629441624
+      B: 0.9597989949748744
+      C: 0
+      D: 0
+      E: 0.27790055248618784
     total_match: 60.0
-    total_separation: 4.123991583940373
+    total_separation: 2.1970904104052247
   schedule:
     Activity1:
       first: 28

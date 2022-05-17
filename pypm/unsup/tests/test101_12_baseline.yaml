@@ -1,15 +1,17 @@
 results:
 - feature_label:
-    rA: rB
-    rB: rA
+    rA: rA
+    rB: rB
     rC: rC
   goals:
     match:
       a1: 1.0
       a2: 12.0
     separation:
-      a1: 0.2
-      a2: 2.0
+      IGNORED: 0
+      rA: 1.0
+      rB: 1.0
+      rC: 0.2
     total_match: 13.0
     total_separation: 2.2
   schedule:
@@ -20,10 +22,10 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 133
-    iterations: 30
+    evaluations: 151
+    iterations: 31
     stall count: 25
-    unique solutions: 54
+    unique solutions: 35
 solver:
   model:
     name: model13

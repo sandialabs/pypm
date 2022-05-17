@@ -7,8 +7,10 @@ results:
     match:
       a2: 6.0
     separation:
-      a1: 0
-      a2: 1.0
+      IGNORED: 0
+      rA: 0.16666666666666666
+      rB: 0.8333333333333334
+      rC: 0
     total_match: 6.0
     total_separation: 1.0
   schedule:

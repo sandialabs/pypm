@@ -8,8 +8,10 @@ results:
       a1: 14.0
       a2: 5.0
     separation:
-      a1: 2.0
-      a2: 1.0
+      IGNORED: 0
+      rA: 1.0
+      rB: 1.0
+      rC: 1.0
     total_match: 19.0
     total_separation: 3.0
   schedule:
