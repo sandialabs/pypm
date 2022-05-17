@@ -123,7 +123,7 @@ class Z_Repn_Model(BaseModel):
                 feature_len = self.data.Tmax - len(obs[k])
                 activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
                 activity_len = len(obs[k])
-                print(k, activity_total, activity_len, feature_total, feature_len)
+                #print(k, activity_total, activity_len, feature_total, feature_len)
                 separation[k] = max(0, fracval(activity_total, activity_len) - fracval(feature_total,feature_len))
             results['goals']['separation'] = separation
 
