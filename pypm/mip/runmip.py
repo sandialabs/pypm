@@ -266,7 +266,7 @@ def runmip_from_datafile(*, datafile=None, data=None, index=0, model=None, tee=N
     return runmip(configdata)
 
 
-def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False,          verbose=None, seed=123456789237498):
+def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solver=None, dirname=None, debug=False,          verbose=None, quiet=None, seed=123456789237498):
     if data is None:
         assert datafile is not None
         with open(datafile, 'r') as INPUT:
@@ -277,6 +277,11 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     tee = options.get('tee', False) if tee is None else tee
     seed = options.get('seed', False) if seed is None else seed
     verbose = options.get('verbose', False) if verbose is None else verbose
+    quiet = options.get('quiet', False) if quiet is None else quiet
+    if verbose:
+        quiet = False
+    if quiet:
+        verbose = False
     model = options.get('model', None) if model is None else model
     solver = options.get('solver', 'glpk') if solver is None else solver
     solver_options = options.get('solver_options', {})
@@ -302,7 +307,7 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
         tmp2 = set([name for name in pm.resources])
         assert tmp1.issubset(tmp2), "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "+str(tmp1-tmp2)
 
-    return Munch(savefile=savefile, tee=tee, verbose=verbose, model=model, solver=solver, solver_options=solver_options,
+    return Munch(savefile=savefile, tee=tee, verbose=verbose, quiet=quiet, model=model, solver=solver, solver_options=solver_options,
                     pm=pm, search_strategy=search_strategy, obs=obs,
                     options=options, 
                     datafile=datafile, index=index, debug=debug, seed=seed, process=options['process'],
@@ -310,7 +315,8 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
 
 
 def runmip(config, constraints=[]):
-    print("Creating model")
+    if not config.quiet:
+        print("Creating model")
     M = create_model(config.model)
     if M is None:
         return old_runmip(config)
@@ -318,7 +324,8 @@ def runmip(config, constraints=[]):
     M(config, constraints=constraints)
 
     if config.savefile:
-        print("Writing file:",config.savefile)
+        if not config.quiet:
+            print("Writing file:",config.savefile)
         M.M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
         #M.pprint()
         #M.display()
@@ -339,7 +346,8 @@ def runmip(config, constraints=[]):
         #
         # Perform optimization
         #
-        print("Optimizing model")
+        if not config.quiet:
+            print("Optimizing model")
         results = new_perform_optimization(M=M, solver=config.solver, options=config.solver_options, tee=config.tee, debug=config.debug)
 
         #
@@ -453,8 +461,8 @@ def old_runmip(config):
             M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
             return dict()
 
-            M.pprint()
-            M.display()
+            #M.pprint()
+            #M.display()
 
         #
         # Setup results YAML data

@@ -240,12 +240,17 @@ class Z_Repn_Model(BaseModel):
 
         if verbose:
             print("Summary of fixed variables")
+            flag = False
             for j,t in M.a:
                 if M.a[j,t].fixed:
                     print(" ",M.a[j,t], M.a[j,t].value)
+                    flag = True
             for j,t in M.z:
                 if M.z[j,t].fixed:
                     print(" ",M.z[j,t], M.z[j,t].value)
+                    flag = True
+            if not flag:
+                print(" None")
 
 
 

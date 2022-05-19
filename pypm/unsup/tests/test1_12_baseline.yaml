@@ -1,15 +1,13 @@
 results:
 - feature_label:
-    rB: rB
-    rC: rC
+    rb: rB
+    rc: rC
   goals:
     match:
       a1: 16.0
     separation:
-      IGNORED: 0
-      rA: 0
-      rB: 1.0
-      rC: 1.0
+      rb: 1.0
+      rc: 1.0
     total_match: 16.0
     total_separation: 2.0
   schedule:
@@ -25,5 +23,5 @@ results:
     unique solutions: 16
 solver:
   model:
-    name: model13
+    name: GSF-ED
   search_strategy: tabu

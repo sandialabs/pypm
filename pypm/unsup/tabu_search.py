@@ -1,14 +1,17 @@
 #
 # Generic Tabu Search Solver
 #
+import abc
 from munch import Munch
+import time
 import random
 import math
+import ray
 
 
 class TabuSearch(object):
 
-    def __init__(self):
+    def __init__(self, problem=None):
         self.options = Munch()
         self.options.max_iterations = 100
         self.options.max_stall_count = self.options.max_iterations/4
@@ -18,28 +21,29 @@ class TabuSearch(object):
         self.iteration = 0
         self.stall_count = 0
         self.tabu_time = {}
+        #
+        self.problem = problem
 
     def initial_solution(self):
         #
         # Generate initial solution
         # Returns: the solution
         #
-        pass
+        return self.problem.initial_solution()
  
+    def moves(self, point, value):
+        #
+        # Returns (neighbor, move used to generate the neighbor, value of the neighbor (or None))
+        #
+        return self.problem.moves(point, value)
+
     def compute_solution_value(self, point):
         #
         # Compute the value of a solution
         # Returns: float value for the solution
         #
-        pass
+        return self.problem.compute_solution_value(point)
  
-    def moves(self, point, value):
-        #
-        # Generate moves in the neighborhood
-        # Returns (neighbor, move used to generate the neighbor, value of the neighbor (or None))
-        #
-        pass
-
     def end_iteration(self):
         # End-of-iteration operations
         pass
@@ -159,7 +163,188 @@ class CachedTabuSearch(TabuSearch):
         return x_best, f_best
 
 
+class AsyncTabuSearch(TabuSearch):
+    """
+    An async TABU search method that uses a cache, but asynchronously
+    evaluates all neighboring points.
+    """
+
+    def __init__(self):
+        TabuSearch.__init__(self)
+        self.cache = {}
+        self.num_moves_evaluated = 0
+
+    def generate_moves(self, x, f_x, f_best):
+        #
+        # Request evaluations for neighbors that we haven't evaluated
+        #
+        evaluated = []
+        queued = {}
+        for neighbor, move, value in self.moves(x, f_x):
+            if value is not None:
+                evaluated.append([neighbor, move, value])
+            else:
+                self.num_moves_evaluated += 1
+                value = self.cache.get(neighbor, None)
+                if value is None:
+                    queued[neighbor] = move
+                    self.problem.request_solution_value(neighbor)
+                else:
+                    evaluated.append([neighbor, move, value])
+        #
+        # Collect evaluated neighbors, and process them
+        #
+        curr = 0
+        while len(queued) > 0:
+            if curr % 10 == 0:
+                print("Waiting for {} queued evaluations".format(len(queued)))
+            curr += 1
+            #
+            # Collect evaluated neighbors until there are no more
+            #
+            while True:
+                results = self.problem.get_solution_value()
+                if results is None:
+                    time.sleep(1)
+                    break
+                value, neighbor = results
+                evaluated.append( [neighbor, queued[neighbor], value] )
+                print("Evaluation Complete - Point {}  Value {}".format(neighbor, value))
+                del queued[neighbor]
+                self.cache[neighbor] = value
+        #
+        # Process the list of evaluated neighbors
+        #
+        move_ = None
+        x_ = None
+        f_ = float("inf")
+        tabu = False
+        for neighbor, move, value in evaluated:
+            if move in self.tabu_time and self.tabu_time[move] >= self.iteration:
+                if self.options.verbose:
+                    print("#   TABU Move: {}  TABU Time: {}".format(move, self.tabu_time[move]))
+                # Aspiration criteria: Always keep best point found so far
+                if value < f_best:
+                    f_best = value
+                    move_, x_, f_ = move, neighbor, value
+                    tabu = True
+                    #break
+            elif value < f_x:
+                move_, x_, f_ = move, neighbor, value
+                tabu = False
+                #break
+            elif value < f_:
+                move_, x_, f_ = move, neighbor, value
+                tabu = False
+        #
+        # Update the tabu time for the best move, and return
+        #
+        if move_ is not None:
+            self.tabu_time[move_] = self.iteration + self.options.tabu_tenure
+        return x_, f_, tabu
+
+    def run(self):
+        x_best, f_best = TabuSearch.run(self)
+        print("# Final Results")
+        print("#   Best Value: {}".format(f_best))
+        print("#   Best Solution: {}".format(x_best))
+        print("#   Num Unique Solutions Evaluated: {}".format(len(self.cache)))
+        print("#   Num Solutions Evaluated: {}".format(self.num_moves_evaluated))
+
+        if self.options.verbose:
+            print("\nFinal TABU Table")
+            for move in sorted(self.tabu_time.keys()):
+                print(move,self.tabu_time[move])
+        return x_best, f_best
+
+
+class TabuSearchProblem(object):
+
+    @abc.abstractmethod
+    def initial_solution(self):
+        #
+        # Generate initial solution
+        # Returns: the solution
+        #
+        pass
+
+    @abc.abstractmethod
+    def moves(self, point, value):
+        #
+        # Returns (neighbor, move used to generate the neighbor, value of the neighbor (or None))
+        #
+        pass
+
+    def compute_solution_value(self, point):
+        #
+        # Compute the value of a solution
+        # Returns: float value for the solution
+        #
+        raise RuntimeError("Undefined method: TabuSearchProblem.compute_solution_value")
+
+    def request_solution_value(self, point):
+        #
+        # Async request for the value of a solution
+        # Returns: None
+        #
+        raise RuntimeError("Undefined method: TabuSearchProblem.request_solution_value")
+
+    def get_solution_value(self):
+        #
+        # Get the value of a solution requested earlier
+        # Returns: list containing the point and the float value for the solution
+        #
+        raise RuntimeError("Undefined method: TabuSearchProblem.get_solution_value")
+
+
+class LabelSearchProblem(TabuSearchProblem):
+
+    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+        if pm is not None:
+            self.pm = pm
+            self.nresources = len(pm.resources)
+            self.nfeatures = len(data)
+        else:
+            self.nresources = nresources
+            self.nfeatures = nfeatures
+
+    def initial_solution(self):
+        # Each feature is randomly labeled as a resource
+        point = []
+        for i in range(self.nfeatures):
+            point.append( random.randint(0,self.nresources-1) )
+        return tuple(point)
+
+    def moves(self, point, _):
+        # Generate moves in the neighborhood
+        rorder = list(range(self.nresources))
+        random.shuffle(rorder)
+        features = list(range(self.nfeatures))
+        random.shuffle(features)
+       
+        for i in features:
+            j = rorder.index(point[i])
+            nhbr = list(point)
+
+            nhbr[i] = rorder[j-1]
+            yield tuple(nhbr), (i,rorder[j-1]), None
+
+            nhbr[i] = rorder[(j+1) % self.nresources]
+            yield tuple(nhbr), (i,rorder[(j+1) % self.nresources]), None
+
+    def compute_solution_value(self, point):
+        # This is a dummy value used to test this searcher
+        return sum((i+1)*(1+math.sin(i/10.0)) for i in point)
+                    
+
 class LabelSearch(CachedTabuSearch):
+
+    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+        CachedTabuSearch.__init__(self)
+        self.problem = LabelSearchProblem(pm=pm, data=data, nresources=nresources, nfeatures=nfeatures)
+
+
+class LabelSearchOLD(CachedTabuSearch):
 
     def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
         CachedTabuSearch.__init__(self)
@@ -200,10 +385,18 @@ class LabelSearch(CachedTabuSearch):
     def compute_solution_value(self, point):
         # This is a dummy value used to test this searcher
         return sum((i+1)*(1+math.sin(i/10.0)) for i in point)
-                    
+
+
 if __name__ == "__main__":
+    random.seed(39483098)
+    ls = LabelSearchOLD(nresources=6, nfeatures=7)
+    ls.options.max_iterations = 100
+    ls.options.tabu_tenure = 4
+    ls.run()
+    #
     random.seed(39483098)
     ls = LabelSearch(nresources=6, nfeatures=7)
     ls.options.max_iterations = 100
     ls.options.tabu_tenure = 4
     ls.run()
+    
