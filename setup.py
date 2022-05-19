@@ -38,6 +38,7 @@ requires = [
     'pyutilib',
     'pyyaml',
     'simpy',
+    'ray',
     'munch'
     ]
 packages = _find_packages('pypm')

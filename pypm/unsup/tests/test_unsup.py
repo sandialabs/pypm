@@ -8,7 +8,7 @@ from pypm.api import PYPM
 
 currdir = this_file_dir()
 
-def run(testname, debug=False, verify=False):
+def run(testname, debug=False, verify=False, nworkers=1):
     driver = PYPM.tabu_labeling()
     driver.load_config(join(currdir, '{}.yaml'.format(testname)))
     driver.config.debug=debug
@@ -16,7 +16,7 @@ def run(testname, debug=False, verify=False):
     driver.config.datafile = None
     assert testname.startswith(driver.config.process[:-5])
 
-    results = driver.generate_labeling_and_schedule()
+    results = driver.generate_labeling_and_schedule(nworkers=nworkers)
     outputfile = join(currdir, "{}_results.yaml".format(testname))
     results.write(outputfile)
 
@@ -48,6 +48,7 @@ def test6_12():
 def test7_12():
     run('test7_12')
 
+
 def test100_12():
     run('test100_12')
 
@@ -72,9 +73,17 @@ def test106_12():
 def test107_12():
     run('test107_12')
 
+
 def test300_12():
     run('test300_12')
 
 def test301_12():
     run('test301_12')
+
+
+#
+# WEH - This code fails for some reason, complaining that the 'pypm' package is not installed.
+#
+#def test407_12():
+#    run('test407_12', nworkers=3)
 

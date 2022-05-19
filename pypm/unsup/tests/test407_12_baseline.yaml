@@ -2,25 +2,27 @@ results:
 - feature_label:
     ra: rA
     rb: rB
-    rc: IGNORED
+    rc: rC
   goals:
     match:
-      a2: 12.0
+      a1: 5.0
+      a2: 4.0
     separation:
       ra: 1.0
       rb: 1.0
-      rc: 0
-    total_match: 12.0
-    total_separation: 2.0
+      rc: 0.88
+    total_match: 9.0
+    total_separation: 2.88
   schedule:
     a1:
-      pre: true
+      first: 1
+      last: 5
     a2:
-      first: 5
-      last: 10
+      first: 6
+      last: 7
   solver_statistics:
-    evaluations: 137
-    iterations: 28
+    evaluations: 180
+    iterations: 30
     stall count: 25
     unique solutions: 47
 solver:

@@ -56,7 +56,7 @@ class SupervisedMIP(object):
         self.solver_options = Munch(name="glpk", show_solver_output=None)
 
     def load_config(self, yamlfile, index=0):
-        self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
+        self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, quiet=PYPM.options.quiet, index=0)
 
     def generate_schedule(self):
         #
@@ -78,17 +78,18 @@ class SupervisedMIP(object):
             self.config.verbose = PYPM.options.verbose
         self.config.objective = self.objective.goal
 
-        print("")
-        print("SupervisedMIP Configuration")
-        print("---------------------------")
-        print("verbose",self.config.verbose)
-        print("tee",self.config.tee)
-        print("objective",self.config.objective)
-        print("model",self.config.model)
-        print("solver",self.config.solver)
-        print("solver_options")
-        pprint.pprint(self.config.solver_options, indent=4)
-        print("")
+        if not self.config.quiet:
+            print("")
+            print("SupervisedMIP Configuration")
+            print("---------------------------")
+            print("verbose",self.config.verbose)
+            print("tee",self.config.tee)
+            print("objective",self.config.objective)
+            print("model",self.config.model)
+            print("solver",self.config.solver)
+            print("solver_options")
+            pprint.pprint(self.config.solver_options, indent=4)
+            print("")
 
         return Results(runmip(self.config, constraints=self.constraints))
 
@@ -181,17 +182,19 @@ class UnsupervisedMIP(SupervisedMIP):
             self.config.verbose = PYPM.options.verbose
         self.config.objective = self.objective.goal
 
-        print("")
-        print("UnsupervisedMIP Configuration")
-        print("-----------------------------")
-        print("verbose",self.config.verbose)
-        print("tee",self.config.tee)
-        print("objective",self.config.objective)
-        print("model",self.config.model)
-        print("solver",self.config.solver)
-        print("solver_options")
-        pprint.pprint(self.config.solver_options, indent=4)
-        print("")
+        if not self.config.quiet:
+            print("")
+            print("UnsupervisedMIP Configuration")
+            print("-----------------------------")
+            print("quiet",self.config.quiet)
+            print("verbose",self.config.verbose)
+            print("tee",self.config.tee)
+            print("objective",self.config.objective)
+            print("model",self.config.model)
+            print("solver",self.config.solver)
+            print("solver_options")
+            pprint.pprint(self.config.solver_options, indent=4)
+            print("")
 
         return Results(runmip(self.config, constraints=self.constraints))
 
@@ -203,17 +206,17 @@ class TabuLabeling(object):
         self.constraints = []
 
     def load_config(self, yamlfile, index=0):
-        self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, index=0)
+        self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, quiet=PYPM.options.quiet, index=0)
         self.config.model = 'tabu'
 
-    def generate_labeling_and_schedule(self):
-        return Results(run_tabu(self.config, constraints=self.constraints))
+    def generate_labeling_and_schedule(self, nworkers=1):
+        return Results(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers))
 
 
 class PYPM_api(object):
 
     def __init__(self):
-        self.options = Munch(verbose=None)
+        self.options = Munch(verbose=None, quiet=False)
 
     def supervised_mip(self):
         return SupervisedMIP()

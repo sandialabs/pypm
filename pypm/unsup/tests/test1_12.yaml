@@ -2,7 +2,6 @@ _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
     - Activity 2 isn't scheduled because there are no observations
-  model: model11
   search_strategy: tabu
   process: test1_12.yaml
   solver: glpk
@@ -37,7 +36,7 @@ data:
 - ground_truth:
     a1: {start: 0, stop: 7}
   observations:
-    rB: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rC: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rb: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

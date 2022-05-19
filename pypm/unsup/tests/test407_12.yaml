@@ -2,7 +2,7 @@ _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
   search_strategy: tabu
-  process: test7_12.yaml
+  process: test407_12.yaml
   solver: glpk
   tee: true
   timesteps: 30
