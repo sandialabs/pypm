@@ -13,7 +13,7 @@ from .tabu_search import CachedTabuSearch, TabuSearchProblem, AsyncTabuSearch
 class PMLabelSearchProblem(TabuSearchProblem):
 
     def __init__(self, config=None, nresources=None, nfeatures=None):
-        CachedTabuSearch.__init__(self)
+        TabuSearchProblem.__init__(self)
         self.config = config
         #
         self.nresources = len(config.pm.resources)+1
@@ -74,9 +74,6 @@ class PMLabelSearchProblem(TabuSearchProblem):
                 # The last category of resources is ignored
                 continue
             for t in range(self.config.obs.timesteps):
-                #print(index,k,i,t)
-                #print(list(observations.keys()))
-                #print(list(self.config.obs['observations'].keys()))
                 observations[k][t] = max(observations[k][t], self.config.obs['observations'][i][t])
         #
         # Setup the configuration object to use these observations
@@ -104,28 +101,20 @@ class PMLabelSearchProblem(TabuSearchProblem):
 class Worker(object):
 
     def __init__(self, config):
-        #print("WORKER",type(config))
-        self.config = config
-
-        self.nresources = len(self.config.pm.resources)+1
-        self.resources = list(sorted(k for k in self.config.pm.resources)) + ['IGNORED']
-        self.nfeatures = len(self.config.obs['observations'])
-        self.features = list(sorted(self.config.obs['observations'].keys()))
-        #
-        self.results = {}
+        self.problem = PMLabelSearchProblem(config)
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
         #
         from pypm.api import PYPM
         self.mip_sup = PYPM.supervised_mip()
-        obs = self.config.obs
-        self.config.obs = None
-        self.mip_sup.config = copy.deepcopy(self.config)
+        obs = self.problem.config.obs
+        self.problem.config.obs = None
+        self.mip_sup.config = copy.deepcopy(self.problem.config)
         self.mip_sup.config.search_strategy = 'mip'
         self.mip_sup.config.model = 'GSF-ED'
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
-        self.config.obs = obs
+        self.problem.config.obs = obs
 
     def run(self, point_queue, results_queue):
         # NOTE - Need to rework this to allow overlapping communication
@@ -135,48 +124,19 @@ class Worker(object):
             results_queue.put(self.compute_solution_value(point))
 
     def compute_solution_value(self, point):
-        #
-        # Create labeled observations
-        #
-        # Take the max value across all features associated with a resource in the 
-        # current point.
-        #
-        observations = {k: [0]*self.config.obs.timesteps for k in self.resources}
-        for index, i in enumerate(self.features):
-            k = self.resources[point[index]]
-            if k == len(self.resources) - 1:
-                # The last category of resources is 'IGNORED'
-                continue
-            for t in range(self.config.obs.timesteps):
-                #print(index,k,i,t)
-                #print(list(observations.keys()))
-                #print(list(self.config.obs['observations'].keys()))
-                observations[k][t] = max(observations[k][t], self.config.obs['observations'][i][t])
-        #
-        # Setup the configuration object to use these observations
-        #
-        self.mip_sup.config.obs = Munch(observations=observations, header="None", timesteps=self.config.obs.timesteps, datetime=self.config.obs.datetime)
-        #
-        # Execute the mip
-        #
-        point_ = {i: self.resources[point[index]] for index,i in enumerate(self.features)}
-        print("Evaluating point {}  |  {}".format(point, point_))
-        results = self.mip_sup.generate_schedule()
-
-        if False and self.options.verbose:
-            print(results['results'][0]['goals']['separation'])
-            for k in observations:
-                print(k, observations[k])
-        return - results['results'][0]['goals']['total_separation'], point, results, point_
+        value = self.problem.compute_solution_value(point)
+        point_, results = self.problem.results[point]
+        return value, point, results, point_
 
 
 class ParallelPMLabelSearchProblem(TabuSearchProblem):
 
     def __init__(self, config=None, nresources=None, nfeatures=None, nworkers=None):
         TabuSearchProblem.__init__(self)
+        self.problem = PMLabelSearchProblem(config)
         #
-        self.nfeatures = len(config.obs['observations'])
-        self.nresources = len(config.pm.resources)+1
+        self.nfeatures = self.problem.nfeatures
+        self.nresources = self.problem.nresources
         #
         nworkers = ray.available_resources() if nworkers is None else nworkers
         config_obj = ray.put(config)
@@ -189,28 +149,10 @@ class ParallelPMLabelSearchProblem(TabuSearchProblem):
         self.results = {}
 
     def initial_solution(self):
-        # Each feature is randomly labeled as a resource
-        point = []
-        for i in range(self.nfeatures):
-            point.append( random.randint(0,self.nresources-1) )
-        return tuple(point)
- 
+        return self.problem.initial_solution()
+
     def moves(self, point, _):
-        # Generate moves in the neighborhood
-        rorder = list(range(self.nresources))
-        random.shuffle(rorder)
-        features = list(range(self.nfeatures))
-        random.shuffle(features)
-       
-        for i in features:
-            j = rorder.index(point[i])
-            nhbr = list(point)
-
-            nhbr[i] = rorder[j-1]
-            yield tuple(nhbr), (i,rorder[j-1]), None
-
-            nhbr[i] = rorder[(j+1) % self.nresources]
-            yield tuple(nhbr), (i,rorder[(j+1) % self.nresources]), None
+        return self.problem.moves(point, None)
 
     def request_solution_value(self, point):
         #print("request_solution_value")
