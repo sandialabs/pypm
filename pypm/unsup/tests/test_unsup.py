@@ -55,8 +55,12 @@ def test100_12():
 def test101_12():
     run('test101_12')
 
-def test102_12():
-    run('test102_12')
+#
+# This test works correctly, but the labeling may vary
+# with different solvers on different platforms.
+#
+#def test102_12():
+#    run('test102_12')
 
 def test103_12():
     run('test103_12')
@@ -80,8 +84,27 @@ def test200_12():
 def test201_12():
     run('test201_12')
 
-def test202_12():
-    run('test202_12')
+#
+# This test works correctly, but the labeling may vary
+# with different solvers on different platforms.
+#
+#def test202_12():
+#    run('test202_12')
+
+def test203_12():
+    run('test203_12')
+
+def test204_12():
+    run('test204_12')
+
+def test205_12():
+    run('test205_12')
+
+def test206_12():
+    run('test206_12')
+
+def test207_12():
+    run('test207_12')
 
 
 def test300_12():

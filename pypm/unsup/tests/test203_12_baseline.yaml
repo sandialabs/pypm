@@ -2,7 +2,7 @@ results:
 - feature_label:
     ra: rA
     rb: rB
-    rc: IGNORED
+    rc: rC
   goals:
     match:
       a2: 12.0
@@ -19,10 +19,10 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 127
-    iterations: 28
+    evaluations: 71
+    iterations: 26
     stall count: 25
-    unique solutions: 37
+    unique solutions: 26
 solver:
   model:
     name: GSF-ED

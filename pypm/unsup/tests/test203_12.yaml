@@ -2,7 +2,7 @@ _options:
   comments: 
     - confirming that first activity is not included if it's short enough, but the delay causes a conflict
   search_strategy: tabu
-  process: test103_12.yaml
+  process: test203_12.yaml
   solver: glpk
   tee: true
   timesteps: 30

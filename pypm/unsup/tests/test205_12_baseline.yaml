@@ -1,0 +1,31 @@
+results:
+- feature_label:
+    ra: rA
+    rb: rB
+    rc: rC
+  goals:
+    match:
+      a1: 5.0
+      a2: 1.0
+    separation:
+      ra: 0.16666666666666666
+      rb: 0
+      rc: 1.0
+    total_match: 6.0
+    total_separation: 1.1666666666666667
+  schedule:
+    a1:
+      first: 19
+      last: 23
+    a2:
+      first: 24
+      last: 29
+  solver_statistics:
+    evaluations: 68
+    iterations: 26
+    stall count: 25
+    unique solutions: 25
+solver:
+  model:
+    name: GSF-ED
+  search_strategy: tabu
