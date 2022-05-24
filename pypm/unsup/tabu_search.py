@@ -193,6 +193,8 @@ class AsyncTabuSearch(TabuSearch):
                 if value is None:
                     queued[neighbor] = move
                     self.problem.request_solution_value(neighbor)
+                    if self.options.debug:
+                        print("Requested evaluation - Point {}".format(neighbor))
                 else:
                     evaluated[neighbor] = move,value
         #
@@ -213,11 +215,15 @@ class AsyncTabuSearch(TabuSearch):
                     time.sleep(1)
                     break
                 value, neighbor = results
-                evaluated[neighbor] = queued[neighbor],value
                 if self.options.debug:
-                    print("Evaluation Complete - Point {}  Value {}".format(neighbor, value))
+                    print("Received Results - Point {}  Value {}".format(neighbor, value))
+                    print("Queued: {}".format(list(sorted(queued.keys()))))
+                evaluated[neighbor] = queued[neighbor],value        # move, value
                 del queued[neighbor]
                 self.cache[neighbor] = value
+                if self.options.debug:
+                    print("Evaluation Complete - Point {}  Value {}".format(neighbor, value))
+
         if self.options.verbose:
             for nhbr in sorted(evaluated.keys()):
                 print("Evaluation Complete - Point {}  Value {}".format(nhbr, self.cache[nhbr]))

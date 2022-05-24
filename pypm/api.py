@@ -209,8 +209,8 @@ class TabuLabeling(object):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, quiet=PYPM.options.quiet, index=0)
         self.config.model = 'tabu'
 
-    def generate_labeling_and_schedule(self, nworkers=1):
-        return Results(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers))
+    def generate_labeling_and_schedule(self, nworkers=1, debug=False):
+        return Results(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
 
 
 class PYPM_api(object):

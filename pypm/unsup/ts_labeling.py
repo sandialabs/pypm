@@ -101,24 +101,31 @@ class PMLabelSearchProblem(TabuSearchProblem):
             # The last resource is 'Ignore', which multiple features can point to
             tmp[self.nresources-1] = None
 
+            unique = set()
             for k in range(0, int(max(1.0, self.nfeatures/self.nresources))):
                 for i in range(self.nfeatures):
-                    nhbr = list(point)
-                    j = nhbr[i]
-                    while j == nhbr[i]:
-                        j = random.randint(0, self.nresources-1)
-                    if tmp[j] is None:
-                        point_i = nhbr[i]
-                        nhbr[i] = j
-                        yield tuple(nhbr), (i,j,i,point_i), None
-                    else:
-                        point_i = nhbr[i]
-                        nhbr[i] = j
-                        nhbr[tmp[j]] = point_i
-                        if i < tmp[j]:
-                            yield tuple(nhbr), (i,j,tmp[j],point_i), None
+                    flag = True
+                    while flag:         # Iterate until we generate have a new move
+                        nhbr = list(point)
+                        j = nhbr[i]
+                        while j == nhbr[i]:
+                            j = random.randint(0, self.nresources-1)
+                        if tmp[j] is None:
+                            point_i = nhbr[i]
+                            nhbr[i] = j
+                            move = tuple(nhbr), (i,j,i,point_i), None
                         else:
-                            yield tuple(nhbr), (tmp[j],point_i,i,j), None
+                            point_i = nhbr[i]
+                            nhbr[i] = j
+                            nhbr[tmp[j]] = point_i
+                            if i < tmp[j]:
+                                move = tuple(nhbr), (i,j,tmp[j],point_i), None
+                            else:
+                                move = tuple(nhbr), (tmp[j],point_i,i,j), None
+                        if move[0] not in unique:
+                            flag = False
+                            unique.add(move[0])
+                            yield move
 
     def compute_solution_value(self, point):
         #
@@ -287,13 +294,14 @@ class ParallelPMLabelSearch(AsyncTabuSearch):
         return self.problem.results
 
 
-def run_tabu(config, constraints=[], nworkers=1):
+def run_tabu(config, constraints=[], nworkers=1, debug=False):
     if nworkers == 1:
         random.seed(config.seed)
         ls = PMLabelSearch(config)
     else:
         ray.init(num_cpus=nworkers+1)
         ls = ParallelPMLabelSearch(config=config, nworkers=nworkers)
+        ls.options.debug = debug
     ls.options.max_iterations = config.options.get('max_iterations',100)
     ls.options.tabu_tenure = config.options.get('tabu_tenure',4)
     x, f = ls.run()
