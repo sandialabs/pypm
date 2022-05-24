@@ -21,6 +21,18 @@ class PMLabelSearchProblem(TabuSearchProblem):
         self.nfeatures = len(config.obs['observations'])
         self.features = list(sorted(config.obs['observations'].keys()))
         #
+        # Solution representations:
+        #   Standard
+        #       x_i = resource_id
+        #       Each resource can only be associated with a single feature
+        # 
+        #   Combine_Features
+        #       x_i = resource_id
+        #       When multiple x_i point to the same resource, these features
+        #           are combined with max()
+        #
+        self.combine_features = self.config.options.get('combine_features',False)
+        self.penalize_features = self.config.options.get('penalize_features',False)
         self.results = {}
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
@@ -37,28 +49,76 @@ class PMLabelSearchProblem(TabuSearchProblem):
         config.obs = obs
 
     def initial_solution(self):
-        # Each feature is randomly labeled as a resource
-        point = []
-        for i in range(self.nfeatures):
-            point.append( random.randint(0,self.nresources-1) )
+        if self.combine_features:
+            #
+            # Each feature is randomly labeled as a resource
+            #
+            point = []
+            for i in range(self.nfeatures):
+                point.append( random.randint(0,self.nresources-1) )
+        else:
+            #
+            # Each resource is associated with a unique feature
+            #
+            tmp = list(range(self.nresources-1))
+            random.shuffle(tmp)
+            if self.nfeatures < self.nresources:
+                point = [None]*self.nfeatures
+                for i in range(self.nfeatures):
+                    point[i] = tmp[i]
+            else:
+                point = [self.nresources] * self.nfeatures
+                for i in range(self.nresources-1):
+                    point[tmp[i]] = i
+        #
         return tuple(point)
  
     def moves(self, point, _):
+        #
         # Generate moves in the neighborhood
-        rorder = list(range(self.nresources))
-        random.shuffle(rorder)
-        features = list(range(self.nfeatures))
-        random.shuffle(features)
-       
-        for i in features:
-            j = rorder.index(point[i])
-            nhbr = list(point)
+        #
+        if self.combine_features:
+            rorder = list(range(self.nresources))
+            random.shuffle(rorder)
+            features = list(range(self.nfeatures))
+            random.shuffle(features)
+           
+            for i in features:
+                j = rorder.index(point[i])
+                nhbr = list(point)
 
-            nhbr[i] = rorder[j-1]
-            yield tuple(nhbr), (i,rorder[j-1]), None
+                nhbr[i] = rorder[j-1]
+                yield tuple(nhbr), (i,rorder[j-1]), None
 
-            nhbr[i] = rorder[(j+1) % self.nresources]
-            yield tuple(nhbr), (i,rorder[(j+1) % self.nresources]), None
+                nhbr[i] = rorder[(j+1) % self.nresources]
+                yield tuple(nhbr), (i,rorder[(j+1) % self.nresources]), None
+
+        else:
+            # tmp[i] is the feature that points to resource j, or None
+            tmp = [None] * self.nresources
+            for i in range(self.nfeatures):
+                tmp[point[i]] = i
+            # The last resource is 'Ignore', which multiple features can point to
+            tmp[self.nresources-1] = None
+
+            for k in range(0, int(max(1.0, self.nfeatures/self.nresources))):
+                for i in range(self.nfeatures):
+                    nhbr = list(point)
+                    j = nhbr[i]
+                    while j == nhbr[i]:
+                        j = random.randint(0, self.nresources-1)
+                    if tmp[j] is None:
+                        point_i = nhbr[i]
+                        nhbr[i] = j
+                        yield tuple(nhbr), (i,j,i,point_i), None
+                    else:
+                        point_i = nhbr[i]
+                        nhbr[i] = j
+                        nhbr[tmp[j]] = point_i
+                        if i < tmp[j]:
+                            yield tuple(nhbr), (i,j,tmp[j],point_i), None
+                        else:
+                            yield tuple(nhbr), (tmp[j],point_i,i,j), None
 
     def compute_solution_value(self, point):
         #
@@ -94,13 +154,24 @@ class PMLabelSearchProblem(TabuSearchProblem):
             for k in observations:
                 print(k, observations[k])
         #
-        return - results['results'][0]['goals']['total_separation']
+        if self.penalize_features:
+            #
+            # Count # of ignored features
+            #
+            nignored = 0
+            for val in point:
+                if val == self.nresources - 1:
+                    nignored += 1
+            return - results['results'][0]['goals']['total_separation'] - nignored/self.nfeatures
+        else:
+            return - results['results'][0]['goals']['total_separation']
 
 
 @ray.remote(num_cpus=1)
 class Worker(object):
 
     def __init__(self, config):
+        random.seed(config.seed)
         self.problem = PMLabelSearchProblem(config)
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
@@ -147,6 +218,7 @@ class ParallelPMLabelSearchProblem(TabuSearchProblem):
             w.run.remote(self.requests_queue, self.results_queue)
         #
         self.results = {}
+        random.seed(config.seed)
 
     def initial_solution(self):
         return self.problem.initial_solution()
@@ -216,8 +288,8 @@ class ParallelPMLabelSearch(AsyncTabuSearch):
 
 
 def run_tabu(config, constraints=[], nworkers=1):
-    random.seed(config.seed)
     if nworkers == 1:
+        random.seed(config.seed)
         ls = PMLabelSearch(config)
     else:
         ray.init(num_cpus=nworkers+1)

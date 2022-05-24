@@ -74,6 +74,16 @@ def test107_12():
     run('test107_12')
 
 
+def test200_12():
+    run('test200_12')
+
+def test201_12():
+    run('test201_12')
+
+def test202_12():
+    run('test202_12')
+
+
 def test300_12():
     run('test300_12')
 

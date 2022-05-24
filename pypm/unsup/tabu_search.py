@@ -17,6 +17,7 @@ class TabuSearch(object):
         self.options.max_stall_count = self.options.max_iterations/4
         self.options.tabu_tenure = 2
         self.options.verbose = False
+        self.options.debug = False
         #
         self.iteration = 0
         self.stall_count = 0
@@ -158,8 +159,11 @@ class CachedTabuSearch(TabuSearch):
 
         if self.options.verbose:
             print("\nFinal TABU Table")
-            for move in sorted(self.tabu_time.keys()):
-                print(move,self.tabu_time[move])
+            if len(self.tabu_time) > 0:
+                for move in sorted(self.tabu_time.keys()):
+                    print(move,self.tabu_time[move])
+            else:
+                print("\n  None")
         return x_best, f_best
 
 
@@ -178,11 +182,11 @@ class AsyncTabuSearch(TabuSearch):
         #
         # Request evaluations for neighbors that we haven't evaluated
         #
-        evaluated = []
+        evaluated = {}
         queued = {}
         for neighbor, move, value in self.moves(x, f_x):
             if value is not None:
-                evaluated.append([neighbor, move, value])
+                evaluated[neighbor] = move,value
             else:
                 self.num_moves_evaluated += 1
                 value = self.cache.get(neighbor, None)
@@ -190,15 +194,16 @@ class AsyncTabuSearch(TabuSearch):
                     queued[neighbor] = move
                     self.problem.request_solution_value(neighbor)
                 else:
-                    evaluated.append([neighbor, move, value])
+                    evaluated[neighbor] = move,value
         #
         # Collect evaluated neighbors, and process them
         #
         curr = 0
         while len(queued) > 0:
-            if curr % 10 == 0:
-                print("Waiting for {} queued evaluations".format(len(queued)))
-            curr += 1
+            if self.options.debug or self.options.verbose:
+                if curr % 10 == 0:
+                    print("Waiting for {} queued evaluations".format(len(queued)))
+                curr += 1
             #
             # Collect evaluated neighbors until there are no more
             #
@@ -208,10 +213,14 @@ class AsyncTabuSearch(TabuSearch):
                     time.sleep(1)
                     break
                 value, neighbor = results
-                evaluated.append( [neighbor, queued[neighbor], value] )
-                print("Evaluation Complete - Point {}  Value {}".format(neighbor, value))
+                evaluated[neighbor] = queued[neighbor],value
+                if self.options.debug:
+                    print("Evaluation Complete - Point {}  Value {}".format(neighbor, value))
                 del queued[neighbor]
                 self.cache[neighbor] = value
+        if self.options.verbose:
+            for nhbr in sorted(evaluated.keys()):
+                print("Evaluation Complete - Point {}  Value {}".format(nhbr, self.cache[nhbr]))
         #
         # Process the list of evaluated neighbors
         #
@@ -219,7 +228,8 @@ class AsyncTabuSearch(TabuSearch):
         x_ = None
         f_ = float("inf")
         tabu = False
-        for neighbor, move, value in evaluated:
+        for neighbor in sorted(evaluated.keys(), reverse=True):         # Create bias towards solutions with ignored features
+            move, value = evaluated[neighbor]
             if move in self.tabu_time and self.tabu_time[move] >= self.iteration:
                 if self.options.verbose:
                     print("#   TABU Move: {}  TABU Time: {}".format(move, self.tabu_time[move]))

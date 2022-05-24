@@ -1,12 +1,11 @@
 _options:
   comments: 
-    - confirming that first activity is included when it only weakly matches
+    - confirming that first activity is not included if it's short enough, but the delay causes a conflict
   search_strategy: tabu
-  process: test101_12.yaml
+  process: test103_12.yaml
   solver: glpk
   tee: true
   timesteps: 30
-  combine_features: true
 
 resources:
   rA:
@@ -16,6 +15,7 @@ resources:
 activities:
 
 - name: a1
+  max_delay: 1
   dependencies:
   duration:
     max_hours: 5
@@ -35,10 +35,11 @@ activities:
 
 data:
 - ground_truth:
+    a1: {pre: True}
     a2: {start: 6, stop: 10}
   observations:
     ra: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
     rc: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0
