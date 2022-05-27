@@ -35,7 +35,7 @@ requires = [
     #'parameterized',
     #'scipy',
     'pandas',
-    'pyutilib',
+    # 'pyutilib',
     'pyyaml',
     'simpy',
     'ray',
