@@ -21,10 +21,10 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 69
+    evaluations: 70
     iterations: 26
     stall count: 25
-    unique solutions: 31
+    unique solutions: 25
 solver:
   model:
     name: GSF-ED

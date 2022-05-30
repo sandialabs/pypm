@@ -22,7 +22,7 @@ results:
     evaluations: 75
     iterations: 26
     stall count: 25
-    unique solutions: 31
+    unique solutions: 29
 solver:
   model:
     name: GSF-ED

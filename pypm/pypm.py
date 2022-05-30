@@ -136,7 +136,8 @@ def main():                     # pragma: nocover
         if search_strategy == 'tabu':
             driver = PYPM.tabu_labeling()
             driver.load_config(args.datafile, index=int(args.index))
-            results = driver.generate_labeling_and_schedule()
+            nworkers = config['_options'].get('nworkers',1)
+            results = driver.generate_labeling_and_schedule(nworkers=nworkers)
             results.write(args.output, verbose=args.verbose)
 
         elif search_strategy == 'mip':
