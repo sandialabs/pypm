@@ -1,0 +1,44 @@
+_options:
+  comments: 
+    - Mimicing test1 with delay before a1
+  process: test3.yaml
+  solver: glpk
+  tee: false
+  timesteps: 30
+  model: XSF
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 7
+    min_hours: 5
+  resources:
+    rB:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rA:
+
+data:
+- ground_truth:
+    a1: {start: 5, stop: 11}
+    a2: {start: 13, stop: 17}
+  observations:
+    rB: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0

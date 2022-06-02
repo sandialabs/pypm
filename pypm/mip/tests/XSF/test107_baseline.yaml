@@ -1,0 +1,53 @@
+data:
+  datafile: null
+  datetime: null
+  index: 0
+  indicators: []
+  timesteps: 30
+results:
+- goals:
+    match: {a1: 5.0}
+    separation: {rA: 0, rB: 0, rC: 1.0}
+    total_match: 5.0
+    total_separation: 1.0
+  objective: 5.0
+  schedule:
+    a1: {first: 20, last: 24}
+    a2: {post: true}
+  variables:
+    a:
+      ? !!python/tuple [a1, 20]
+      : 1.0
+      ? !!python/tuple [a1, 21]
+      : 1.0
+      ? !!python/tuple [a1, 22]
+      : 1.0
+      ? !!python/tuple [a1, 23]
+      : 1.0
+      ? !!python/tuple [a1, 24]
+      : 1.0
+    o: {a1: 5.0}
+    z:
+      ? !!python/tuple [a1, 20]
+      : 1.0
+      ? !!python/tuple [a1, 21]
+      : 1.0
+      ? !!python/tuple [a1, 22]
+      : 1.0
+      ? !!python/tuple [a1, 23]
+      : 1.0
+      ? !!python/tuple [a1, 24]
+      : 1.0
+      ? !!python/tuple [a1, 25]
+      : 1.0
+      ? !!python/tuple [a1, 26]
+      : 1.0
+      ? !!python/tuple [a1, 27]
+      : 1.0
+      ? !!python/tuple [a1, 28]
+      : 1.0
+      ? !!python/tuple [a1, 29]
+      : 1.0
+solver:
+  model: {name: GSF}
+  search_strategy: mip
