@@ -13,44 +13,9 @@ results:
   objective: 11.0
   schedule:
     a1: {first: 5, last: 9}
-    a2: {first: 10, last: 15}
+    a2: {first: 12, last: 17}
     a3: {first: 20, last: 25}
   variables:
-    a:
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-      ? !!python/tuple [a1, 8]
-      : 1.0
-      ? !!python/tuple [a1, 9]
-      : 1.0
-      ? !!python/tuple [a2, 10]
-      : 1.0
-      ? !!python/tuple [a2, 11]
-      : 1.0
-      ? !!python/tuple [a2, 12]
-      : 1.0
-      ? !!python/tuple [a2, 13]
-      : 1.0
-      ? !!python/tuple [a2, 14]
-      : 1.0
-      ? !!python/tuple [a2, 15]
-      : 1.0
-      ? !!python/tuple [a3, 20]
-      : 1.0
-      ? !!python/tuple [a3, 21]
-      : 1.0
-      ? !!python/tuple [a3, 22]
-      : 1.0
-      ? !!python/tuple [a3, 23]
-      : 1.0
-      ? !!python/tuple [a3, 24]
-      : 1.0
-      ? !!python/tuple [a3, 25]
-      : 1.0
     o: {a1: 5.0, a3: 6.0}
     z:
       ? !!python/tuple [a1, 5]
@@ -102,10 +67,6 @@ results:
       ? !!python/tuple [a1, 28]
       : 1.0
       ? !!python/tuple [a1, 29]
-      : 1.0
-      ? !!python/tuple [a2, 10]
-      : 1.0
-      ? !!python/tuple [a2, 11]
       : 1.0
       ? !!python/tuple [a2, 12]
       : 1.0
@@ -164,5 +125,5 @@ results:
       ? !!python/tuple [a3, 29]
       : 1.0
 solver:
-  model: {name: GSF}
+  model: {name: XSF}
   search_strategy: mip

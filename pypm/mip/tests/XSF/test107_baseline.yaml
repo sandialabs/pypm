@@ -15,17 +15,6 @@ results:
     a1: {first: 20, last: 24}
     a2: {post: true}
   variables:
-    a:
-      ? !!python/tuple [a1, 20]
-      : 1.0
-      ? !!python/tuple [a1, 21]
-      : 1.0
-      ? !!python/tuple [a1, 22]
-      : 1.0
-      ? !!python/tuple [a1, 23]
-      : 1.0
-      ? !!python/tuple [a1, 24]
-      : 1.0
     o: {a1: 5.0}
     z:
       ? !!python/tuple [a1, 20]
@@ -49,5 +38,5 @@ results:
       ? !!python/tuple [a1, 29]
       : 1.0
 solver:
-  model: {name: GSF}
+  model: {name: XSF}
   search_strategy: mip

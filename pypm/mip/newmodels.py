@@ -149,14 +149,13 @@ class Z_Repn_Model(BaseModel):
                 ans[j] = {'pre':True}
                 continue
             ans[j] = {'first':t, 'last':-1}
-        if 'a' in v:
-            a = v['a']
-            for key,val in a.items():
-                j,t = key
-                if 'pre' in ans[j] or 'post' in ans[j]:
-                    continue
-                if t > ans[j]['last']:
-                    ans[j]['last'] = t
+        a = v['a']
+        for key,val in a.items():
+            j,t = key
+            if 'pre' in ans[j] or 'post' in ans[j]:
+                continue
+            if t > ans[j]['last']:
+                ans[j]['last'] = t
         return ans
 
     def enforce_constraints(self, M, constraints, verbose=False):
@@ -242,10 +241,11 @@ class Z_Repn_Model(BaseModel):
         if verbose:
             print("Summary of fixed variables")
             flag = False
-            for j,t in M.a:
-                if M.a[j,t].fixed:
-                    print(" ",M.a[j,t], M.a[j,t].value)
-                    flag = True
+            if 'a' in M:
+                for j,t in M.a:
+                    if M.a[j,t].fixed:
+                        print(" ",M.a[j,t], M.a[j,t].value)
+                        flag = True
             for j,t in M.z:
                 if M.z[j,t].fixed:
                     print(" ",M.z[j,t], M.z[j,t].value)
@@ -854,6 +854,56 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         return M
+
+    def summarize(self):
+        results = BaseModel.summarize(self)
+        #
+        obs = {}
+        for k in self.config.obs.observations:
+            obs[k] = set()
+        for j in self.config.pm:
+            for k in self.config.pm[j]['resources']:
+                for t in range(self.data.Tmax):
+                    if self.M.z[j,t].value > 1-1e-7 and self.M.z[j,t-1].value < 1e-7:
+                        assert t+self.data.P[j]-1 < self.data.Tmax, "HERE {},{}".format(j,t)
+                        for i in range(self.data.P[j]):
+                            obs[k].add(t+i)
+
+        feature_total = {}
+        feature_len = {}
+        separation = {}
+        for k in self.config.obs.observations:
+            feature_total = sum(self.config.obs.observations[k][t] for t in range(self.data.Tmax) if t not in obs[k])
+            feature_len = self.data.Tmax - len(obs[k])
+            activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
+            activity_len = len(obs[k])
+            #print(k, activity_total, activity_len, feature_total, feature_len)
+            separation[k] = max(0, fracval(activity_total, activity_len) - fracval(feature_total,feature_len))
+        results['goals']['separation'] = separation
+
+        results['goals']['total_separation'] = sum(val for val in results['goals']['separation'].values())
+        #
+        results['goals']['match'] = {}
+        for activity, value in results['variables']['o'].items():
+            results['goals']['match'][activity] = value
+        results['goals']['total_match'] = sum(val for val in results['goals']['match'].values())
+        #
+        return results
+
+    def summarize_alignment(self, v):
+        ans = {j:{'post':True} for j in self.config.pm}
+        z = v['z']
+        for key,val in z.items():
+            j,t = key
+            if val < 1-1e-7:
+                continue
+            if j in ans and 'post' not in ans[j]:
+                continue
+            if t == -1:
+                ans[j] = {'pre':True}
+                continue
+            ans[j] = {'first':t, 'last':t+self.data.P[j]-1}
+        return ans
 
 
 def create_model(name):

@@ -6,46 +6,17 @@ data:
   timesteps: 30
 results:
 - goals:
-    match: {a1: 14.0, a2: 5.0}
-    separation: {rA: 1.0, rB: 0.9565217391304348, rC: 0.9565217391304348}
-    total_match: 19.0
-    total_separation: 2.9130434782608696
-  objective: 19.0
+    match: {a1: 10.0, a2: 5.0}
+    separation: {rA: 1.0, rB: 0.88, rC: 0.88}
+    total_match: 15.0
+    total_separation: 2.76
+  objective: 15.0
   schedule:
-    a1: {first: 3, last: 9}
+    a1: {first: 5, last: 9}
     a2: {first: 10, last: 14}
   variables:
-    a:
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-      ? !!python/tuple [a1, 8]
-      : 1.0
-      ? !!python/tuple [a1, 9]
-      : 1.0
-      ? !!python/tuple [a2, 10]
-      : 1.0
-      ? !!python/tuple [a2, 11]
-      : 1.0
-      ? !!python/tuple [a2, 12]
-      : 1.0
-      ? !!python/tuple [a2, 13]
-      : 1.0
-      ? !!python/tuple [a2, 14]
-      : 1.0
-    o: {a1: 14.0, a2: 5.0}
+    o: {a1: 10.0, a2: 5.0}
     z:
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
       ? !!python/tuple [a1, 5]
       : 1.0
       ? !!python/tuple [a1, 6]
@@ -137,5 +108,5 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
 solver:
-  model: {name: GSF}
+  model: {name: XSF}
   search_strategy: mip

@@ -43,7 +43,8 @@ class PMLabelSearchProblem(TabuSearchProblem):
         config.obs = None
         self.mip_sup.config = copy.deepcopy(config)
         self.mip_sup.config.search_strategy = 'mip'
-        self.mip_sup.config.model = 'GSF-ED'
+        self.mip_sup.config.model = config.options.get('tabu_model', 'GSF-ED')
+        print("HERE", self.mip_sup.config.model)
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         config.obs = obs
@@ -189,7 +190,8 @@ class Worker(object):
         self.problem.config.obs = None
         self.mip_sup.config = copy.deepcopy(self.problem.config)
         self.mip_sup.config.search_strategy = 'mip'
-        self.mip_sup.config.model = 'GSF-ED'
+        self.mip_sup.config.model = config.options.get('tabu_model', 'GSF-ED')
+        print("HERE", self.mip_sup.config.model)
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         self.problem.config.obs = obs

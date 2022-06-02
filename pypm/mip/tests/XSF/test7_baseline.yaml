@@ -15,21 +15,6 @@ results:
     a1: {first: 1, last: 5}
     a2: {first: 6, last: 7}
   variables:
-    a:
-      ? !!python/tuple [a1, 1]
-      : 1.0
-      ? !!python/tuple [a1, 2]
-      : 1.0
-      ? !!python/tuple [a1, 3]
-      : 1.0
-      ? !!python/tuple [a1, 4]
-      : 1.0
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a2, 6]
-      : 1.0
-      ? !!python/tuple [a2, 7]
-      : 1.0
     o: {a1: 5.0, a2: 4.0}
     z:
       ? !!python/tuple [a1, 1]
@@ -139,5 +124,5 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
 solver:
-  model: {name: GSF}
+  model: {name: XSF}
   search_strategy: mip
