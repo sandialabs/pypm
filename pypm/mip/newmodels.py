@@ -241,10 +241,11 @@ class Z_Repn_Model(BaseModel):
         if verbose:
             print("Summary of fixed variables")
             flag = False
-            for j,t in M.a:
-                if M.a[j,t].fixed:
-                    print(" ",M.a[j,t], M.a[j,t].value)
-                    flag = True
+            if 'a' in M:
+                for j,t in M.a:
+                    if M.a[j,t].fixed:
+                        print(" ",M.a[j,t], M.a[j,t].value)
+                        flag = True
             for j,t in M.z:
                 if M.z[j,t].fixed:
                     print(" ",M.z[j,t], M.z[j,t].value)
@@ -779,6 +780,132 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         return M
 
 
+#
+# A variant of GSF without a variables
+#
+class XSF_TotalMatchScore(Z_Repn_Model):
+
+    def __init__(self):
+        self.name = 'XSF'
+        self.description = 'Supervised process matching maximizing match score'
+
+    def __call__(self, config, constraints=[]):
+        self.config = config
+        d = self.data = ProcessModelData(config, constraints)
+        self.constraints = constraints
+
+        self.M = self.create_model(objective=config.objective,
+                                J=d.J, T=d.T, S=d.S, K=d.K, 
+                                O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
+                                Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                verbose=config.verbose)
+
+        self.enforce_constraints(self.M, constraints, verbose=config.verbose)
+
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, verbose):
+
+        if verbose:
+            print("")
+            print("Model Options")
+            print("  Upsilon",Upsilon)
+
+        assert objective == 'total_match_score', "XSF can not optimize the goal {}".format(objective)
+
+        M = pe.ConcreteModel()
+
+        M.z = pe.Var(J, [-1]+T, within=pe.Binary)
+        M.o = pe.Var(J, bounds=(0,None))
+
+        # Objective
+
+        def objective_(m):
+            return sum(m.o[j] for j in J)
+        M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
+
+        def odef_(m, j):
+            #return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
+            total = 0
+            for t in T:
+                end = t+P[j]-1
+                if end not in T:
+                    continue
+                match_score = sum(S[j,k] * sum(O[k][t+i] for i in range(P[j])) for k in K[j])
+                total += match_score*(m.z[j,t] - m.z[j, t-1])
+            return m.o[j] == total
+        M.odef = pe.Constraint(J, rule=odef_)
+
+        # Simultenaity constraints
+
+        if not Upsilon is None:
+            def activity_limit_(m, t):
+                #return sum(m.a[j,t] for j in J) <= Upsilon
+                return sum(m.z[j,t] - m.z[j, t-1] for j in J) <= Upsilon
+            M.activity_limit = pe.Constraint(T, rule=activity_limit_)
+
+        # Z constraints
+
+        def zstep_(m, j, t):
+            return m.z[j,t] - m.z[j, t-1] >= 0
+        M.zstep = pe.Constraint(J, T, rule=zstep_)
+
+        def precedence_lb_(m, i, j, t):
+            tprev = max(t- (P[i]+Omega[i]), -1)
+            return m.z[i,tprev] - m.z[j,t] >= 0
+        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+        return M
+
+    def summarize(self):
+        results = BaseModel.summarize(self)
+        #
+        obs = {}
+        for k in self.config.obs.observations:
+            obs[k] = set()
+        for j in self.config.pm:
+            for k in self.config.pm[j]['resources']:
+                for t in range(self.data.Tmax):
+                    if self.M.z[j,t].value > 1-1e-7 and self.M.z[j,t-1].value < 1e-7:
+                        assert t+self.data.P[j]-1 < self.data.Tmax, "HERE {},{}".format(j,t)
+                        for i in range(self.data.P[j]):
+                            obs[k].add(t+i)
+
+        feature_total = {}
+        feature_len = {}
+        separation = {}
+        for k in self.config.obs.observations:
+            feature_total = sum(self.config.obs.observations[k][t] for t in range(self.data.Tmax) if t not in obs[k])
+            feature_len = self.data.Tmax - len(obs[k])
+            activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
+            activity_len = len(obs[k])
+            #print(k, activity_total, activity_len, feature_total, feature_len)
+            separation[k] = max(0, fracval(activity_total, activity_len) - fracval(feature_total,feature_len))
+        results['goals']['separation'] = separation
+
+        results['goals']['total_separation'] = sum(val for val in results['goals']['separation'].values())
+        #
+        results['goals']['match'] = {}
+        for activity, value in results['variables']['o'].items():
+            results['goals']['match'][activity] = value
+        results['goals']['total_match'] = sum(val for val in results['goals']['match'].values())
+        #
+        return results
+
+    def summarize_alignment(self, v):
+        ans = {j:{'post':True} for j in self.config.pm}
+        z = v['z']
+        for key,val in z.items():
+            j,t = key
+            if val < 1-1e-7:
+                continue
+            if j in ans and 'post' not in ans[j]:
+                continue
+            if t == -1:
+                ans[j] = {'pre':True}
+                continue
+            ans[j] = {'first':t, 'last':t+self.data.P[j]-1}
+        return ans
+
+
 def create_model(name):
     if name == 'model11':
         return GSF_TotalMatchScore()
@@ -789,6 +916,9 @@ def create_model(name):
         return GSFED_TotalMatchScore()
     elif name == 'GSF-ED':
         return GSFED_TotalMatchScore()
+
+    elif name == 'XSF':
+        return XSF_TotalMatchScore()
 
     elif name == 'model12':
         return UPM_TotalMatchScore()

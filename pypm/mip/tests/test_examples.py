@@ -314,3 +314,53 @@ def test107_UPM():
     run('test107', 'UPM')
 
 
+def test1_XSF():
+    run('test1', 'XSF')
+
+def test1_XSF():
+    run('test1', 'XSF')
+
+def test2_XSF():
+    run('test2', 'XSF')
+
+def test3_XSF():
+    run('test3', 'XSF')
+
+def test4_XSF():
+    run('test4', 'XSF')
+
+def test5_XSF():
+    run('test5', 'XSF')
+
+def test6_XSF():
+    run('test6', 'XSF')
+
+def test7_XSF():
+    run('test7', 'XSF')
+
+def test100_XSF():
+    run('test100', 'XSF')
+
+def test101_XSF():
+    run('test101', 'XSF')
+
+def test102_XSF():
+    run('test102', 'XSF')
+
+def test103_XSF():
+    run('test103', 'XSF')
+
+def test104_XSF():
+    run('test104', 'XSF')
+
+def test105_XSF():
+    run('test105', 'XSF')
+
+def test106_XSF():
+    run('test106', 'XSF')
+
+def test107_XSF():
+    run('test107', 'XSF')
+
+def test108_XSF():
+    run('test108', 'XSF')
