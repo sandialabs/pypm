@@ -5,3 +5,9 @@ for fname in `ls *results.yaml`; do
     echo $nname
     mv $fname $nname
 done
+
+for fname in `ls *results.csv`; do
+    nname=`echo $fname | sed 's#\(.*\)_results\.csv#\1_baseline.csv#'`
+    echo $nname
+    mv $fname $nname
+done

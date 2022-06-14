@@ -17,13 +17,21 @@ def run(testname, debug=False, verify=False, nworkers=1):
     assert testname.startswith(driver.config.process[:-5])
 
     results = driver.generate_labeling_and_schedule(nworkers=nworkers)
+
     outputfile = join(currdir, "{}_results.yaml".format(testname))
     results.write(outputfile)
-
     baselinefile = join(currdir, "{}_baseline.yaml".format(testname))
     tmp = pyutilib.misc.compare_file(outputfile, baselinefile, tolerance=1e-7)
     assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)
+
+    labelfile = join(currdir, "{}_results.csv".format(testname))
+    results.write_labels(labelfile)
+    baselinefile = join(currdir, "{}_baseline.csv".format(testname))
+    tmp = pyutilib.misc.compare_file(labelfile, baselinefile, tolerance=1e-7)
+    assert tmp[0] == False, "Files differ:  diff {} {}".format(labelfile, baselinefile)
+    os.remove(labelfile)
+
 
 
 
