@@ -1,3 +1,4 @@
+import csv
 import copy
 import yaml
 import os.path
@@ -39,11 +40,6 @@ class Results(object):
             with open(yamlfile, 'w') as OUTPUT:
                 print("Writing file: {}".format(yamlfile))
                 OUTPUT.write(yaml.dump(tmp, default_flow_style=False))
-
-    def print_stats(self):
-        print("Matching Statistics")
-        print("-"*40)
-        print("TODO")
 
 
 class SupervisedMIP(object):
@@ -199,6 +195,17 @@ class UnsupervisedMIP(SupervisedMIP):
         return Results(runmip(self.config, constraints=self.constraints))
 
 
+class LabelingResults(Results):
+
+    def write_labels(self, csvfile):
+        with open(csvfile, 'w') as OUTPUT:
+            print("Writing file: {}".format(csvfile))
+            writer = csv.writer(OUTPUT)
+            writer.writerow(['Feature','Resource'])
+            for k,v in self.results['results'][0]['feature_label'].items(): 
+                writer.writerow([k,v])
+
+
 class TabuLabeling(object):
 
     def __init__(self):
@@ -210,7 +217,7 @@ class TabuLabeling(object):
         self.config.model = 'tabu'
 
     def generate_labeling_and_schedule(self, nworkers=1, debug=False):
-        return Results(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
+        return LabelingResults(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
 
 
 class PYPM_api(object):
