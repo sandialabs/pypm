@@ -76,7 +76,7 @@ class BaseModel(object):
         if not self.config.obs.datetime is None:
             obs = self.config.obs
             datetime_alignment = {key:{} for key in alignment}
-            lastv = max(v for v in self.config.obs.datetime)
+            lastv = max(v for v in obs.datetime)
             for key,value in alignment.items():
                 for k,v in value.items():
                     if k == 'pre':
@@ -84,9 +84,16 @@ class BaseModel(object):
                     elif k == 'post':
                         datetime_alignment[key][k] = obs.datetime[lastv]
                     else:
+                        #if v > lastv:
+                        #    print("HERE",key,k,v,lastv)
+                        #else:
+                        #    datetime_alignment[key][k] = obs.datetime[v]
                         datetime_alignment[key][k] = obs.datetime[v]
                 if 'last' in datetime_alignment[key] and v+1 in obs.datetime:
                     datetime_alignment[key]['stop'] = obs.datetime[v+1]
+                #elif 'first' in datetime_alignment[key] and 'last' not in datetime_alignment[key]:
+                #    print("HERE",key,value,datetime_alignment[key])
+                #    raise IOError("Bad date?")
             results['datetime_schedule'] = datetime_alignment
 
         return results
@@ -853,6 +860,12 @@ class XSF_TotalMatchScore(Z_Repn_Model):
             return m.z[i,tprev] - m.z[j,t] >= 0
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
+        def activity_feasibility_(m, j, t):
+            if t+P[j]-1 >= Tmax:
+                return m.z[j,t] == 1
+            return pe.Constraint.Skip
+        M.activity_feasibility = pe.Constraint(J, T, rule=activity_feasibility_)
+
         return M
 
     def summarize(self):
@@ -864,8 +877,7 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         for j in self.config.pm:
             for k in self.config.pm[j]['resources']:
                 for t in range(self.data.Tmax):
-                    if self.M.z[j,t].value > 1-1e-7 and self.M.z[j,t-1].value < 1e-7:
-                        assert t+self.data.P[j]-1 < self.data.Tmax, "HERE {},{}".format(j,t)
+                    if self.M.z[j,t].value > 1-1e-7 and self.M.z[j,t-1].value < 1e-7 and t+self.data.P[j]-1 < self.data.Tmax:
                         for i in range(self.data.P[j]):
                             obs[k].add(t+i)
 
@@ -902,7 +914,8 @@ class XSF_TotalMatchScore(Z_Repn_Model):
             if t == -1:
                 ans[j] = {'pre':True}
                 continue
-            ans[j] = {'first':t, 'last':t+self.data.P[j]-1}
+            if t+self.data.P[j]-1 < self.data.Tmax:
+                ans[j] = {'first':t, 'last':t+self.data.P[j]-1}
         return ans
 
 
