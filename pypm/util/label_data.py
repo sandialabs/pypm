@@ -14,7 +14,6 @@ def label_data(*, feature_label_csvfile, process_yamlfile, obs_csvfile, labeled_
     #
     tmp = pd.read_csv(feature_label_csvfile, dtype=str).to_dict()
     labels = {tmp['Feature'][k]:tmp['Resource'][k] for k in tmp['Feature']}
-    print(labels)
     process = load_process(process_yamlfile, dirname=dirname)
     obs_df = pd.read_csv(obs_csvfile)
     T = len(obs_df['DateTime'])

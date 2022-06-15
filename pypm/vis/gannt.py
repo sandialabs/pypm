@@ -4,7 +4,7 @@ import os.path
 import yaml
 
 
-def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0, rescale=False, cmax=None, cmin=None):
+def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0, rescale=False, cmax=None, cmin=None, print_df=False):
     assert os.path.exists(process_fname), "Unknown file {}".format(process_fname)
     assert os.path.exists(results_fname), "Unknown file {}".format(results_fname)
     import pandas as pd
@@ -74,7 +74,8 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0,
                 data['Start'].append(alignment[name]['first'])
                 data['Stop'].append(alignment[name]['last']+1)
     df = pd.DataFrame(data)
-    print(df)
+    if print_df:
+        print(df)
     #print(df.head())
     #
     # Gannt chart for scheduled tasks
