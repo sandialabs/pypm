@@ -4,7 +4,7 @@ import os.path
 import yaml
 
 
-def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0, rescale=False, cmax=None, cmin=None, print_df=False):
+def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0, rescale=False, cmax=None, cmin=None, print_df=False, width=None, height=None):
     assert os.path.exists(process_fname), "Unknown file {}".format(process_fname)
     assert os.path.exists(results_fname), "Unknown file {}".format(results_fname)
     import pandas as pd
@@ -82,7 +82,7 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0,
     #
     print("Generating Figure")
     if linear:
-        fig = px.timeline(df, x_start="Start", x_end="Stop",  y="Activity", color="Match Score")
+        fig = px.timeline(df, x_start="Start", x_end="Stop",  y="Activity", color="Match Score", width=width, height=height)
         fig.layout.xaxis.type = 'linear'
         df['delta'] = df['Stop']-df['Start']
         fig.data[0].x = df.delta.tolist()
@@ -94,7 +94,8 @@ def create_gannt_chart(process_fname, results_fname, output_fname=None, index=0,
         else:
             cmin = 0
             cmax = max(data['Match Score'])
-        fig = px.timeline(df, x_start="Start", x_end="Stop",  y="Activity", color="Match Score", range_color=(cmin,cmax))
+        fig = px.timeline(df, x_start="Start", x_end="Stop",  y="Activity", color="Match Score", range_color=(cmin,cmax), width=width, height=height, color_continuous_scale='Plasma')
+
     fig.update_yaxes(autorange="reversed") # otherwise tasks are listed from the bottom up
     if output_fname is None:
         fig.show()
