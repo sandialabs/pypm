@@ -44,7 +44,7 @@ class PMLabelSearchProblem(TabuSearchProblem):
         self.mip_sup.config = copy.deepcopy(config)
         self.mip_sup.config.search_strategy = 'mip'
         self.mip_sup.config.model = config.options.get('tabu_model', 'GSF-ED')
-        print("HERE", self.mip_sup.config.model)
+        #print("HERE", self.mip_sup.config.model)
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         config.obs = obs
@@ -68,7 +68,7 @@ class PMLabelSearchProblem(TabuSearchProblem):
                 for i in range(self.nfeatures):
                     point[i] = tmp[i]
             else:
-                point = [self.nresources] * self.nfeatures
+                point = [self.nresources - 1] * self.nfeatures
                 for i in range(self.nresources-1):
                     point[tmp[i]] = i
         #
@@ -137,6 +137,7 @@ class PMLabelSearchProblem(TabuSearchProblem):
         #
         observations = {k: [0]*self.config.obs.timesteps for k in self.resources}
         for index, i in enumerate(self.features):
+            #print("HERE",index,point[index],self.resources)
             k = self.resources[point[index]]
             if k == len(self.resources) - 1:
                 # The last category of resources is ignored

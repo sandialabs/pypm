@@ -4,10 +4,10 @@ for fname in `ls *results.yaml`; do
     nname=`echo $fname | sed 's#\(.*\)_results\.yaml#\1_baseline.yaml#'`
     echo $nname
     mv $fname $nname
-done
+done || true
 
 for fname in `ls *results.csv`; do
     nname=`echo $fname | sed 's#\(.*\)_results\.csv#\1_baseline.csv#'`
     echo $nname
     mv $fname $nname
-done
+done || true

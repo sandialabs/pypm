@@ -128,3 +128,6 @@ def test301_12():
 #def test407_12():
 #    run('test407_12', nworkers=3)
 
+def test501_12():
+    run('test501_12')
+
