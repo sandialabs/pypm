@@ -223,7 +223,7 @@ class Z_Repn_Model(BaseModel):
                     M.z[j,t].fix(1)
                     M.z[j,t-1].fix(0)
                 else:
-                    print("WARNING: the fix_start constraint for activity {} specifies the date {} that is not in the time window.".format(activity, con.startdate))
+                    print("WARNING: the fix_start constraint for activity {} specifies the date {} that is not in the time window.".format(j, con.startdate))
                     mindiff = float('inf')
                     nextd = None
                     for dd,tt in invdatetime.items():
@@ -921,6 +921,123 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         return ans
 
 
+#
+# Minimize makespan
+#
+class GSF_Makespan(Z_Repn_Model):
+
+    def __init__(self):
+        self.name = 'GSF-makespan'
+        self.description = 'Supervised process matching minimizing makespan'
+
+    def __call__(self, config, constraints=[]):
+        self.config = config
+        d = self.data = ProcessModelData(config, constraints)
+        self.constraints = constraints
+
+        self.M = self.create_model(objective=config.objective,
+                                J=d.J, T=d.T, S=d.S, K=d.K, 
+                                O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
+                                Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                verbose=config.verbose)
+
+        self.enforce_constraints(self.M, constraints, verbose=config.verbose)
+
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+
+        if verbose:
+            print("")
+            print("Model Options")
+            if type(self.config.options.get('Gamma',None)) is dict:
+                print("  Gamma",Gamma)
+            else:
+                print("  Gamma",self.config.options.get('Gamma',None))
+            print("  Upsilon",Upsilon)
+
+        assert objective == 'minimize_makespan', "GSF_Makespan can not optimize the goal {}".format(objective)
+
+        M = pe.ConcreteModel()
+
+        M.z = pe.Var(J, [-1]+T, within=pe.Binary)
+        M.a = pe.Var(J, T, within=pe.Binary)
+        M.o = pe.Var(J, bounds=(0,None))
+        M.O = pe.Var()
+
+        # Objective
+
+        M.objective = pe.Objective(sense=pe.minimize, expr=M.O + 1e-4*sum(M.o[j] for j in J))
+
+        def omax_(m,j):
+            return M.o[j] <= M.O
+        M.omax = pe.Constraint(J, rule=omax_)
+
+        def odef_(m, j):
+            return m.o[j] == sum(t*(m.z[j,t]-m.z[j,t-1]) for t in T) + (Tmax-1)*(1-m.z[j,Tmax-1])
+        M.odef = pe.Constraint(J, rule=odef_)
+
+        # Simultenaity constraints
+
+        if not Upsilon is None:
+            def activity_limit_(m, t):
+                return sum(m.a[j,t] for j in J) <= Upsilon
+            M.activity_limit = pe.Constraint(T, rule=activity_limit_)
+
+        # Z constraints
+
+        def zstep_(m, j, t):
+            return m.z[j,t] - m.z[j, t-1] >= 0
+        M.zstep = pe.Constraint(J, T, rule=zstep_)
+
+        def firsta_(m, j, t):
+            return m.z[j,t] - m.z[j,t-1] <= m.a[j,t]
+        M.firsta = pe.Constraint(J, T, rule=firsta_)
+
+        def activity_start_(m, j, t):
+            if Gamma[j] is None:
+                tprev = -1
+            else:
+                tprev = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+
+        def length_lower_(m, j):
+            return sum(m.a[j,t] for t in T) >= P[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+        M.length_lower = pe.Constraint(J, rule=length_lower_)
+
+        def length_upper_(m, j):
+            return sum(m.a[j,t] for t in T) <= Q[j] * (m.z[j,Tmax-1] - M.z[j,-1])
+        M.length_upper = pe.Constraint(J, rule=length_upper_)
+
+        def precedence_lb_(m, i, j, t):
+            tprev = max(t- (P[i]+Omega[i]), -1)
+            return m.z[i,tprev] - m.z[j,t] >= 0
+        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+        def activity_stop_(m, i, j, t):
+            return 1 - m.z[j,t] >= m.a[i,t]
+        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+
+        # Auxilliary computed values
+
+        def activity_length_(m, j):
+            return sum(m.a[j,t] for t in T)
+        M.activity_length = pe.Expression(J, rule=activity_length_)
+
+        def weighted_activity_length_(m, j):
+            return sum(O[k][t] * m.a[j,t] for k in K[j] for t in T)
+        M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+
+        def nonactivity_length_(m, j):
+            return sum( (1-m.a[j,t]) for t in T)
+        M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+
+        def weighted_nonactivity_length_(m, j):
+            return sum(O[k][t] * (1-m.a[j,t]) for k in K[j] for t in T)
+        M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
+
+        return M
+
+
 def create_model(name):
     if name == 'model11':
         return GSF_TotalMatchScore()
@@ -931,6 +1048,8 @@ def create_model(name):
         return GSFED_TotalMatchScore()
     elif name == 'GSF-ED':
         return GSFED_TotalMatchScore()
+    elif name == 'GSF-makespan':
+        return GSF_Makespan()
 
     elif name == 'XSF':
         return XSF_TotalMatchScore()

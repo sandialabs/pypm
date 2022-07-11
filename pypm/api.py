@@ -60,10 +60,16 @@ class SupervisedMIP(object):
         #
         if self.model is None:
             if self.config.model is None:
-                if len(self.config.count_data) > 0:
-                    self.config.model = 'GSF-ED'    # model13
+                if self.objective.goal == "total_match_score":
+                    if len(self.config.count_data) > 0:
+                        self.config.model = 'GSF-ED'    # model13
+                    else:
+                        self.config.model = 'GSF'       # model11
+                elif self.objective.goal == "minimize_makespan":
+                        self.config.model = 'GSF-makespan'
                 else:
-                    self.config.model = 'GSF'       # model11
+                    print("Unknown objecive: {}".format(self.objective.goal))
+                    return None
         else:
             self.config.model = self.model
         if not hasattr(self.config, 'solver'):
@@ -152,6 +158,12 @@ class SupervisedMIP(object):
         Scheduling objective is to maximize the sum of separation scores for all activities.
         """
         self.objective = Munch(goal="total_separation_score")
+
+    def minimize_makespan(self):
+        """
+        Scheduling objective is to minimize the start time of the latest activity
+        """
+        self.objective = Munch(goal="minimize_makespan")
 
 
 
