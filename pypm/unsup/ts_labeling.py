@@ -12,7 +12,7 @@ from .tabu_search import CachedTabuSearch, TabuSearchProblem, AsyncTabuSearch
 
 class PMLabelSearchProblem(TabuSearchProblem):
 
-    def __init__(self, config=None, nresources=None, nfeatures=None):
+    def __init__(self, *, config=None, nresources=None, nfeatures=None, constraints=None):
         TabuSearchProblem.__init__(self)
         self.config = config
         #
@@ -47,6 +47,8 @@ class PMLabelSearchProblem(TabuSearchProblem):
         #print("HERE", self.mip_sup.config.model)
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
+        if constraints:
+            self.mip_sup.add_constraints(constraints)
         config.obs = obs
 
     def initial_solution(self):
@@ -181,7 +183,7 @@ class Worker(object):
 
     def __init__(self, config):
         random.seed(config.seed)
-        self.problem = PMLabelSearchProblem(config)
+        self.problem = PMLabelSearchProblem(config=config)
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
         #
@@ -195,6 +197,8 @@ class Worker(object):
         print("HERE", self.mip_sup.config.model)
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
+        if config.constraints:
+            self.mip_sup.add_constraints(config.constraints)
         self.problem.config.obs = obs
 
     def run(self, point_queue, results_queue):
@@ -212,9 +216,9 @@ class Worker(object):
 
 class ParallelPMLabelSearchProblem(TabuSearchProblem):
 
-    def __init__(self, config=None, nresources=None, nfeatures=None, nworkers=None):
+    def __init__(self, config=None, nresources=None, nfeatures=None, nworkers=None, constraints=None):
         TabuSearchProblem.__init__(self)
-        self.problem = PMLabelSearchProblem(config)
+        self.problem = PMLabelSearchProblem(config=config)
         #
         self.nfeatures = self.problem.nfeatures
         self.nresources = self.problem.nresources
@@ -260,9 +264,9 @@ class ParallelPMLabelSearchProblem(TabuSearchProblem):
 
 class PMLabelSearch(CachedTabuSearch):
 
-    def __init__(self, config=None, nresources=None, nfeatures=None):
+    def __init__(self, *, config=None, nresources=None, nfeatures=None, constraints=None):
         CachedTabuSearch.__init__(self)
-        self.problem = PMLabelSearchProblem(config=config, nresources=nresources, nfeatures=nfeatures)
+        self.problem = PMLabelSearchProblem(config=config, nresources=nresources, nfeatures=nfeatures, constraints=constraints)
         #
         self.options.verbose = config.options.get('verbose',False)
         if 'max_stall_count' in config.options:
@@ -280,9 +284,9 @@ class PMLabelSearch(CachedTabuSearch):
 
 class ParallelPMLabelSearch(AsyncTabuSearch):
 
-    def __init__(self, config=None, nresources=None, nfeatures=None, nworkers=1):
+    def __init__(self, *, config=None, nresources=None, nfeatures=None, nworkers=1, constraints=None):
         AsyncTabuSearch.__init__(self)
-        self.problem = ParallelPMLabelSearchProblem(config=config, nresources=nresources, nfeatures=nfeatures, nworkers=nworkers)
+        self.problem = ParallelPMLabelSearchProblem(config=config, nresources=nresources, nfeatures=nfeatures, nworkers=nworkers, constraints=constraints)
         #
         self.options.verbose = config.options.get('verbose',False)
         if 'max_stall_count' in config.options:
@@ -300,10 +304,10 @@ class ParallelPMLabelSearch(AsyncTabuSearch):
 def run_tabu(config, constraints=[], nworkers=1, debug=False):
     if nworkers == 1:
         random.seed(config.seed)
-        ls = PMLabelSearch(config)
+        ls = PMLabelSearch(config=config, constraints=constraints)
     else:
         ray.init(num_cpus=nworkers+1)
-        ls = ParallelPMLabelSearch(config=config, nworkers=nworkers)
+        ls = ParallelPMLabelSearch(config=config, nworkers=nworkers, constraints=constraints)
         ls.options.debug = debug
     ls.options.max_iterations = config.options.get('max_iterations',100)
     ls.options.tabu_tenure = config.options.get('tabu_tenure',4)

@@ -93,6 +93,9 @@ class SupervisedMIP(object):
     # Constraint methods
     #
 
+    def add_constraints(self, constraints):
+        self.constraints = constraints
+
     def reset_constraints(self):
         self.constraints = []
 
@@ -218,6 +221,51 @@ class TabuLabeling(object):
 
     def generate_labeling_and_schedule(self, nworkers=1, debug=False):
         return LabelingResults(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
+
+    #
+    # Constraint methods
+    #
+
+    def add_constraints(self, constraints):
+        self.constraints = constraints
+
+    def reset_constraints(self):
+        self.constraints = []
+
+    def reset_constraint(self, index):
+        self.constraints[index] = None
+
+    def include(self, activity):
+        self.constraints.append( Munch(activity=activity, constraint="include") )
+        return len(self.constraints)-1
+
+    #def exclude(self, activity):
+    #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
+    #    return len(self.constraints)-1
+
+    def set_earliest_start_date(self, activity, startdate):
+        self.constraints.append( Munch(activity=activity, constraint="earliest_start", startdate=startdate) )
+        return len(self.constraints)-1
+
+    def set_latest_start_date(self, activity, startdate):
+        self.constraints.append( Munch(activity=activity, constraint="latest_start", startdate=startdate) )
+        return len(self.constraints)-1
+
+    def fix_start_date(self, activity, startdate):
+        self.constraints.append( Munch(activity=activity, constraint="fix_start", startdate=startdate) )
+        return len(self.constraints)-1
+
+    def relax(self, activity):
+        self.constraints.append( Munch(activity=activity, constraint="relax") )
+        return len(self.constraints)-1
+
+    def relax_start_date(self, activity):
+        self.constraints.append( Munch(activity=activity, constraint="relax_start") )
+        return len(self.constraints)-1
+
+    def set_activity_duration(self, activity, minval, maxval):
+        self.constraints.append( Munch(activity=activity, constraint="activity_duration", minval=minval, maxval=maxval) )
+        return len(self.constraints)-1
 
 
 class PYPM_api(object):
