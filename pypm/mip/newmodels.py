@@ -180,6 +180,8 @@ class Z_Repn_Model(BaseModel):
             j = con.activity
             if con.constraint == 'include':
                 M.z[j,-1].fix(0)
+                # TODO - Make this stronger by fixing the latest feasible start-time for which the 
+                #        the activity ends before the end of the time horizon
                 M.z[j,self.data.Tmax-1].fix(1)
 
             elif con.constraint == 'earliest_start':
