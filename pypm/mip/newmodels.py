@@ -965,7 +965,7 @@ class GSF_Makespan(Z_Repn_Model):
 
         # Objective
 
-        M.objective = pe.Objective(sense=pe.minimize, expr=M.O + 1e-4*sum(M.o[j] for j in J))
+        M.objective = pe.Objective(sense=pe.minimize, expr=M.O + (1e-3)*sum(M.o[j] for j in J))
 
         def omax_(m,j):
             return M.o[j] <= M.O
