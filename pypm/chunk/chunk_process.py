@@ -11,37 +11,40 @@ def update(p, k, K=None, workhours=None):
     if workhours is None:
         workhours=[0,24]
 
-    max_delay = p['max_delay']
-    if max_delay is not None:
-        #
-        # Rescaling max_delay to include the specified # of work hours per day
-        #
-        max_delay = max_delay * (workhours[1]-workhours[0])/ 24 
-        #
-        # Chunk the max_delay into K-bins, and round up to the nearest integer
-        #
-        tmp = max_delay / K
-        if tmp - int(tmp) > 1e-7:
-            print("WARNING: max_delay is not evenly divisible by {}.  Rounding up chunked max_delay.")
-            p['max_delay'] = int(math.ceil(tmp))
-        else:
-            p['max_delay'] = int(tmp)
+    max_delay = p['delay_after_hours']
+    p['delay_after_hours'] = max_delay
+    #if max_delay is not None:
+    #    #
+    #    # Rescaling max_delay to include the specified # of work hours per day
+    #    #
+    #    max_delay = max_delay * (workhours[1]-workhours[0])/ 24 
+    #    #
+    #    # Chunk the max_delay into K-bins, and round up to the nearest integer
+    #    #
+    #    tmp = max_delay / K
+    #    if tmp - int(tmp) > 1e-7:
+    #        print("WARNING: max_delay is not evenly divisible by {}.  Rounding up chunked max_delay.")
+    #        p['max_delay'] = int(math.ceil(tmp))
+    #    else:
+    #        p['max_delay'] = int(tmp)
 
-    min_hours = p['duration']['min_hours']
+    min_hours = p['duration']['min_timesteps']
     tmp = min_hours / k
     if tmp - int(tmp) > 1e-7:
-        print("WARNING: min_hours is not evenly divisible by {}.  Rounding up chunked min_hours.")
-        p['duration']['min_hours'] = int(math.ceil(tmp))
+        print("WARNING: min_hours is not evenly divisible by {}.  Rounding up chunked min_hours.".format(tmp))
+        p['duration']['min_timesteps'] = int(math.ceil(tmp))
     else:
-        p['duration']['min_hours'] = int(tmp)
+        p['duration']['min_timesteps'] = int(tmp)
 
-    max_hours = p['duration']['max_hours']
+    max_hours = p['duration']['max_timesteps']
     tmp = max_hours / k
     if tmp - int(tmp) > 1e-7:
-        print("WARNING: max_hours is not evenly divisible by {}.  Rounding up chunked max_hours.")
-        p['duration']['max_hours'] = int(math.ceil(tmp))
+        print("WARNING: max_hours is not evenly divisible by {}.  Rounding up chunked max_hours.".format(tmp))
+        p['duration']['max_timesteps'] = int(math.ceil(tmp))
     else:
-        p['duration']['max_hours'] = int(tmp)
+        p['duration']['max_timesteps'] = int(tmp)
+
+    p['hours_per_timestep'] = int(k)
 
 
 def chunk_process(filename, output, step):

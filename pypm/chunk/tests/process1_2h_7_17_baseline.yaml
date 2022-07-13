@@ -1,19 +1,19 @@
 activities:
-- dependencies: []
+- delay_after_hours: null
+  dependencies: []
   duration:
-    max_hours: 5
-    min_hours: 3
-  max_delay: null
+    max_timesteps: 5
+    min_timesteps: 3
   name: a1
   resources:
     rB: 1
     rC: 1
-- dependencies:
+- delay_after_hours: 24
+  dependencies:
   - a1
   duration:
-    max_hours: 3
-    min_hours: 3
-  max_delay: 5
+    max_timesteps: 3
+    min_timesteps: 3
   name: a2
   resources: {}
 resources:

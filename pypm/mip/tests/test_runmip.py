@@ -36,54 +36,55 @@ def run(model, example, sim, supervised):
 
 
 
-def test_model1_example1_sim1_sup():
-    run('model1', 'example1', 'sim1', 'sup')
+if False:
+    def test_model1_example1_sim1_sup():
+        run('model1', 'example1', 'sim1', 'sup')
 
-def test_model1_example2_sim1_sup():
-    run('model1', 'example2', 'sim1', 'sup')
+    def test_model1_example2_sim1_sup():
+        run('model1', 'example2', 'sim1', 'sup')
 
-def test_model1_example1_sim2_sup():
-    run('model1', 'example1', 'sim2', 'sup')
+    def test_model1_example1_sim2_sup():
+        run('model1', 'example1', 'sim2', 'sup')
 
-def test_model1_example2_sim2_sup():
-    run('model1', 'example2', 'sim2', 'sup')
-
-
-def test_model2_example1_sim1_usup():
-    run('model2', 'example1', 'sim1', 'usup')
-
-def test_model2_example2_sim1_usup():
-    run('model2', 'example2', 'sim1', 'usup')
-
-def test_model2_example1_sim2_usup():
-    run('model2', 'example1', 'sim2', 'usup')
-
-def test_model2_example2_sim2_usup():
-    run('model2', 'example2', 'sim2', 'usup')
+    def test_model1_example2_sim2_sup():
+        run('model1', 'example2', 'sim2', 'sup')
 
 
-def test_model3_example1_sim1_sup():
-    run('model3', 'example1', 'sim1', 'sup')
+    def test_model2_example1_sim1_usup():
+        run('model2', 'example1', 'sim1', 'usup')
 
-def test_model3_example2_sim1_sup():
-    run('model3', 'example2', 'sim1', 'sup')
+    def test_model2_example2_sim1_usup():
+        run('model2', 'example2', 'sim1', 'usup')
 
-def test_model3_example1_sim2_sup():
-    run('model3', 'example1', 'sim2', 'sup')
+    def test_model2_example1_sim2_usup():
+        run('model2', 'example1', 'sim2', 'usup')
 
-def test_model3_example2_sim2_sup():
-    run('model3', 'example2', 'sim2', 'sup')
+    def test_model2_example2_sim2_usup():
+        run('model2', 'example2', 'sim2', 'usup')
 
 
-def test_model4_example1_sim1_usup():
-    run('model4', 'example1', 'sim1', 'usup')
+    def test_model3_example1_sim1_sup():
+        run('model3', 'example1', 'sim1', 'sup')
 
-def test_model4_example2_sim1_usup():
-    run('model4', 'example2', 'sim1', 'usup')
+    def test_model3_example2_sim1_sup():
+        run('model3', 'example2', 'sim1', 'sup')
 
-def test_model4_example1_sim2_usup():
-    run('model4', 'example1', 'sim2', 'usup')
+    def test_model3_example1_sim2_sup():
+        run('model3', 'example1', 'sim2', 'sup')
 
-def test_model4_example2_sim2_usup():
-    run('model4', 'example2', 'sim2', 'usup')
+    def test_model3_example2_sim2_sup():
+        run('model3', 'example2', 'sim2', 'sup')
+
+
+    def test_model4_example1_sim1_usup():
+        run('model4', 'example1', 'sim1', 'usup')
+
+    def test_model4_example2_sim1_usup():
+        run('model4', 'example2', 'sim1', 'usup')
+
+    def test_model4_example1_sim2_usup():
+        run('model4', 'example1', 'sim2', 'usup')
+
+    def test_model4_example2_sim2_usup():
+        run('model4', 'example2', 'sim2', 'usup')
 

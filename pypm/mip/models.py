@@ -460,7 +460,7 @@ def create_model1(*, observations, pm, timesteps, sigma=None, verbose=False):
     # Fixed-length activities
     # No gaps within or between activities
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
@@ -510,7 +510,7 @@ def create_model2(*, observations, pm, timesteps, sigma=None, verbose=False):
     # No gaps within or between activities
     U = list(sorted(observations.keys()))
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     Kall = set.union(*[v for v in K.values()])
@@ -569,13 +569,13 @@ def create_model3(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     # Fixed-length activities
     # No gaps within or between activities
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
     count = {name:pm.resources.count(name) for name in pm.resources}
-    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    max_delay = {j:max_delay if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
 
     return create_pyomo_model3(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
@@ -632,14 +632,14 @@ def create_model4(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     # No gaps within or between activities
     U = list(sorted(observations.keys()))
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     Kall = set.union(*[v for v in K.values()])
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     count = {name:pm.resources.count(name) for name in pm.resources}
-    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    max_delay = {j:max_delay if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
 
     return create_pyomo_model4(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, U=U, O=observations, S=S, sigma=sigma, 
@@ -688,13 +688,13 @@ def create_model5(*, observations, pm, timesteps, sigma=None, gamma=0, max_delay
     # Fixed-length activities
     # No gaps within or between activities
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in observations}
     count = {name:pm.resources.count(name) for name in pm.resources}
-    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    max_delay = {j:max_delay if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
 
     return create_pyomo_model5(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
@@ -752,8 +752,8 @@ def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
     # No gaps within or between activities
     U = list(sorted(observations.keys()))
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     count = {name:pm.resources.count(name) for name in pm.resources}
@@ -761,7 +761,7 @@ def create_model78(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     #if max_delay is None:
     #    max_delay = timesteps
-    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    max_delay = {j:max_delay if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
 
     return create_pyomo_model78(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
@@ -775,8 +775,8 @@ def create_model10(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
     # No gaps within or between activities
     U = list(sorted(observations.keys()))
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     count = {name:pm.resources.count(name) for name in pm.resources}
@@ -784,7 +784,7 @@ def create_model10(*, pm, timesteps, sigma=None, gamma=0, max_delay=None, verbos
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
     #if max_delay is None:
     #    max_delay = timesteps
-    max_delay = {j:max_delay if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    max_delay = {j:max_delay if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
 
     M = create_pyomo_model78(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
@@ -844,14 +844,14 @@ def create_model11_12(*, pm, timesteps, sigma=None, gamma=0, verbose=False, supe
     #
     U = list(sorted(observations.keys()))
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     count = {name:pm.resources.count(name) for name in pm.resources}
     Kall = set(count.keys())
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
-    min_delay = {j:0 if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    min_delay = {j:0 if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
 
     return create_pyomo_model11_12(K=K, Tmax=timesteps, J=J, 
                                E=E, p=p, q=q, O=observations, S=S, sigma=sigma, 
@@ -911,14 +911,14 @@ def create_model13_14(*, pm, timesteps, sigma=None, gamma=0, verbose=False, supe
     #
     U = list(sorted(observations.keys()))
     E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-    p = {j:pm[j]['duration']['min_hours'] for j in pm}
-    q = {j:pm[j]['duration']['max_hours'] for j in pm}
+    p = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+    q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
     J = list(sorted(pm))
     K = {j:set(pm[j]['resources'].keys()) for j in pm}
     count = {name:pm.resources.count(name) for name in pm.resources}
     Kall = set(count.keys())
     S = {(j,k):1 if k in K[j] else 0 for j in pm for k in Kall}
-    min_delay = {j:0 if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+    min_delay = {j:0 if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
     ar_count = {(j,k):pm[j]['resources'][k] for j in pm for k in pm[j]['resources']}
 
     return create_pyomo_model13_14(K=K, Tmax=timesteps, J=J, 
