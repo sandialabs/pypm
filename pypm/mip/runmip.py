@@ -1,6 +1,7 @@
 # pymp.mip.runmip
 
 
+import datetime
 import yaml
 import pprint
 import csv
@@ -96,7 +97,6 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
     observations_ = {}
     header = []
     if type(data) is list:
-        datetime=None
         observations = data[index]['observations']
         if type(observations) is list:
             for filename in observations:
@@ -107,8 +107,13 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
                 elif fname.endswith(".yaml"):
                     with open(fname, 'r') as INPUT:
                         observations_ = yaml.safe_load(INPUT)
+            dt = None
         else:
             assert (type(observations) is dict), "Expected observations to be a dictionary or a list of CSV files"
+            for key in observations:
+                ntimesteps = len(observations[key])
+                break
+            dt = {i:str(datetime.datetime(year=2020, month=1, day=i//24+1, hour=i % 24)) for i in range(ntimesteps)}
         observations_ = observations
     else:
         fname = data['filename']
@@ -121,20 +126,20 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
             header = list(df.columns)
         else:
             raise "Unknown file format"
-        datetime = observations_.get(index,None)
-        if not datetime is None:
+        dt = observations_.get(index,None)
+        if not dt is None:
             del observations_[index]
             header.remove(index)
-            datetime = dict(zip(range(len(datetime)), datetime))
+            dt = dict(zip(range(len(dt)), dt))
         
     #
     # Check that dates are strictly increasing
     #
-    if not datetime is None:
-        prev = datetime[0]
-        for i in range(1,len(datetime)):
-            assert prev < datetime[i], "Expecting date-time values to be strictly increasing.  The date {} appears before {} in the data set.".format(prev, datetime[i])
-            prev = datetime[i]
+    if not dt is None:
+        prev = dt[0]
+        for i in range(1,len(dt)):
+            assert prev < dt[i], "Expecting date-time values to be strictly increasing.  The date {} appears before {} in the data set.".format(prev, dt[i])
+            prev = dt[i]
     #
     # Check that observations are in the interval [0,1]
     #
@@ -173,7 +178,7 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
             timesteps = len(observations_[key])
             print("WARNING: limiting analysis to {} because there are only observations for that many time steps".format(timesteps))
 
-    return Munch(observations=observations_, header=header, timesteps=timesteps, datetime=datetime)
+    return Munch(observations=observations_, header=header, timesteps=timesteps, datetime=dt)
 
 
 def perform_optimization(*, M, model, solver, options, tee, debug, obs, pm):

@@ -28,8 +28,7 @@ def update(p, k, K=None, workhours=None):
     #    else:
     #        p['max_delay'] = int(tmp)
 
-    min_hours = p['duration']['min_hours']
-    del p['duration']['min_hours']
+    min_hours = p['duration']['min_timesteps']
     tmp = min_hours / k
     if tmp - int(tmp) > 1e-7:
         print("WARNING: min_hours is not evenly divisible by {}.  Rounding up chunked min_hours.".format(tmp))
@@ -37,8 +36,7 @@ def update(p, k, K=None, workhours=None):
     else:
         p['duration']['min_timesteps'] = int(tmp)
 
-    max_hours = p['duration']['max_hours']
-    del p['duration']['max_hours']
+    max_hours = p['duration']['max_timesteps']
     tmp = max_hours / k
     if tmp - int(tmp) > 1e-7:
         print("WARNING: max_hours is not evenly divisible by {}.  Rounding up chunked max_hours.".format(tmp))

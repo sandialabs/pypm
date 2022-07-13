@@ -18,7 +18,7 @@ def run():
     #
     length = {}
     for j in pm.config.pm:
-        length[j] = Munch(min=pm.config.pm[j]['duration']['min_hours'], max=pm.config.pm[j]['duration']['max_hours'])
+        length[j] = Munch(min=pm.config.pm[j]['duration']['min_timesteps'], max=pm.config.pm[j]['duration']['max_timesteps'])
     for j in length:
         print("{} {} {}".format(j, length[j].min, length[j].max))
 

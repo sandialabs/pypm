@@ -1,5 +1,12 @@
 results:
-- feature_label:
+- datetime_schedule:
+    a1:
+      pre: '2020-01-01 00:00:00'
+    a2:
+      first: '2020-01-01 08:00:00'
+      last: '2020-01-01 13:00:00'
+      stop: '2020-01-01 14:00:00'
+  feature_label:
     ra: rB
     rb: rA
     rc: IGNORED

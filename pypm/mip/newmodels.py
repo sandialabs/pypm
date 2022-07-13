@@ -33,9 +33,18 @@ class ProcessModelData(object):
 
         self.O = data.obs.observations
         self.E = [(pm[dep]['name'],i) for i in pm for dep in pm[i]['dependencies']]
-        self.P = {j:pm[j]['duration']['min_hours'] for j in pm}
-        self.Q = {j:pm[j]['duration']['max_hours'] for j in pm}
-        self.Omega = {j:0 if pm[j]['max_delay'] is None else pm[j]['max_delay'] for j in pm}
+        self.P = {j:pm[j]['duration']['min_timesteps'] for j in pm}
+        self.Q = {j:pm[j]['duration']['max_timesteps'] for j in pm}
+        self.Omega = {j:0 if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
+        for j in pm:
+            self.hours_per_timestep = pm[j].get('hours_per_timestep',1)
+            break
+        #except:
+        #    self.P = {j:pm[j]['duration']['min_hours'] for j in pm}
+        #    self.Q = {j:pm[j]['duration']['max_hours'] for j in pm}
+        #    self.Omega = {j:0 if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
+        #    self.hours_per_timestep = 1
+        #    print("ATTENTION: Using original chunked process representation")
         #self.count = {name:pm.resources.count(name) for name in pm.resources}
 
         self.J = list(sorted(pm))
@@ -64,6 +73,26 @@ class ProcessModelData(object):
                     j = con.activity
                     self.P[j] = con.minval
                     self.Q[j] = con.maxval
+
+        #for i in data.obs.datetime:
+        #    print(i,type(data.obs.datetime[i]))
+        dt = [datetime.datetime.fromisoformat(data.obs.datetime[i]) for i in range(len(data.obs.datetime))]
+        #dt = data.obs.datetime
+        #print(dt)
+        tprev = {}
+        for j in pm:
+            for t in self.T:
+                for tau in reversed(range(-1,t-1)):
+                    last = tau + self.P[j] - 1
+                    if last >= self.Tmax:
+                        continue
+                    tmp = dt[last] + datetime.timedelta(hours=self.hours_per_timestep + self.Omega[j])
+                    if tmp > dt[t]:
+                        continue
+                    tprev[j,t] = tau
+                    print(j,tau,t)
+                    break
+        self.tprev = tprev
 
 
 class BaseModel(object):
@@ -282,11 +311,12 @@ class GSF_TotalMatchScore(Z_Repn_Model):
                                 J=d.J, T=d.T, S=d.S, K=d.K, 
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                tprev=d.tprev,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, tprev, verbose):
 
         if verbose:
             print("")
@@ -334,10 +364,10 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 
         def activity_start_(m, j, t):
             if Gamma[j] is None:
-                tprev = -1
+                tau = -1
             else:
-                tprev = max(t- (Q[j]+Gamma[j]), -1)
-            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+                tau = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tau] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         def length_lower_(m, j):
@@ -349,8 +379,10 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
         def precedence_lb_(m, i, j, t):
-            tprev = max(t- (P[i]+Omega[i]), -1)
-            return m.z[i,tprev] - m.z[j,t] >= 0
+            tau = tprev.get((i,t), -1)
+            return m.z[i,tau] - m.z[j,t] >= 0
+            #tprev = max(t- (P[i]+Omega[i]), -1)
+            #return m.z[i,tprev] - m.z[j,t] >= 0
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_stop_(m, i, j, t):
@@ -397,11 +429,12 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
                                 C=d.C, count_data=config.count_data,
+                                tprev=d.tprev,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, count_data, C, verbose):
+    def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, count_data, C, tprev, verbose):
 
         assert objective == 'total_match_score', "Model11 can not optimize the goal {}".format(objective)
 
@@ -460,10 +493,10 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         def activity_start_(m, j, t):
             #tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
             if Gamma[j] is None:
-                tprev = -1
+                tau = -1
             else:
-                tprev = max(t- (Q[j]+Gamma[j]), -1)
-            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+                tau = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tau] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         def length_lower_(m, j):
@@ -475,8 +508,10 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
         def precedence_lb_(m, i, j, t):
-            tprev = max(t- (P[i]+Omega[i]), -1)
-            return m.z[i,tprev] - m.z[j,t] >= 0
+            tau = tprev.get((i,t), -1)
+            return m.z[i,tau] - m.z[j,t] >= 0
+            #tprev = max(t- (P[i]+Omega[i]), -1)
+            #return m.z[i,tprev] - m.z[j,t] >= 0
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_stop_(m, i, j, t):
@@ -611,11 +646,12 @@ class UPM_TotalMatchScore(Z_Repn_Model):
                                 Kall=d.Kall, K_count=d.K_count,
                                 Delta=d.Delta,
                                 Xi=d.Xi,
+                                tprev=d.tprev,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, C, Delta, Xi, U, U_count, Kall, K_count, verbose):
+    def create_model(self, *, objective, T, J, K, JK, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, C, Delta, Xi, U, U_count, Kall, K_count, tprev, verbose):
 
         assert objective == 'total_match_score', "UPM can not optimize the goal {}".format(objective)
 
@@ -745,10 +781,10 @@ class UPM_TotalMatchScore(Z_Repn_Model):
 
         def activity_start_(m, j, t):
             if Gamma[j] is None:
-                tprev = -1
+                tau = -1
             else:
-                tprev = max(t- (Q[j]+Gamma[j]), -1)
-            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+                tau = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tau] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         def length_lower_(m, j):
@@ -760,8 +796,10 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
         def precedence_lb_(m, i, j, t):
-            tprev = max(t- (P[i]+Omega[i]), -1)
-            return m.z[i,tprev] - m.z[j,t] >= 0
+            tau = tprev.get((i,t), -1)
+            return m.z[i,tau] - m.z[j,t] >= 0
+            #tprev = max(t- (P[i]+Omega[i]), -1)
+            #return m.z[i,tprev] - m.z[j,t] >= 0
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_stop_(m, i, j, t):
@@ -807,11 +845,12 @@ class XSF_TotalMatchScore(Z_Repn_Model):
                                 J=d.J, T=d.T, S=d.S, K=d.K, 
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                tprev=d.tprev,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, verbose):
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, tprev, verbose):
 
         if verbose:
             print("")
@@ -858,8 +897,10 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         M.zstep = pe.Constraint(J, T, rule=zstep_)
 
         def precedence_lb_(m, i, j, t):
-            tprev = max(t- (P[i]+Omega[i]), -1)
-            return m.z[i,tprev] - m.z[j,t] >= 0
+            tau = tprev.get((i,t), -1)
+            return m.z[i,tau] - m.z[j,t] >= 0
+            #tprev = max(t- (P[i]+Omega[i]), -1)
+            #return m.z[i,tprev] - m.z[j,t] >= 0
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_feasibility_(m, j, t):
@@ -939,11 +980,12 @@ class GSF_Makespan(Z_Repn_Model):
                                 J=d.J, T=d.T, S=d.S, K=d.K, 
                                 O=d.O, P=d.P, Q=d.Q, E=d.E, Omega=d.Omega, 
                                 Gamma=d.Gamma, Tmax=d.Tmax, Upsilon=d.Upsilon, 
+                                tprev=d.tprev,
                                 verbose=config.verbose)
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
-    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, verbose):
+    def create_model(self, *, objective, T, J, K, S, O, P, Q, E, Omega, Gamma, Tmax, Upsilon, tprev, verbose):
 
         if verbose:
             print("")
@@ -994,10 +1036,10 @@ class GSF_Makespan(Z_Repn_Model):
 
         def activity_start_(m, j, t):
             if Gamma[j] is None:
-                tprev = -1
+                tau = -1
             else:
-                tprev = max(t- (Q[j]+Gamma[j]), -1)
-            return m.z[j,t] - m.z[j,tprev] >= m.a[j,t]
+                tau = max(t- (Q[j]+Gamma[j]), -1)
+            return m.z[j,t] - m.z[j,tau] >= m.a[j,t]
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         def length_lower_(m, j):
@@ -1009,8 +1051,10 @@ class GSF_Makespan(Z_Repn_Model):
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
         def precedence_lb_(m, i, j, t):
-            tprev = max(t- (P[i]+Omega[i]), -1)
-            return m.z[i,tprev] - m.z[j,t] >= 0
+            tau = tprev.get((i,t), -1)
+            return m.z[i,tau] - m.z[j,t] >= 0
+            #tprev = max(t- (P[i]+Omega[i]), -1)
+            #return m.z[i,tprev] - m.z[j,t] >= 0
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_stop_(m, i, j, t):

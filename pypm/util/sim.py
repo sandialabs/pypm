@@ -58,9 +58,9 @@ class Simulator(object):
         #
         g[activity['id']] = self.env.process( 
                 self._execute_activity( 
-                        minlen=activity['duration']['min_hours'], 
-                        maxlen=activity['duration']['max_hours'], 
-                        maxdelay=activity['max_delay'],
+                        minlen=activity['duration']['min_timesteps'], 
+                        maxlen=activity['duration']['max_timesteps'], 
+                        maxdelay=activity['delay_after_hours'],
                         name=activity['name'],
                         pred=pred) )
 

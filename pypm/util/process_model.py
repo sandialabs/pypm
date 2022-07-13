@@ -84,8 +84,13 @@ class ProcessModel(object):
         i = len(self._names)
         activity['id'] = i
         self._names[ activity['name'] ] = i
-        if activity.get('max_delay',None) is None:
-            activity['max_delay'] = None
+        if activity.get('max_delay',None) is not None:
+            activity['delay_after_hours'] = activity['max_delay']
+            del activity['max_delay']
+        if activity.get('delay_after_hours',None) is None:
+            activity['delay_after_hours'] = None
+        if 'max_hours' in activity['duration']:
+            activity['duration'] = {'max_timesteps':activity['duration']['max_hours'], 'min_timesteps':activity['duration']['min_hours']}
         self._activities[ i ] = activity
         if activity.get('resources',None) is None:
             activity['resources'] = {}
@@ -112,7 +117,7 @@ class ProcessModel(object):
         for name in self:
             ans = {}
             ans['name']=name
-            ans['max_delay'] = self[name]['max_delay']
+            ans['delay_after_hours'] = self[name]['delay_after_hours']
             ans['dependencies'] = self[name]['dependencies']
             ans['resources'] = self[name]['resources']
             ans['duration'] = self[name]['duration']
