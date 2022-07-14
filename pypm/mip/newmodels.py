@@ -90,7 +90,7 @@ class ProcessModelData(object):
                     if tmp > dt[t]:
                         continue
                     tprev[j,t] = tau
-                    print(j,tau,t)
+                    #print(j,tau,t)
                     break
         self.tprev = tprev
 
@@ -905,10 +905,15 @@ class XSF_TotalMatchScore(Z_Repn_Model):
 
         def activity_feasibility_(m, j, t):
             if t+P[j]-1 >= Tmax:
-                return m.z[j,t] == 1
+                #if j.startswith("Final Setup"):
+                #    return pe.Constraint.Skip
+                #print("HERE",j,t,t+P[j]-1,Tmax)
+                return m.z[j,t] == m.z[j,Tmax-1] #- M.z[j,-1]
             return pe.Constraint.Skip
         M.activity_feasibility = pe.Constraint(J, T, rule=activity_feasibility_)
 
+        #M.pprint()
+        #M.display()
         return M
 
     def summarize(self):

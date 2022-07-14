@@ -31,16 +31,16 @@ def update(p, k, K=None, workhours=None):
     min_hours = p['duration']['min_timesteps']
     tmp = min_hours / k
     if tmp - int(tmp) > 1e-7:
-        print("WARNING: min_hours is not evenly divisible by {}.  Rounding up chunked min_hours.".format(tmp))
         p['duration']['min_timesteps'] = int(math.ceil(tmp))
+        print("WARNING: min_hours {} is not evenly divisible by {}.  Rounding up chunked min_hours: {}".format(min_hours,k,p['duration']['min_timesteps']))
     else:
         p['duration']['min_timesteps'] = int(tmp)
 
     max_hours = p['duration']['max_timesteps']
     tmp = max_hours / k
     if tmp - int(tmp) > 1e-7:
-        print("WARNING: max_hours is not evenly divisible by {}.  Rounding up chunked max_hours.".format(tmp))
         p['duration']['max_timesteps'] = int(math.ceil(tmp))
+        print("WARNING: max_hours {} is not evenly divisible by {}.  Rounding up chunked max_hours: {}".format(max_hours,k,p['duration']['max_timesteps']))
     else:
         p['duration']['max_timesteps'] = int(tmp)
 

@@ -224,6 +224,7 @@ class ParallelPMLabelSearchProblem(TabuSearchProblem):
         self.nresources = self.problem.nresources
         #
         nworkers = ray.available_resources() if nworkers is None else nworkers
+        config.constraints = constraints
         config_obj = ray.put(config)
         self.workers = [Worker.remote(config_obj) for i in range(nworkers)]
         self.requests_queue = ray.util.queue.Queue()
