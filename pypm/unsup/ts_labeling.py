@@ -153,6 +153,7 @@ class PMLabelSearchProblem(TabuSearchProblem):
         #
         # Execute the mip
         #
+        #print("XXX",len(self.mip_sup.constraints))
         results = self.mip_sup.generate_schedule()
         #
         # Cache results
@@ -183,7 +184,7 @@ class Worker(object):
 
     def __init__(self, config):
         random.seed(config.seed)
-        self.problem = PMLabelSearchProblem(config=config)
+        self.problem = PMLabelSearchProblem(config=config, constraints=config.constraints)
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
         #
@@ -194,7 +195,7 @@ class Worker(object):
         self.mip_sup.config = copy.deepcopy(self.problem.config)
         self.mip_sup.config.search_strategy = 'mip'
         self.mip_sup.config.model = config.options.get('tabu_model', 'GSF-ED')
-        print("HERE", self.mip_sup.config.model)
+        print("HERE", self.mip_sup.config.model, len(config.constraints))
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         if config.constraints:
@@ -303,6 +304,7 @@ class ParallelPMLabelSearch(AsyncTabuSearch):
 
 
 def run_tabu(config, constraints=[], nworkers=1, debug=False):
+    #print("YYY",len(constraints))
     if nworkers == 1:
         random.seed(config.seed)
         ls = PMLabelSearch(config=config, constraints=constraints)
