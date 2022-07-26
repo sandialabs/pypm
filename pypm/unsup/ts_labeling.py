@@ -73,6 +73,7 @@ class PMLabelSearchProblem(TabuSearchProblem):
                 point = [self.nresources - 1] * self.nfeatures
                 for i in range(self.nresources-1):
                     point[tmp[i]] = i
+            random.shuffle(point)
         #
         return tuple(point)
  
