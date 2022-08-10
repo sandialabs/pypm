@@ -1,6 +1,6 @@
 Feature,Resource
-rb,rB
-rc,rC
-rd,rA
-re,IGNORED
+rb,rC
+rc,rB
+rd,IGNORED
+re,rA
 rf,IGNORED

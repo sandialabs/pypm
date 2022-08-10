@@ -9,8 +9,8 @@ results:
       last: '2020-01-01 10:00:00'
       stop: '2020-01-01 11:00:00'
   feature_label:
-    ra: rA
-    rb: rB
+    ra: rB
+    rb: rA
     rc: rC
   goals:
     match:
@@ -30,10 +30,10 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 70
-    iterations: 26
+    evaluations: 77
+    iterations: 28
     stall count: 25
-    unique solutions: 25
+    unique solutions: 23
 solver:
   model:
     name: GSF-ED

@@ -7,9 +7,9 @@ results:
       last: '2020-01-02 01:00:00'
       stop: '2020-01-02 02:00:00'
   feature_label:
-    ra: rA
+    ra: rB
     rb: rC
-    rc: rB
+    rc: rA
   goals:
     match:
       a2: 6.0
@@ -29,7 +29,7 @@ results:
     evaluations: 69
     iterations: 25
     stall count: 25
-    unique solutions: 32
+    unique solutions: 31
 solver:
   model:
     name: GSF-ED

@@ -7,16 +7,16 @@ results:
     a2:
       post: '2020-01-02 05:00:00'
   feature_label:
-    rb: rB
-    rc: rC
-    rd: rA
-    re: IGNORED
+    rb: rC
+    rc: rB
+    rd: IGNORED
+    re: rA
     rf: IGNORED
   goals:
     match:
       a1: 16.0
     separation:
-      max(re,rf): 0
+      max(rd,rf): 0
       rb: 1.0
       rc: 1.0
       rd: 0
@@ -31,10 +31,10 @@ results:
     a2:
       post: true
   solver_statistics:
-    evaluations: 120
-    iterations: 26
+    evaluations: 122
+    iterations: 27
     stall count: 25
-    unique solutions: 58
+    unique solutions: 59
 solver:
   model:
     name: GSF-ED
