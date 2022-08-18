@@ -5,7 +5,7 @@ import os.path
 from munch import Munch
 import pprint
 from .mip.runmip import load_config, runmip
-from .unsup.ts_labeling import run_tabu
+from .unsup.run_labeling import run_tabu_labeling
 
 
 class Results(object):
@@ -213,12 +213,21 @@ class UnsupervisedMIP(SupervisedMIP):
 class LabelingResults(Results):
 
     def write_labels(self, csvfile):
-        with open(csvfile, 'w') as OUTPUT:
-            print("Writing file: {}".format(csvfile))
-            writer = csv.writer(OUTPUT)
-            writer.writerow(['Feature','Resource'])
-            for k,v in self.results['results'][0]['feature_label'].items(): 
-                writer.writerow([k,v])
+        if 'feature_label' in self.results['results'][0]:
+            with open(csvfile, 'w') as OUTPUT:
+                print("Writing file: {}".format(csvfile))
+                writer = csv.writer(OUTPUT)
+                writer.writerow(['Feature','Resource'])
+                for k,v in self.results['results'][0]['feature_label'].items(): 
+                    writer.writerow([k,v])
+        elif 'resource_feature_list' in self.results['results'][0]:
+            with open(csvfile, 'w') as OUTPUT:
+                print("Writing file: {}".format(csvfile))
+                writer = csv.writer(OUTPUT)
+                writer.writerow(['Resource','Feature'])
+                for k,v in self.results['results'][0]['resource_feature_list'].items(): 
+                    for f in v:
+                        writer.writerow([k,f])
 
 
 class TabuLabeling(object):
@@ -230,9 +239,37 @@ class TabuLabeling(object):
     def load_config(self, yamlfile, index=0):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, quiet=PYPM.options.quiet, index=0)
         self.config.model = 'tabu'
+        #
+        # Process the labeling restrictions file
+        #
+        if self.config.labeling_restrictions:
+            if not os.path.exists(self.config.labeling_restrictions):
+                raise RuntimeError("Unknown labeling restrictions file: {}".format(self.config.labeling_restrictions))
+
+            with open(self.config.labeling_restrictions, 'r') as INPUT:
+                restrictions = yaml.load(INPUT, Loader=yaml.Loader)
+                tmp = {}
+                i=0
+                for r in restrictions:
+                    i += 1
+                    assert 'resourceName' in r, "Missing data field 'resourceName' in {}-th labeling restriction declared in {}".format(i,self.config.labeling_restrictions)
+                    name = r['resourceName']
+                    assert 'knownFeature' in r, "Missing data field 'knownFeature' for resource {} declared in {}".format(name,self.config.labeling_restrictions)
+                    assert 'possibleFeature' in r, "Missing data field 'knownFeature' for resource {} declared in {}".format(name,self.config.labeling_restrictions)
+                    assert name in self.config.pm.resources, "Missing resource {} in process resource list".format(name)
+                    assert name not in tmp, "Resource {} declared twice in {}".format(name,self.config.labeling_restrictions)
+                    tmp[name] = dict(required=[], optional=[])
+                    for f in r['knownFeature']:
+                        assert f in self.config.obs['observations'], "Missing feature {} in data observations (known features for resource {})".format(f,name)
+                        tmp[name]['required'].append(f)
+                    #print("HERE", list(self.config.obs['observations'].keys()))
+                    for f in r['possibleFeature']:
+                        assert f in self.config.obs['observations'], "Missing feature {} in data observations (possible features for resource {})".format(f,name)
+                        tmp[name]['optional'].append(f)
+                self.config.labeling_restrictions = tmp
 
     def generate_labeling_and_schedule(self, nworkers=1, debug=False):
-        return LabelingResults(run_tabu(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
+        return LabelingResults(run_tabu_labeling(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
 
     #
     # Constraint methods

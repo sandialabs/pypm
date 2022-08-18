@@ -131,3 +131,11 @@ def test301_12():
 def test501_12():
     run('test501_12')
 
+
+
+#
+# Tests using labeling restrictions
+#
+def test600_12():
+    run('test600_12')
+

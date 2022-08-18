@@ -291,6 +291,7 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
     solver = options.get('solver', 'glpk') if solver is None else solver
     solver_options = options.get('solver_options', {})
     count_data = set(options.get('count_data', []))
+    labeling_restrictions = options.get('labeling_restrictions', None)
 
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
@@ -316,7 +317,7 @@ def load_config(*, datafile=None, data=None, index=0, model=None, tee=None, solv
                     pm=pm, search_strategy=search_strategy, obs=obs,
                     options=options, 
                     datafile=datafile, index=index, debug=debug, seed=seed, process=options['process'],
-                    count_data=count_data)
+                    count_data=count_data, labeling_restrictions=labeling_restrictions)
 
 
 def runmip(config, constraints=[]):
