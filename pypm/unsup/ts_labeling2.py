@@ -17,6 +17,15 @@ class hdict(dict):
     def __hash__(self):
         return hash(json.dumps(self, sort_keys=True))
 
+    def __lt__(self, other):
+        return hash(self) < hash(other)
+
+    def __le__(self, other):
+        return hash(self) <= hash(other)
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
 
 class PMLabelSearchProblem_Restricted(TabuSearchProblem):
 
@@ -55,12 +64,23 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
 
     def initial_solution(self):
         point = hdict()
+        ctr=0
+        mv=0
         for i in self.resources:
+            if i not in self.labeling_restrictions:
+                print("WARNING: Ignoring resource '{}'.\tResource is not including in labeling restrictions".format(i))
+                continue
+            if len(self.labeling_restrictions[i]['optional']) + len(self.labeling_restrictions[i]['required']) == 0:
+                print("WARNING: Ignoring resource '{}'.\tResource has no optional or required features specified".format(i))
+                continue
             point[i] = hdict()
             for j in self.labeling_restrictions[i]['optional']:
                 point[i][j] = random.randint(0,1)
+                ctr += 1
+            mv += len(self.labeling_restrictions[i]['optional']) > 0
             for j in self.labeling_restrictions[i]['required']:
                 point[i][j] = 1
+        print("SUMMARY: TABU search is optimizing an {}-dimensional binary space.  Each iteration will generate {} local moves.".format(ctr,mv))
         return point
  
     def moves(self, point, _):
@@ -71,14 +91,13 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         random.shuffle(rorder)
         for i_ in rorder:
             i = self.resources[i_]
-            curr = self.labeling_restrictions[i]['optional']
+            if i not in self.labeling_restrictions:
+                continue
+            if len(self.labeling_restrictions[i]['optional']) == 0:
+                continue
             j = random.choice(list(point[i].keys()))
             nhbr = copy.deepcopy(point)
-            #print("BEFORE", nhbr[i][j])
             nhbr[i][j] = 1 - nhbr[i][j]
-            #print("AFTER", nhbr[i][j])
-            #print("X",i,j,point[i][j])
-            #print("Y",nhbr)
             yield nhbr, (i,j,point[i][j]), None
 
     def compute_solution_value(self, point):
@@ -90,9 +109,8 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         #
         observations = {k: [0]*self.config.obs.timesteps for k in self.resources}
         for index, i in enumerate(self.features):
-            #print("HERE",index,point[index],self.resources)
             for k in point:
-                if point[k][i]:
+                if point[k].get(i,0):
                     for t in range(self.config.obs.timesteps):
                         observations[k][t] = max(observations[k][t], self.config.obs['observations'][i][t])
         #
@@ -102,9 +120,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         #
         # Execute the mip
         #
-        #print("XXX",len(self.mip_sup.constraints))
         results = self.mip_sup.generate_schedule()
-        #pprint.pprint(results.results)
         #
         # Cache results
         #
@@ -158,7 +174,7 @@ class ParallelPMLabelSearchProblem_Restricted(TabuSearchProblem):
 
     def __init__(self, config=None, nresources=None, nfeatures=None, nworkers=None, constraints=None, labeling_restrictions=None):
         TabuSearchProblem.__init__(self)
-        self.problem = PMLabelSearchProblem_Restricted(config=config)
+        self.problem = PMLabelSearchProblem_Restricted(config=config, labeling_restrictions=labeling_restrictions)
         #
         self.nfeatures = self.problem.nfeatures
         self.nresources = self.problem.nresources

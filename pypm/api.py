@@ -243,30 +243,40 @@ class TabuLabeling(object):
         # Process the labeling restrictions file
         #
         if self.config.labeling_restrictions:
+            for activity in self.config.pm:
+                dummyname = "dummy "+activity
+                self.config.pm.resources.add(dummyname,1)
+
             if not os.path.exists(self.config.labeling_restrictions):
                 raise RuntimeError("Unknown labeling restrictions file: {}".format(self.config.labeling_restrictions))
 
+            tmp = {}
             with open(self.config.labeling_restrictions, 'r') as INPUT:
                 restrictions = yaml.load(INPUT, Loader=yaml.Loader)
-                tmp = {}
-                i=0
                 for r in restrictions:
-                    i += 1
                     assert 'resourceName' in r, "Missing data field 'resourceName' in {}-th labeling restriction declared in {}".format(i,self.config.labeling_restrictions)
                     name = r['resourceName']
-                    assert 'knownFeature' in r, "Missing data field 'knownFeature' for resource {} declared in {}".format(name,self.config.labeling_restrictions)
-                    assert 'possibleFeature' in r, "Missing data field 'knownFeature' for resource {} declared in {}".format(name,self.config.labeling_restrictions)
                     assert name in self.config.pm.resources, "Missing resource {} in process resource list".format(name)
                     assert name not in tmp, "Resource {} declared twice in {}".format(name,self.config.labeling_restrictions)
                     tmp[name] = dict(required=[], optional=[])
-                    for f in r['knownFeature']:
-                        assert f in self.config.obs['observations'], "Missing feature {} in data observations (known features for resource {})".format(f,name)
-                        tmp[name]['required'].append(f)
-                    #print("HERE", list(self.config.obs['observations'].keys()))
-                    for f in r['possibleFeature']:
-                        assert f in self.config.obs['observations'], "Missing feature {} in data observations (possible features for resource {})".format(f,name)
-                        tmp[name]['optional'].append(f)
-                self.config.labeling_restrictions = tmp
+
+                    assert 'like' in r or 'knownFeature' in r, "Missing data field 'knownFeature' for resource {} declared in {}".format(name,self.config.labeling_restrictions)
+                    assert 'like' in r or 'possibleFeature' in r, "Missing data field 'knownFeature' for resource {} declared in {}".format(name,self.config.labeling_restrictions)
+                    if 'knownFeature' in r:
+                        for f in r['knownFeature']:
+                            assert f in self.config.obs['observations'], "Missing feature {} in data observations (known features for resource {})".format(f,name)
+                            tmp[name]['required'].append(f)
+                    if 'possibleFeature' in r:
+                        for f in r['possibleFeature']:
+                            assert f in self.config.obs['observations'], "Missing feature {} in data observations (possible features for resource {})".format(f,name)
+                            tmp[name]['optional'].append(f)
+
+                for r in restrictions:
+                    name = r['resourceName']
+                    if 'like' in r:
+                        tmp[name] = tmp[r['like']]
+
+            self.config.labeling_restrictions = tmp
 
     def generate_labeling_and_schedule(self, nworkers=1, debug=False):
         return LabelingResults(run_tabu_labeling(self.config, constraints=self.constraints, nworkers=nworkers, debug=debug))
