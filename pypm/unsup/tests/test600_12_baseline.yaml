@@ -13,6 +13,8 @@ results:
       a1: 5.0
       a2: 12.0
     separation:
+      dummy a1: 0
+      dummy a2: 0
       rA: 0.875
       rB: 0.875
       rC: 0.76
@@ -34,10 +36,10 @@ results:
       first: 8
       last: 14
   solver_statistics:
-    evaluations: 100
-    iterations: 35
+    evaluations: 111
+    iterations: 41
     stall count: 25
-    unique solutions: 91
+    unique solutions: 88
 solver:
   model:
     name: GSF-ED

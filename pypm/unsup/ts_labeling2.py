@@ -95,7 +95,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
                 continue
             if len(self.labeling_restrictions[i]['optional']) == 0:
                 continue
-            j = random.choice(list(point[i].keys()))
+            j = random.choice(list(self.labeling_restrictions[i]['optional']))
             nhbr = copy.deepcopy(point)
             nhbr[i][j] = 1 - nhbr[i][j]
             yield nhbr, (i,j,point[i][j]), None
