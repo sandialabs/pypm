@@ -13,7 +13,43 @@ def label_data(*, feature_label_csvfile, process_yamlfile, obs_csvfile, labeled_
     assert os.path.exists(obs_csvfile), "Cannot find CSV file: {}".format(obs_csvfile)
     #
     tmp = pd.read_csv(feature_label_csvfile, dtype=str).to_dict()
-    labels = {tmp['Feature'][k]:tmp['Resource'][k] for k in tmp['Feature']}
+    # labels = {tmp['Feature'][k]:tmp['Resource'][k] for k in tmp['Feature']}
+    process = load_process(process_yamlfile, dirname=dirname)
+    obs_df = pd.read_csv(obs_csvfile)
+    T = len(obs_df["DateTime"])
+    df = pd.DataFrame(columns=["DateTime"] + list(sorted(name for name in process.resources)))
+    df["DateTime"] = obs_df["DateTime"]
+    for resource in process.resources:
+        df[resource] = [0] * T
+    print("")
+
+    for k in tmp["Feature"]:
+        resource = tmp["Resources"][k]
+        for in range(T):
+            df[resource].iloc[i] = max(df[resource][i], obs_df[tmp["Feature"][k]][i])
+    print(df.head())
+    df.set_index("DateTime")
+    print("")
+    print("Number of features in data:      {}".format(len(obs_df.columns) - 1))
+    print("Number of resources in process:  {}".format(len(process.resources))
+    print("Number of resources in labeled data: {}".format(len(df.columns) - 1)))
+
+    print("Writing file:", labeled_obs_csvfile)
+    df.to_csv(labeled_obs_csvfile, index=False)
+
+
+def label_data2(*, feature_label_csvfile, process_yamlfile, obs_csvfile, labeled_obs_csvfile="labeled_obs.csv", dirname=None):
+    #
+    # Load data
+    #
+    assert os.path.exists(feature_label_csvfile, "Cannot find CSV file: {}".format(feature_label_csvfile))
+    assert os.path.exists(process_yamlfile, "Cannot find YAML file: {}".format(process_yamlfile))
+    assert os.path.exists(obs_csvfile, "Cannot find CSV file: {}".format(obs_csvfile))
+    # 
+    tmp = pd.read_csv(feature_label_csvfile, dtype=str).to_dict()
+    labels = (tmp["Feature"][k]:tmp["Resource"][k] for k in tmp["Feature"])
+
+    
     process = load_process(process_yamlfile, dirname=dirname)
     obs_df = pd.read_csv(obs_csvfile)
     T = len(obs_df['DateTime'])
