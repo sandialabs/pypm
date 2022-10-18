@@ -103,9 +103,14 @@ def label_data(
     print("")
 
     for k in tmp["Feature"]:
-        resource = tmp["Resources"][k]
+        resource = tmp["Resource"][k]
+        #print("HERE",k,resource)
+        #print("A", tmp["Feature"][k])
+        #print("B", obs_df[ tmp["Feature"][k] ][0])
         for i in range(T):
-            df[resource].iloc[i] = max(df[resource][i], obs_df[tmp["Feature"][k]][i])
+            oldval = df[resource][i]
+            newval = obs_df[ tmp["Feature"][k] ][i]
+            df[resource].iloc[i] = max(oldval, newval)
     print(df.head())
     df.set_index("DateTime")
     print("")
