@@ -49,7 +49,7 @@ class SupervisedMIP(object):
         self.config = Munch()
         self.constraints = []
         self.objective = Munch(goal="total_match_score")
-        self.solver_options = Munch(name="glpk", show_solver_output=None)
+        self.solver_options = Munch(name=None, show_solver_output=None)
 
     def load_config(self, yamlfile, index=0):
         self.config = load_config(datafile=yamlfile, verbose=PYPM.options.verbose, quiet=PYPM.options.quiet, index=0)
@@ -72,7 +72,7 @@ class SupervisedMIP(object):
                     return None
         else:
             self.config.model = self.model
-        if not hasattr(self.config, 'solver'):
+        if self.solver_options.name is not None:
             self.config.solver = self.solver_options.name
         if self.solver_options.show_solver_output is not None:
             self.config.tee = self.solver_options.show_solver_output
