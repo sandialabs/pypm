@@ -209,11 +209,11 @@ def new_perform_optimization(*, M, solver, options, tee, debug):
         results = opt.solve(M.M, tee=tee)
     if tee:
         print("-- Solver Output Ends --")
-    if results.solver.termination_condition not in {tc.optimal, tc.locallyOptimal, tc.feasible}:
-        return None
     if debug:           #pragma:nocover
         M.M.pprint()
         M.M.display()
+    if results.solver.termination_condition not in {tc.optimal, tc.locallyOptimal, tc.feasible}:
+        return None
     return M.summarize()
 
 
