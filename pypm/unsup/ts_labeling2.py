@@ -120,17 +120,27 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         #
         # Execute the mip
         #
+        #self.mip_sup.config.verbose=True
+        #self.mip_sup.config.quiet=False
+        #self.mip_sup.config.tee=True
+        #self.mip_sup.config.debug=True
         results = self.mip_sup.generate_schedule()
         #
-        # Cache results
+        # This is a hack to handle the case where the MIP solver failed.
+        # TODO: add more diagnostics here
+        # 
+        if results['results'][0] is None:
+            results['results'][0] = {'goals':{'total_separation':999}}
+            #print("ERROR")
+            #pprint.pprint(point)
+            #print(len(point))
+            #pprint.pprint(self.mip_sup.config.obs)
+            #import sys
+            #sys.exit(1)
+        #
+        # Cache point and results, and return the total_separation statistic
         #
         self.results[point] = point, results
-        # 
-        if False and self.options.verbose:
-            print(results['results'][0]['goals']['separation'])
-            for k in observations:
-                print(k, observations[k])
-        #
         return - results['results'][0]['goals']['total_separation']
 
 
