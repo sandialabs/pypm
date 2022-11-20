@@ -16,118 +16,23 @@ import pyomo.environ as pe
 from pyomo.opt import TerminationCondition as tc
 
 
-def get_nonzero_variables(M):
-    ans = {}
-    for v in M.component_objects(pe.Var, active=True):
-        ans[v.name] = {}
-        for index in v:
-            if pe.value(v[index]) > 1e-7:
-                ans[v.name][index] = pe.value(v[index])
-    return ans
-
-
-def summarize_alignment(v, model, pm, timesteps=None):
-    ans = {}
-    if model in ["model1", "model2"]:
-        a = v["a"]
-        for key, val in a.items():
-            j, t = key
-            if not j in ans:
-                ans[j] = {"first": t, "last": t}
-            else:
-                if t < ans[j]["first"]:
-                    ans[j]["first"] = t
-                if t > ans[j]["last"]:
-                    ans[j]["last"] = t
-    elif model in ["model3", "model4"]:
-        x = v["x"]
-        y = v["y"]
-        for key, val in x.items():
-            if val < 1 - 1e-7:
-                continue
-            j, t = key
-            ans[j] = {"first": t}
-        for key, val in y.items():
-            if val < 1 - 1e-7:
-                continue
-            j, t = key
-            ans[j]["last"] = t
-    elif model in ["model5", "model6"]:
-        z = v["z"]
-        for key, val in z.items():
-            if val < 1 - 1e-7:
-                continue
-            j, t = key
-            if j in ans:
-                continue
-            ans[j] = {"first": t, "last": None}
-        w = v["w"]
-        for key, val in w.items():
-            if val < 1 - 1e-7:
-                continue
-            j, t = key
-            if j in ans:
-                if ans[j]["last"] is None:
-                    ans[j]["last"] = t
-    elif model in [
-        "model7",
-        "model8",
-        "model10",
-        "model11",
-        "model12",
-        "model13",
-        "model14",
-    ]:
-        ans = {j: {"post": True} for j in pm}
-        z = v["z"]
-        for key, val in z.items():
-            j, t = key
-            if val < 1 - 1e-7:
-                continue
-            if j in ans and "post" not in ans[j]:
-                continue
-            if t == -1:
-                ans[j] = {"pre": True}
-                continue
-            ans[j] = {"first": t, "last": -1}
-        a = v["a"]
-        for key, val in a.items():
-            j, t = key
-            if "pre" in ans[j] or "post" in ans[j]:
-                continue
-            if t > ans[j]["last"]:
-                ans[j]["last"] = t
-    return ans
-
-
-def load_observations(data, timesteps, dirname, index, count_data, strict=False):
+def load_observations(*, data, dirname, index, count_data, strict=False):
     observations_ = {}
     header = []
     if type(data) is list:
         observations = data[index]["observations"]
-        if type(observations) is list:
-            for filename in observations:
-                fname = filename if dirname is None else join(dirname, filename)
-                if fname.endswith(".csv"):
-                    df = pd.read_csv(fname)
-                    observations_.update(df.to_dict(orient="list"))
-                elif fname.endswith(".yaml"):
-                    with open(fname, "r") as INPUT:
-                        observations_ = yaml.safe_load(INPUT)
-            dt = None
-        else:
-            assert (
-                type(observations) is dict
-            ), "Expected observations to be a dictionary or a list of CSV files"
-            for key in observations:
-                ntimesteps = len(observations[key])
-                break
-            dt = {
-                i: str(
-                    datetime.datetime(year=2020, month=1, day=i // 24 + 1, hour=i % 24)
-                )
-                for i in range(ntimesteps)
-            }
+        assert (
+            type(observations) is dict
+        ), "Expected observations to be a dictionary or a list of CSV files"
+        for key in observations:
+            ntimesteps = len(observations[key])
+            break
+        dt = {
+            i: str(
+                datetime.datetime(year=2020, month=1, day=i // 24 + 1, hour=i % 24)
+            )
+            for i in range(ntimesteps)
+        }
         observations_ = observations
     else:
         fname = data["filename"]
@@ -138,7 +43,7 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
             df = pd.read_csv(fname)
             observations_ = df.to_dict(orient="list")
             header = list(df.columns)
-        else:
+        else:                                           # pragma: no cover
             raise "Unknown file format"
         dt = observations_.get(index, None)
         if not dt is None:
@@ -165,14 +70,14 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
         if key in count_data:
             for row in range(len(observations_[key])):
                 val = observations_[key][row]
-                if val < 0:
+                if val < 0:                                                                     # pragma: no cover
                     print(
                         "WARNING: invalid observation value {} (col={}, row={}). Moving value to 0.".format(
                             val, key, row
                         )
                     )
                     observations_[key][row] = 0
-                elif type(val) is float and not val.is_integer():
+                elif type(val) is float and not val.is_integer():                               # pragma: no cover
                     print(
                         "WARNING: invalid observation value {} (col={}, row={}). Moving value to {}.".format(
                             val, key, row, int(val)
@@ -184,7 +89,7 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
                 val = observations_[key][row]
                 # print(key,row,val)
                 if val < 0 or val > 1:
-                    if strict:
+                    if strict:                                                                  # pragma: no cover
                         print(
                             "ERROR: invalid observation value {} (col={}, row={}). Must be in the interval [0,1].".format(
                                 val, key, row
@@ -192,14 +97,14 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
                         )
                         sys.exit(1)
                     else:
-                        if val < 0:
+                        if val < 0:                                                             # pragma: no cover
                             print(
                                 "WARNING: invalid observation value {} (col={}, row={}). Moving value to 0.".format(
                                     val, key, row
                                 )
                             )
                             observations_[key][row] = 0
-                        if val > 1:
+                        if val > 1:                                                             # pragma: no cover
                             print(
                                 "WARNING: invalid observation value {} (col={}, row={}). Moving value to 1.".format(
                                     val, key, row
@@ -209,53 +114,26 @@ def load_observations(data, timesteps, dirname, index, count_data, strict=False)
     #
     # Get the value of 'timesteps'
     #
+    # NOTE: we are ignoring the value of 'timesteps'
+    #
     for key in observations_:
-        if timesteps is None:
-            timesteps = len(observations_[key])
-        elif len(observations_[key]) < timesteps:
-            timesteps = len(observations_[key])
-            print(
-                "WARNING: limiting analysis to {} because there are only observations for that many time steps".format(
-                    timesteps
-                )
-            )
+        timesteps = len(observations_[key])
+        break
 
     return Munch(
         observations=observations_, header=header, timesteps=timesteps, datetime=dt
     )
 
 
-def perform_optimization(*, M, model, solver, options, tee, debug, obs, pm):
+def perform_optimization(*, M, solver, options, tee, debug):
     opt = pe.SolverFactory(solver)
-    if tee:
-        print("-- Solver Output Begins --")
-    if options:
-        results = opt.solve(M, options=options, tee=tee)
-    else:
-        results = opt.solve(M, tee=tee)
-    if tee:
-        print("-- Solver Output Ends --")
-    if results.solver.termination_condition not in {
-        tc.optimal,
-        tc.locallyOptimal,
-        tc.feasible,
-    }:
-        return None
-    if debug:  # pragma:nocover
-        M.pprint()
-        M.display()
-    return summarize(model=model, M=M, obs=obs, pm=pm)
-
-
-def new_perform_optimization(*, M, solver, options, tee, debug):
-    opt = pe.SolverFactory(solver)
-    if tee:
+    if tee:                                                                                     # pragma: no cover
         print("-- Solver Output Begins --")
     if options:
         results = opt.solve(M.M, options=options, tee=tee)
     else:
         results = opt.solve(M.M, tee=tee)
-    if tee:
+    if tee:                                                                                     # pragma: no cover
         print("-- Solver Output Ends --")
     if debug:  # pragma:nocover
         M.M.pprint()
@@ -267,96 +145,6 @@ def new_perform_optimization(*, M, solver, options, tee, debug):
     }:
         return None
     return M.summarize()
-
-
-def fracval(num, denom):
-    if denom != 0:
-        return num / denom
-    return 0
-
-
-def summarize(*, model, M, pm, obs):
-    #
-    # Summarize optimization results
-    #
-    variables = variables = get_nonzero_variables(M)
-    alignment = summarize_alignment(variables, model, pm, timesteps=obs.timesteps)
-    results = dict(
-        objective=pe.value(M.objective),
-        variables=variables,
-        schedule=alignment,
-        goals=dict(),
-    )
-    #
-    if not obs.datetime is None:
-        datetime_alignment = {key: {} for key in alignment}
-        lastv = max(v for v in obs.datetime)
-        for key, value in alignment.items():
-            for k, v in value.items():
-                if k == "pre":
-                    datetime_alignment[key][k] = obs.datetime[0]
-                elif k == "post":
-                    datetime_alignment[key][k] = obs.datetime[lastv]
-                else:
-                    datetime_alignment[key][k] = obs.datetime[v]
-            if "last" in datetime_alignment[key] and v + 1 in obs.datetime:
-                datetime_alignment[key]["stop"] = obs.datetime[v + 1]
-        results["datetime_schedule"] = datetime_alignment
-    #
-    if hasattr(M, "activity_length"):
-        results["goals"]["separation"] = {}
-        for i in M.activity_length:
-            if alignment[i].get("pre", False) or alignment[i].get("post", False):
-                results["goals"]["separation"][i] = 0
-            else:
-                activity = fracval(
-                    pe.value(M.weighted_activity_length[i]),
-                    pe.value(M.activity_length[i]),
-                )
-                nonactivity = fracval(
-                    pe.value(M.weighted_nonactivity_length[i]),
-                    pe.value(M.nonactivity_length[i]),
-                )
-                results["goals"]["separation"][i] = max(0, activity - nonactivity)
-        results["goals"]["total_separation"] = sum(
-            val for val in results["goals"]["separation"].values()
-        )
-    #
-    if "o" in variables:
-        results["goals"]["match"] = {}
-        for activity, value in variables["o"].items():
-            results["goals"]["match"][activity] = value
-        results["goals"]["total_match"] = sum(
-            val for val in results["goals"]["match"].values()
-        )
-    #
-    return results
-
-
-def runmip_from_datafile(
-    *,
-    datafile=None,
-    data=None,
-    index=0,
-    model=None,
-    tee=None,
-    solver=None,
-    dirname=None,
-    debug=False,
-    verbose=None
-):
-    configdata = load_config(
-        datafile=datafile,
-        data=data,
-        index=index,
-        tee=tee,
-        model=model,
-        solver=solver,
-        dirname=dirname,
-        debug=debug,
-        verbose=verbose,
-    )
-    return runmip(configdata)
 
 
 def load_config(
@@ -386,7 +174,7 @@ def load_config(
     quiet = options.get("quiet", False) if quiet is None else quiet
     if verbose:
         quiet = False
-    if quiet:
+    if quiet:                                                                                   # pragma: no cover
         verbose = False
     model = options.get("model", None) if model is None else model
     solver = options.get("solver", "glpk") if solver is None else solver
@@ -403,10 +191,10 @@ def load_config(
             labeling_restrictions = os.path.join(dirname, labeling_restrictions)
 
     obs = load_observations(
-        data["data"], options.get("timesteps", None), dirname, index, count_data
+        data=data["data"], dirname=dirname, index=index, count_data=count_data
     )
 
-    if model in ["model1", "model3", "model5", "model7", "model11", "model13"]:
+    if model in ["model11", "GSF", "model13", "GSF-ED", "GSF-makespan", "XSF"]:
         #
         # For supervised matching, we can confirm that the observations
         # have the right labels
@@ -444,18 +232,24 @@ def runmip(config, constraints=[]):
     if not config.quiet:
         print("Creating model")
     M = create_model(config.model)
-    if M is None:
-        print("ERROR: using deprecated model \""+config.model+"\".  Use the old_runmip() function.")
+    if M is None:                                                                               # pragma: no cover
+        print(
+            'ERROR: using deprecated model "'
+            + config.model
+            + '".  Use the old_runmip() function.'
+        )
         sys.exit(0)
 
     M(config, constraints=constraints)
 
-    if config.savefile:
+    #
+    # Save the optimization formulation.  This is used for
+    # debugging.
+    #
+    if config.savefile:                                                                         # pragma: no cover
         if not config.quiet:
             print("Writing file:", config.savefile)
         M.M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
-        # M.pprint()
-        # M.display()
         return dict()
 
     #
@@ -481,7 +275,7 @@ def runmip(config, constraints=[]):
         #
         if not config.quiet:
             print("Optimizing model")
-        results = new_perform_optimization(
+        results = perform_optimization(
             M=M,
             solver=config.solver,
             options=config.solver_options,
