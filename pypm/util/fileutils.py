@@ -3,6 +3,7 @@
 import inspect
 import os
 
+
 def this_file(stack_offset=1):
     """
     Returns the file name for the module that calls this function.
@@ -29,7 +30,7 @@ def this_file(stack_offset=1):
         callerFrame = callerFrame.f_back
         stack_offset -= 1
     frameName = callerFrame.f_code.co_filename
-    if frameName and frameName[0] == '<' and frameName[-1] == '>':
+    if frameName and frameName[0] == "<" and frameName[-1] == ">":
         return frameName
     return os.path.abspath(inspect.getfile(callerFrame))
 

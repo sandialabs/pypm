@@ -6,7 +6,7 @@ currdir = this_file_dir()
 
 
 def test_pm_simple_string():
-    data="""
+    data = """
 resources:
   rA:
   rB:
@@ -35,43 +35,44 @@ activities:
 
     assert len(pm) == 2
 
-    assert pm['a1']['id'] == 0
-    assert pm['a1']['name'] == 'a1'
-    assert pm['a1']['resources'] == {'rB':1, 'rC':1}
-    assert pm['a1']['dependencies'] == []
-    assert pm[0]['id'] == 0
-    assert pm.id('a1') == 0
+    assert pm["a1"]["id"] == 0
+    assert pm["a1"]["name"] == "a1"
+    assert pm["a1"]["resources"] == {"rB": 1, "rC": 1}
+    assert pm["a1"]["dependencies"] == []
+    assert pm[0]["id"] == 0
+    assert pm.id("a1") == 0
 
-    assert pm['a2']['id'] == 1
-    assert pm['a2']['name'] == 'a2'
-    assert pm['a2']['resources'] == {}
-    assert pm['a2']['dependencies'] == ['a1']
-    assert pm[1]['id'] == 1
-    assert pm.id('a2') == 1
+    assert pm["a2"]["id"] == 1
+    assert pm["a2"]["name"] == "a2"
+    assert pm["a2"]["resources"] == {}
+    assert pm["a2"]["dependencies"] == ["a1"]
+    assert pm[1]["id"] == 1
+    assert pm.id("a2") == 1
 
 
 def test_pm_simple_file():
-    filename="example1.yaml"
+    filename = "example1.yaml"
     pm = load_process(filename=filename, dirname=currdir)
 
     assert len(pm) == 2
 
-    assert pm['a1']['id'] == 0
-    assert pm['a1']['name'] == 'a1'
-    assert pm['a1']['resources'] == {'rB':1, 'rC':1}
-    assert pm['a1']['dependencies'] == []
-    assert pm[0]['id'] == 0
-    assert pm.id('a1') == 0
+    assert pm["a1"]["id"] == 0
+    assert pm["a1"]["name"] == "a1"
+    assert pm["a1"]["resources"] == {"rB": 1, "rC": 1}
+    assert pm["a1"]["dependencies"] == []
+    assert pm[0]["id"] == 0
+    assert pm.id("a1") == 0
 
-    assert pm['a2']['id'] == 1
-    assert pm['a2']['name'] == 'a2'
-    assert pm['a2']['resources'] == {}
-    assert pm['a2']['dependencies'] == ['a1']
-    assert pm[1]['id'] == 1
-    assert pm.id('a2') == 1
+    assert pm["a2"]["id"] == 1
+    assert pm["a2"]["name"] == "a2"
+    assert pm["a2"]["resources"] == {}
+    assert pm["a2"]["dependencies"] == ["a1"]
+    assert pm[1]["id"] == 1
+    assert pm.id("a2") == 1
+
 
 def test_error_bad1():
-    data="""
+    data = """
 resources:
   rA:
   rB:
@@ -99,14 +100,15 @@ activities:
     pm = load_process(data=data)
 
     with pytest.raises(KeyError):
-        pm['a3']
+        pm["a3"]
     with pytest.raises(KeyError):
         pm[2]
     with pytest.raises(KeyError):
-        pm['a1']['bad']
+        pm["a1"]["bad"]
+
 
 def test_error_bad3():
-    data="""
+    data = """
 bad_resources:
   rA:
   rB:
@@ -126,8 +128,9 @@ activities:
     with pytest.raises(AssertionError):
         pm = load_process(data=data)
 
+
 def test_error_bad4():
-    data="""
+    data = """
 resources:
   rA:
   rB:
@@ -148,8 +151,9 @@ activities:
     with pytest.raises(AssertionError):
         pm = load_process(data=data)
 
+
 def test_error_bad5():
-    data="""
+    data = """
 resources:
   rA:
   rB:
@@ -169,4 +173,3 @@ activities:
     # Bad resources specification.  Must be a list
     with pytest.raises(AssertionError):
         pm = load_process(data=data)
-

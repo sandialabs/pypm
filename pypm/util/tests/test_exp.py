@@ -9,9 +9,9 @@ currdir = this_file_dir()
 
 def test_ex1a():
     """
-        a1 -> a2
+    a1 -> a2
     """
-    process="""
+    process = """
 resources:
   rA:
   rB:
@@ -46,9 +46,10 @@ timesteps: 30
 """
 
     results = runsim(config=config, process=process)
-    output = yaml.dump(results, default_flow_style=None) 
-    assert output == \
-"""_options:
+    output = yaml.dump(results, default_flow_style=None)
+    assert (
+        output
+        == """_options:
   comments: []
   config: null
   model: model3
@@ -70,16 +71,22 @@ data:
   seed: 0
   trial: 0
 """
+    )
+
 
 # TODO - Weaken equality test to ignore the config and process full pathname
 def test_ex1b():
     """
-        a1 -> a2
+    a1 -> a2
     """
-    results = runsim(configfile=os.path.join(currdir,'sim1.yaml'), processfile=os.path.join(currdir,'example2.yaml'))
-    output = yaml.dump(results, default_flow_style=None) 
-    assert output == \
-"""_options:
+    results = runsim(
+        configfile=os.path.join(currdir, "sim1.yaml"),
+        processfile=os.path.join(currdir, "example2.yaml"),
+    )
+    output = yaml.dump(results, default_flow_style=None)
+    assert (
+        output
+        == """_options:
   comments: []
   config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim1.yaml
   model: model3
@@ -101,18 +108,25 @@ data:
   seed: 0
   trial: 0
 """
+    )
 
 
 # TODO - Weaken equality test to ignore the config and process full pathname
 def test_ex1c():
     """
-        a1 -> a2
+    a1 -> a2
     """
-    outputfile = os.path.join(currdir,'test_ex1c.yaml')
-    results = runsim(configfile=os.path.join(currdir,'sim2.yaml'), processfile=os.path.join(currdir,'example2.yaml'), supervised=False, outputfile=outputfile)
-    output = yaml.dump(results, default_flow_style=None) 
-    assert output == \
-"""_options:
+    outputfile = os.path.join(currdir, "test_ex1c.yaml")
+    results = runsim(
+        configfile=os.path.join(currdir, "sim2.yaml"),
+        processfile=os.path.join(currdir, "example2.yaml"),
+        supervised=False,
+        outputfile=outputfile,
+    )
+    output = yaml.dump(results, default_flow_style=None)
+    assert (
+        output
+        == """_options:
   comments: []
   config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim2.yaml
   model: model4
@@ -135,5 +149,6 @@ data:
   seed: 0
   trial: 0
 """
-    assert os.path.exists( outputfile )
+    )
+    assert os.path.exists(outputfile)
     os.remove(outputfile)

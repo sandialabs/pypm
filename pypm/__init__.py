@@ -21,9 +21,10 @@ Version: %s
 """
 
 from pypm._version import __version__
+
 __doc__ = __doc__ % __version__
 
-__all__ = ('__version__')
+__all__ = "__version__"
 
 from . import api
 from . import util
