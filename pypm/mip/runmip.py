@@ -11,7 +11,7 @@ import pandas as pd
 from os.path import join
 import os.path
 from pypm.util.load import load_process
-from pypm.mip.newmodels import create_model
+from pypm.mip.models import create_model
 import pyomo.environ as pe
 from pyomo.opt import TerminationCondition as tc
 
