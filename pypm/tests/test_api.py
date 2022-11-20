@@ -30,7 +30,9 @@ def run(testname, retval=True):
         )
         os.remove("results.yaml")
     #
-    if os.path.exists("baseline.lp"):
+    # If the test writes an LP file, then compare it against a baseline LP file
+    #
+    if os.path.exists("baseline.lp"):                                   # pragma: no cover
         tmp = pyutilib.misc.compare_file("results.lp", "baseline.lp")
         assert tmp[0] == False, "Files differ:  diff {} {}".format(
             "results.lp", "baseline.lp"
