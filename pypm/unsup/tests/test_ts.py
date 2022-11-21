@@ -1,11 +1,11 @@
 import math
 import random
-from pypm.unsup.tabu_search import CachedTabuSearch
+from pypm.unsup.tabu_search import CachedTabuSearch, TabuSearchProblem
 
 
-class Search(CachedTabuSearch):
+class LabelSearchProblem(TabuSearchProblem):
     def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
-        CachedTabuSearch.__init__(self)
+        TabuSearchProblem.__init__(self)
         if pm is not None:
             self.pm = pm
             self.nresources = len(pm.resources)
@@ -13,8 +13,6 @@ class Search(CachedTabuSearch):
         else:
             self.nresources = nresources
             self.nfeatures = nfeatures
-        #
-        self.tabu_tenure = round(0.25 * self.nfeatures) + 1
 
     def initial_solution(self):
         # Each feature is randomly labeled as a resource
@@ -41,15 +39,62 @@ class Search(CachedTabuSearch):
             yield tuple(nhbr), (i, rorder[(j + 1) % self.nresources]), None
 
     def compute_solution_value(self, point):
+        # This is a dummy value used to test this searcher
         return sum((i + 1) * (1 + math.sin(i / 10.0)) for i in point)
 
 
-def test_ts():
+class LabelSearch(CachedTabuSearch):
+    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+        CachedTabuSearch.__init__(self)
+        self.problem = LabelSearchProblem(
+            pm=pm, data=data, nresources=nresources, nfeatures=nfeatures
+        )
+
+
+def test_ts_first_improving():
     random.seed(39483098)
-    ls = Search(nresources=6, nfeatures=7)
+    ls = LabelSearch(nresources=6, nfeatures=7)
     ls.max_iterations = 100
-    ls.tabu_tenure = 4
+    ls.options.tabu_tenure = 4
+    #ls.options.verbose=True
+    #ls.options.quiet=False
     x, f = ls.run()
 
     assert f == 7.0
     assert x == (0, 0, 0, 0, 0, 0, 0)
+    assert len(ls.cache) == 264
+
+def test_ts_best_improving():
+    random.seed(39483098)
+    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls.max_iterations = 100
+    ls.options.tabu_tenure = 4
+    ls.options.search_strategy = "best_improving"
+    #ls.options.verbose=True
+    #ls.options.quiet=False
+    x, f = ls.run()
+
+    assert f == 7.0
+    assert x == (0, 0, 0, 0, 0, 0, 0)
+    assert len(ls.cache) == 392
+
+if __name__ == "__main__":      # pragma: no cover
+    random.seed(39483098)
+    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls.options.max_iterations = 100
+    ls.options.tabu_tenure = 4
+    #ls.options.verbose=True
+    #ls.options.quiet=False
+    ls.run()
+    print(len(ls.cache))
+
+    random.seed(39483098)
+    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls.options.max_iterations = 100
+    ls.options.tabu_tenure = 4
+    ls.options.search_strategy = "best_improving"
+    #ls.options.verbose=True
+    #ls.options.quiet=False
+    ls.run()
+    print(len(ls.cache))
+
