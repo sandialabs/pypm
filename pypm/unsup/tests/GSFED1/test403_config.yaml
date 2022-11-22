@@ -1,9 +1,10 @@
 _options:
   comments: 
-    - Mimicing test1 with delay before a1 and before a2
+    - Mimicing test1 with delay before a1
   search_strategy: tabu
-  process: test5_config.yaml
+  process: test403_config.yaml
   solver: glpk
+  label_representation: feature_label
   tee: false
   timesteps: 30
   combine_features: true
@@ -18,7 +19,7 @@ activities:
 - name: a1
   dependencies:
   duration:
-    max_hours: 5
+    max_hours: 7
     min_hours: 5
   resources:
     rB:
@@ -35,11 +36,11 @@ activities:
 
 data:
 - ground_truth:
-    a1: {start: 7, stop: 11}
-    a2: {start: 15, stop: 19}
+    a1: {start: 5, stop: 11}
+    a2: {start: 13, stop: 17}
   observations:
     rb: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
     rc: [0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    ra: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0]
+    ra: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

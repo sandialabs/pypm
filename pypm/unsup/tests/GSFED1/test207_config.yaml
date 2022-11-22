@@ -4,6 +4,7 @@ _options:
   search_strategy: tabu
   process: test207_config.yaml
   solver: glpk
+  label_representation: feature_label
   tee: false
   timesteps: 30
 

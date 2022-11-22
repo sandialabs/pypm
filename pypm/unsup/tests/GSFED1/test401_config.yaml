@@ -3,8 +3,9 @@ _options:
     - Mimicing example1_sim1_model3_sup
     - Activity 2 isn't scheduled because there are no observations
   search_strategy: tabu
-  process: test1_config.yaml
+  process: test401_config.yaml
   solver: glpk
+  label_representation: feature_label
   tee: false
   timesteps: 30
   combine_features: true

@@ -5,6 +5,7 @@ _options:
   verbose: false
   process: test105_config.yaml
   solver: glpk
+  label_representation: feature_label
   tee: false
   timesteps: 30
   combine_features: true

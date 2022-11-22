@@ -37,13 +37,6 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
 @pytest.mark.parametrize(
     "tname",
     [
-        "test1",
-        "test2",
-        "test3",
-        "test4",
-        "test5",
-        "test6",
-        "test7",
         "test100",
         "test101",
         "test103",
@@ -51,7 +44,8 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
         "test105",
         "test106",
         "test107",
-        "test200",
+
+        "test200",      # test100 without combined features
         "test201",
         "test202",
         "test203",
@@ -59,9 +53,19 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
         "test205",
         "test206",
         "test207",
-        "test300",
+
+        "test300",      # test100 with "always-on" features
         "test301",
-        "test501",
+
+        "test401",
+        "test402",
+        "test403",
+        "test404",
+        "test405",
+        "test406",
+        "test407",
+
+        "test501",      # Extending test401
     ],
 )
 def test_GSFED1(tname):
@@ -70,7 +74,37 @@ def test_GSFED1(tname):
 @pytest.mark.parametrize(
     "tname",
     [
-        "test600",
+        "test100",
+        "test101",
+        "test103",
+        "test104",
+        "test105",
+        "test106",
+        "test107",
+
+        "test200",      # test100 without combined features
+        "test201",
+        "test202",
+        "test203",
+        "test204",
+        "test205",
+        "test206",
+        "test207",
+
+        "test300",      # test100 with "always-on" features
+        "test301",
+
+        "test401",
+        "test402",
+        "test403",
+        "test404",
+        "test405",
+        "test406",
+        "test407",
+
+        "test501",      # Extending test401
+
+        "test600",      # With labeling restrictions
     ],
 )
 def test_GSFED2(tname):

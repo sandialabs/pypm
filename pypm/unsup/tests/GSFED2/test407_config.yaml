@@ -2,8 +2,9 @@ _options:
   comments: 
     - Mimicing example1_sim1_model3_sup
   search_strategy: tabu
-  process: test7_config.yaml
+  process: test407_config.yaml
   solver: glpk
+  label_representation: resource_feature_list
   tee: false
   timesteps: 30
   combine_features: true

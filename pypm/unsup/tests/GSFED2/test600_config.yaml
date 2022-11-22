@@ -6,6 +6,7 @@ _options:
   solver: glpk
   tee: true
   timesteps: 30
+  label_representation: resource_feature_list
   labeling_restrictions: test600_resources.yaml 
 
 resources:

@@ -2,12 +2,12 @@ _options:
   comments: 
     - Mimicing test1 with delay before a1 and before a2
   search_strategy: tabu
-  process: test6_config.yaml
+  process: test404_config.yaml
   solver: glpk
+  label_representation: resource_feature_list
   tee: false
   timesteps: 30
   combine_features: true
-  #max_delay: 2
 
 resources:
   rA:
@@ -19,8 +19,8 @@ activities:
 - name: a1
   dependencies:
   duration:
-    max_hours: 7
-    min_hours: 7
+    max_hours: 10
+    min_hours: 5
   resources:
     rB:
     rC:
