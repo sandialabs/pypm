@@ -1,0 +1,46 @@
+_options:
+  comments: 
+    - confirming that last activity is included if it's short enough
+  search_strategy: tabu
+  verbose: false
+  process: test105_12.yaml
+  solver: glpk
+  tee: false
+  timesteps: 30
+  combine_features: true
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a1: {start: 19, stop: 23}
+    a2: {start: 24, stop: 29}
+  observations:
+    ra: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1]
+    rb: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,1,1,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0

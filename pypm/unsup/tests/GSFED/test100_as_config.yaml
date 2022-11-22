@@ -1,0 +1,44 @@
+_options:
+  comments: 
+    - testing behavior when only second activity matches
+  search_strategy: tabu
+  process: test100_12.yaml
+  solver: glpk
+  tee: true
+  timesteps: 30
+  combine_features: true
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a2: {start: 6, stop: 10}
+  observations:
+    ra: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0
