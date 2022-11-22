@@ -1,12 +1,9 @@
 #
-# Generic Tabu Search Solver
+# A Generic Tabu Search Solver
 #
 import abc
-from munch import Munch
 import time
-import random
-import math
-import ray
+from munch import Munch
 
 
 class TabuSearchProblem(object):
@@ -22,52 +19,52 @@ class TabuSearchProblem(object):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def moves(self, point, value):
+    def moves(self, solution, value):
         #
         # Returns a generator that iteratively yields tuples with values:
         # (neighbor, move used to generate the neighbor, value of the neighbor (or None))
         #
         pass  # pragma: no cover
 
-    def compute_solution_value(self, point):
+    @abc.abstractmethod
+    def compute_results(self, solution):
         #
-        # Compute the value of a solution
-        # Returns: float value for the solution
+        # Compute the value of a solution and other results
+        # Returns tuple: (float value for the solution, other results data)
         #
-        raise RuntimeError(
-            "Undefined method: TabuSearchProblem.compute_solution_value"
-        )  # pragma: no cover
+        pass  # pragma: no cover
 
-    def request_solution_value(self, point):
+    def request_results(self, solution):
         #
-        # Async request for the value of a solution
+        # Submit a request to compute results for a solution
         # Returns: None
         #
-        self._requests.add(point)
+        self._requests.add(solution)
 
-    def cancel_request(self, point):
+    def cancel_request(self, solution):
         #
-        # Cancel request for the value of a solution
+        # Cancel a request to compute results for a solution
         # Returns: None
         #
-        self._requests.discard(point)
+        self._requests.discard(solution)
 
     def cancel_all_requests(self):
         #
-        # Cancel all request for solution values
+        # Cancel all requests to compute results for solutions
         # Returns: None
         #
         self._requests.clear()
 
-    def get_solution_value(self):
+    def get_requested_results(self):
         #
-        # Get the value of a solution requested earlier
-        # Returns: list containing the point and the float value for the solution
+        # Get results associated with a solution requested earlier
+        # Returns: tuple containing the solution, the solution value, and other results
         #
         if len(self._requests) == 0:
             return None
-        point = self._requests.pop()
-        return self.compute_solution_value(point), point
+        solution = self._requests.pop()
+        value, results = self.compute_results(solution)
+        return solution, value, results
 
 
 class TabuSearch(object):
@@ -101,8 +98,8 @@ class TabuSearch(object):
         #
         self.search_strategies = {
             "first_improving": self.search_neighborhood_first_improving,
-            "best_improving": self.search_neighborhood_best_improving
-            }
+            "best_improving": self.search_neighborhood_best_improving,
+        }
         #
         # Mapping from solution to iteration count.  A move is ignored (i.e. it is
         # tabu), if (tabu_time[move] >= self.iteration) is true ... unless it
@@ -123,29 +120,32 @@ class TabuSearch(object):
         #
         return self.problem.initial_solution()
 
-    def moves(self, point, value):
+    def moves(self, solution, value):
         #
         # Returns a generator that iteratively yields tuples with values:
         # (neighbor, move used to generate the neighbor, value of the neighbor (or None))
         #
-        return self.problem.moves(point, value)
+        return self.problem.moves(solution, value)
 
-    def compute_solution_value(self, point):
+    def evaluate(self, solution):
         #
-        # Compute the value of a solution
-        # Returns: float value for the solution
+        # Compute the results for a solution, and return the value
         #
-        return self.problem.compute_solution_value(point)
+        return self.problem.compute_results(solution)[0]
 
-    def evaluate(self, point):
-        return self.compute_solution_value(point)
+    def request_results(self, solution):
+        #
+        # Submit a request to compute results for a solution
+        # Returns: None
+        #
+        self.problem.request_results(solution)
 
-    def request_solution_value(self, point):
+    def get_requested_results(self):
         #
-        # Returns None if no results are available
-        # Otherwise, returns a tuple (value, neighbor)
+        # Get results associated with a solution requested earlier
+        # Returns: tuple containing the solution, the solution value, and other results
         #
-        return self.problem.request_solution_value(point)
+        return self.problem.get_requested_results()
 
     def search_neighborhood(self, x, f_x, f_best):
         #
@@ -159,7 +159,7 @@ class TabuSearch(object):
 
     def search_neighborhood_first_improving(self, x, f_x, f_best):
         #
-        # This executes search in a greedy manner, updating 
+        # This executes search in a greedy manner, updating
         # the current iterate, x_, as soon as a neighbor with an improving value
         # is found.
         #
@@ -173,7 +173,10 @@ class TabuSearch(object):
                 value = self.evaluate(neighbor)
             if move in self.tabu_time and self.tabu_time[move] >= self.iteration:
                 if self.options.verbose:  # pragma: no cover
-                    print( "#   TABU Move: {}  TABU Time: {}".format( move, self.tabu_time[move])
+                    print(
+                        "#   TABU Move: {}  TABU Time: {}".format(
+                            move, self.tabu_time[move]
+                        )
                     )
                 # Aspiration criteria: Always keep best point found so far
                 if value < f_best:
@@ -190,7 +193,11 @@ class TabuSearch(object):
         if move_ is not None:
             self.tabu_time[move_] = self.iteration + self.options.tabu_tenure
             if self.options.verbose:  # pragma: no cover
-                print( "#   TABU UPDATE  X: {}  Move: {}  TABU Time: {}".format( x_, move, self.tabu_time[move_]))
+                print(
+                    "#   TABU UPDATE  X: {}  Move: {}  TABU Time: {}".format(
+                        x_, move, self.tabu_time[move_]
+                    )
+                )
 
         return x_, f_, tabu
 
@@ -209,7 +216,7 @@ class TabuSearch(object):
                 evaluated[neighbor] = move, value
             else:
                 queued[neighbor] = move
-                self.problem.request_solution_value(neighbor)
+                self.request_results(neighbor)
                 if self.options.debug:
                     print("Requested evaluation - Point {}".format(neighbor))
         #
@@ -224,9 +231,9 @@ class TabuSearch(object):
             #
             # Collect evaluated neighbors until there are no more
             #
-            results = self.get_solution_value()
-            while results is not None:
-                value, neighbor = results
+            solution_results = self.get_requested_results()
+            while solution_results is not None:
+                neighbor, value, results = solution_results
                 if self.options.debug:
                     print(
                         "Received Results - Point {}  Value {}".format(neighbor, value)
@@ -240,21 +247,13 @@ class TabuSearch(object):
                             neighbor, value
                         )
                     )
-                results = self.get_solution_value()
+                solution_results = self.get_requested_results()
             #
             # Sleep if we've collected all available evaluations and need to
             # wait for more
             #
-            if len(queued) > 0:                     # pragma: no cover
+            if len(queued) > 0:  # pragma: no cover
                 time.sleep(0.1)
-        #
-        if self.options.verbose:
-            for nhbr in sorted(evaluated.keys()):
-                print(
-                    "Evaluation Complete - Point {}  Value {}".format(
-                        nhbr, self.cache[nhbr]
-                    )
-                )
         #
         # Process the list of evaluated neighbors
         #
@@ -330,7 +329,7 @@ class TabuSearch(object):
             #
             self.end_iteration()
             self.iteration += 1
-            if self.options.verbose:    #pragma: no cover
+            if self.options.verbose:  # pragma: no cover
                 print(
                     "\n# Iteration: {}\n# Best objective: {}\n# Current Objective: {}\n# Current Point: {}\n".format(
                         self.iteration, f_best, f_x, x
@@ -345,10 +344,10 @@ class TabuSearch(object):
             #
             # Check termination
             #
-            if self.iteration >= self.options.max_iterations:   #pragma: no cover
+            if self.iteration >= self.options.max_iterations:  # pragma: no cover
                 print("# Termination at iteration {}".format(self.iteration))
                 break
-            if self.stall_count >= self.options.max_stall_count:    #pragma: no cover
+            if self.stall_count >= self.options.max_stall_count:  # pragma: no cover
                 print(
                     "# Termination after {} stalled iterations.".format(
                         self.stall_count
@@ -356,7 +355,21 @@ class TabuSearch(object):
                 )
                 break
 
+        self.finalize_run(x_best, f_best)
         return x_best, f_best
+
+    def finalize_run(self, x_best, f_best):
+        print("# Final Results")
+        print("#   Best Value: {}".format(f_best))
+        print("#   Best Solution: {}".format(x_best))
+
+        if self.options.verbose:  # pragma: no cover
+            print("\nFinal TABU Table")
+            if len(self.tabu_time) > 0:
+                for move in sorted(self.tabu_time.keys()):
+                    print(move, self.tabu_time[move])
+            else:
+                print("\n  None")
 
 
 class CachedTabuSearch(TabuSearch):
@@ -364,35 +377,46 @@ class CachedTabuSearch(TabuSearch):
     Avoid re-evaluating points that are have been previously evaluated.  All values are cached.
     """
 
-    def __init__(self):
-        TabuSearch.__init__(self)
+    def __init__(self, problem=None):
+        TabuSearch.__init__(self, problem=problem)
         self.cache = {}
+        self.results_ = {}
         self.num_moves_evaluated = 0
 
-    def moves(self, point, value):
-        for n, m, v in self.problem.moves(point, value):
+    def moves(self, solution, value):
+        for n, m, v in self.problem.moves(solution, value):
             self.num_moves_evaluated += 1
             if v is None:
                 v = self.cache.get(n, None)
                 if v is not None and self.options.verbose:  # pragma: no cover
-                    print("CACHED:    {}  VALUE: {}".format(point, value))
-            yield (n,m,v)
-            
-    def evaluate(self, point):
-        value = self.cache[point] = self.compute_solution_value(point)
+                    print("CACHED:    {}  VALUE: {}".format(solution, v))
+            yield (n, m, v)
+
+    def evaluate(self, solution):
+        value = self.cache.get(solution, None)
+        if value is not None:
+            if self.options.verbose:  # pragma: no cover
+                print("CACHED:    {}  VALUE: {}".format(solution, value))
+            return value
+
+        value, results = self.problem.compute_results(solution)
+        self.cache[solution] = value
+        self.results_[solution] = results
         if self.options.verbose:  # pragma: no cover
-            print("EVALUATED: {}  VALUE: {}".format(point, value))
+            print("EVALUATED: {}  VALUE: {}".format(solution, value))
         return value
 
-    def get_solution_value(self):
-        results = self.problem.get_solution_value()
-        if results is not None:
-            value, neighbor = results
-            self.cache[neighbor] = value
-        return results
+    def get_requested_results(self):
+        solution_results = self.problem.get_requested_results()
+        if solution_results is not None:
+            solution, value, results = solution_results
+            self.cache[solution] = value
+            self.results_[solution] = results
+            if self.options.verbose:  # pragma: no cover
+                print("EVALUATED: {}  VALUE: {}".format(solution, value))
+        return solution_results
 
-    def run(self):
-        x_best, f_best = TabuSearch.run(self)
+    def finalize_run(self, x_best, f_best):
         print("# Final Results")
         print("#   Best Value: {}".format(f_best))
         print("#   Best Solution: {}".format(x_best))
@@ -406,127 +430,10 @@ class CachedTabuSearch(TabuSearch):
                     print(move, self.tabu_time[move])
             else:
                 print("\n  None")
-        return x_best, f_best
 
-
-class AsyncTabuSearch(TabuSearch):
-    """
-    An asyncronous Tabu Search method that uses a cache, but asynchronously
-    evaluates all neighboring points.
-    """
-
-    def __init__(self):
-        TabuSearch.__init__(self)
-        self.cache = {}
-        self.num_moves_evaluated = 0
-
-    def generate_moves(self, x, f_x, f_best):
+    @property
+    def results(self):
         #
-        # Request evaluations for neighbors that we haven't evaluated
+        # Return the cached results
         #
-        evaluated = {}
-        queued = {}
-        for neighbor, move, value in self.moves(x, f_x):
-            if value is not None:
-                evaluated[neighbor] = move, value
-            else:
-                self.num_moves_evaluated += 1
-                value = self.cache.get(neighbor, None)
-                if value is None:
-                    queued[neighbor] = move
-                    self.problem.request_solution_value(neighbor)
-                    if self.options.debug:
-                        print("Requested evaluation - Point {}".format(neighbor))
-                else:
-                    evaluated[neighbor] = move, value
-        #
-        # Collect evaluated neighbors, and process them
-        #
-        curr = 0
-        while len(queued) > 0:
-            if self.options.debug or self.options.verbose:
-                if curr % 10 == 0:
-                    print("Waiting for {} queued evaluations".format(len(queued)))
-                curr += 1
-            #
-            # Collect evaluated neighbors until there are no more
-            #
-            while True:
-                results = self.problem.get_solution_value()
-                if results is None:
-                    time.sleep(1)
-                    break
-                value, neighbor = results
-                if self.options.debug:
-                    print(
-                        "Received Results - Point {}  Value {}".format(neighbor, value)
-                    )
-                    print("Queued: {}".format(list(sorted(queued.keys()))))
-                evaluated[neighbor] = queued[neighbor], value  # move, value
-                del queued[neighbor]
-                self.cache[neighbor] = value
-                if self.options.debug:
-                    print(
-                        "Evaluation Complete - Point {}  Value {}".format(
-                            neighbor, value
-                        )
-                    )
-
-        if self.options.verbose:
-            for nhbr in sorted(evaluated.keys()):
-                print(
-                    "Evaluation Complete - Point {}  Value {}".format(
-                        nhbr, self.cache[nhbr]
-                    )
-                )
-        #
-        # Process the list of evaluated neighbors
-        #
-        move_ = None
-        x_ = None
-        f_ = float("inf")
-        tabu = False
-        for neighbor in sorted(
-            evaluated.keys(), reverse=True
-        ):  # Create bias towards solutions with ignored features
-            move, value = evaluated[neighbor]
-            if move in self.tabu_time and self.tabu_time[move] >= self.iteration:
-                if self.options.verbose:
-                    print(
-                        "#   TABU Move: {}  TABU Time: {}".format(
-                            move, self.tabu_time[move]
-                        )
-                    )
-                # Aspiration criteria: Always keep best point found so far
-                if value < f_best:
-                    f_best = value
-                    move_, x_, f_ = move, neighbor, value
-                    tabu = True
-                    # break
-            elif value < f_x:
-                move_, x_, f_ = move, neighbor, value
-                tabu = False
-                # break
-            elif value < f_:
-                move_, x_, f_ = move, neighbor, value
-                tabu = False
-        #
-        # Update the tabu time for the best move, and return
-        #
-        if move_ is not None:
-            self.tabu_time[move_] = self.iteration + self.options.tabu_tenure
-        return x_, f_, tabu
-
-    def run(self):
-        x_best, f_best = TabuSearch.run(self)
-        print("# Final Results")
-        print("#   Best Value: {}".format(f_best))
-        print("#   Best Solution: {}".format(x_best))
-        print("#   Num Unique Solutions Evaluated: {}".format(len(self.cache)))
-        print("#   Num Solutions Evaluated: {}".format(self.num_moves_evaluated))
-
-        if self.options.verbose:
-            print("\nFinal TABU Table")
-            for move in sorted(self.tabu_time.keys()):
-                print(move, self.tabu_time[move])
-        return x_best, f_best
+        return self.results_
