@@ -1410,24 +1410,17 @@ class GSF_Makespan(Z_Repn_Model):
 
 
 def create_model(name):
-    if name == "model11":
-        return GSF_TotalMatchScore()
-    elif name == "GSF":
+    if name == "model11" or name == "GSF":
         return GSF_TotalMatchScore()
 
-    elif name == "model13":
+    elif name == "model13" or name == "GSF-ED":
         return GSFED_TotalMatchScore()
-    elif name == "GSF-ED":
-        return GSFED_TotalMatchScore()
+
     elif name == "GSF-makespan":
         return GSF_Makespan()
 
     elif name == "XSF":
         return XSF_TotalMatchScore()
 
-    elif name == "model12":
-        return UPM_TotalMatchScore()
-    elif name == "model14":
-        return UPM_TotalMatchScore()
-    elif name == "UPM":
+    elif name == "model12" or name == "model14" or name == "UPM":
         return UPM_TotalMatchScore()
