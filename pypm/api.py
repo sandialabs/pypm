@@ -18,6 +18,9 @@ class Results(object):
     def __setitem__(self, key, value):
         self.results[key] = value
 
+    def __delitem__(self, key):
+        del self.results[key]
+
     def write(self, yamlfile, verbose=False):
         if verbose:
             with open(yamlfile, "w") as OUTPUT:
