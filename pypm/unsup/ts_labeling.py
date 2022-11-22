@@ -7,7 +7,7 @@ import random
 from munch import Munch
 import ray
 import ray.util.queue
-from .tabu_search import CachedTabuSearch, TabuSearchProblem, AsyncTabuSearch
+from .tabu_search import CachedTabuSearch, TabuSearchProblem
 
 
 class PMLabelSearchProblem(TabuSearchProblem):
@@ -34,7 +34,6 @@ class PMLabelSearchProblem(TabuSearchProblem):
         #
         self.combine_features = self.config.options.get("combine_features", False)
         self.penalize_features = self.config.options.get("penalize_features", False)
-        self.results = {}
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
         #
@@ -46,7 +45,6 @@ class PMLabelSearchProblem(TabuSearchProblem):
         self.mip_sup.config = copy.deepcopy(config)
         self.mip_sup.config.search_strategy = "mip"
         self.mip_sup.config.model = config.options.get("tabu_model", "GSF-ED")
-        # print("HERE", self.mip_sup.config.model)
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         if constraints:
@@ -133,7 +131,7 @@ class PMLabelSearchProblem(TabuSearchProblem):
                             unique.add(move[0])
                             yield move
 
-    def compute_solution_value(self, point):
+    def compute_results(self, point):
         #
         # Create labeled observations
         #
@@ -142,7 +140,6 @@ class PMLabelSearchProblem(TabuSearchProblem):
         #
         observations = {k: [0] * self.config.obs.timesteps for k in self.resources}
         for index, i in enumerate(self.features):
-            # print("HERE",index,point[index],self.resources)
             k = self.resources[point[index]]
             if k == len(self.resources) - 1:
                 # The last category of resources is ignored
@@ -163,20 +160,14 @@ class PMLabelSearchProblem(TabuSearchProblem):
         #
         # Execute the mip
         #
-        # print("XXX",len(self.mip_sup.constraints))
         results = self.mip_sup.generate_schedule()
         #
-        # Cache results
+        # Cache representation of the current solution
         #
         point_ = {
             i: self.resources[point[index]] for index, i in enumerate(self.features)
         }
-        self.results[point] = point_, results
-        #
-        if False and self.options.verbose:
-            print(results["results"][0]["goals"]["separation"])
-            for k in observations:
-                print(k, observations[k])
+        results["point_"] = point_
         #
         if self.penalize_features:
             #
@@ -186,12 +177,33 @@ class PMLabelSearchProblem(TabuSearchProblem):
             for val in point:
                 if val == self.nresources - 1:
                     nignored += 1
-            return (
+            value = (
                 -results["results"][0]["goals"]["total_separation"]
                 - nignored / self.nfeatures
             )
         else:
-            return -results["results"][0]["goals"]["total_separation"]
+            value = -results["results"][0]["goals"]["total_separation"]
+
+        return value, results
+
+
+class PMLabelSearch(CachedTabuSearch):
+    def __init__(
+        self, *, config=None, nresources=None, nfeatures=None, constraints=None
+    ):
+        CachedTabuSearch.__init__(self)
+        self.problem = PMLabelSearchProblem(
+            config=config,
+            nresources=nresources,
+            nfeatures=nfeatures,
+            constraints=constraints,
+        )
+        #
+        self.options.verbose = config.options.get("verbose", False)
+        if "max_stall_count" in config.options:
+            self.options.max_stall_count = config.options.get("max_stall_count")
+        self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
+        #
 
 
 @ray.remote(num_cpus=1)
@@ -287,30 +299,8 @@ class ParallelPMLabelSearchProblem(TabuSearchProblem):
         return results[0]
 
 
-class PMLabelSearch(CachedTabuSearch):
-    def __init__(
-        self, *, config=None, nresources=None, nfeatures=None, constraints=None
-    ):
-        CachedTabuSearch.__init__(self)
-        self.problem = PMLabelSearchProblem(
-            config=config,
-            nresources=nresources,
-            nfeatures=nfeatures,
-            constraints=constraints,
-        )
-        #
-        self.options.verbose = config.options.get("verbose", False)
-        if "max_stall_count" in config.options:
-            self.options.max_stall_count = config.options.get("max_stall_count")
-        self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
-        #
-
-    @property
-    def results(self):
-        #
-        # Return the cached results, which are stored on self.problem
-        #
-        return self.problem.results
+class AsyncTabuSearch(object):
+    pass
 
 
 class ParallelPMLabelSearch(AsyncTabuSearch):
@@ -343,50 +333,3 @@ class ParallelPMLabelSearch(AsyncTabuSearch):
         # Return the cached results, which are stored on self.problem
         #
         return self.problem.results
-
-
-def run_tabu(config, constraints=[], nworkers=1, debug=False):
-    # print("YYY",len(constraints))
-    if nworkers == 1:
-        random.seed(config.seed)
-        ls = PMLabelSearch(config=config, constraints=constraints)
-    else:
-        ray.init(num_cpus=nworkers + 1)
-        ls = ParallelPMLabelSearch(
-            config=config, nworkers=nworkers, constraints=constraints
-        )
-        ls.options.debug = debug
-    ls.options.max_iterations = config.options.get("max_iterations", 100)
-    ls.options.tabu_tenure = config.options.get("tabu_tenure", 4)
-    x, f = ls.run()
-    #
-    # Setup results object
-    #
-    point_, results = ls.results[x]
-    results["solver"]["search_strategy"] = "tabu"
-    results["results"][0]["feature_label"] = point_
-    results["results"][0]["solver_statistics"] = {
-        "iterations": ls.iteration,
-        "stall count": ls.stall_count,
-        "unique solutions": len(ls.cache),
-        "evaluations": ls.num_moves_evaluated,
-    }
-    #
-    # Add feature separation scores and scores for combined features
-    #
-    separation = {f: 0 for f in config.obs["observations"]}
-    tmp = {}
-    for k, v in point_.items():
-        if v in tmp:
-            tmp[v].add(k)
-        else:
-            tmp[v] = set([k])
-    for k, v in tmp.items():
-        if len(v) > 1:
-            name = "max({})".format(",".join(sorted(v)))
-        else:
-            name = list(v)[0]
-        separation[name] = results["results"][0]["goals"]["separation"][k]
-    results["results"][0]["goals"]["separation"] = separation
-    #
-    return results.results

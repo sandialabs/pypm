@@ -10,7 +10,7 @@ import sys
 from munch import Munch
 import ray
 import ray.util.queue
-from .tabu_search import CachedTabuSearch, TabuSearchProblem, AsyncTabuSearch
+from .tabu_search import CachedTabuSearch, TabuSearchProblem
 
 
 class hdict(dict):
@@ -39,20 +39,24 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
     ):
         TabuSearchProblem.__init__(self)
         self.config = config
-        self.labeling_restrictions = labeling_restrictions
         #
         self.nresources = len(config.pm.resources)
         self.resources = list(sorted(k for k in self.config.pm.resources))
         self.nfeatures = len(config.obs["observations"])
         self.features = list(sorted(config.obs["observations"].keys()))
+        if labeling_restrictions is not None:
+            self.labeling_restrictions = labeling_restrictions
+        else:
+            self.labeling_restrictions = {
+                i: {"optional": self.features, "required": []} for i in self.resources
+            }
         #
         # Solution representations:
         #   Standard
-        #       x_ij = 1 if feature i is associted with resource j
+        #       x_ij = 1 if feature i is associated with resource j
         #       When multiple features are associated a resource, these features
         #           are combined with max()
         #
-        self.results = {}
         #
         # Setup MIP solver, using a clone of the config without observation data (config.obs)
         #
@@ -124,7 +128,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
             nhbr[i][j] = 1 - nhbr[i][j]
             yield nhbr, (i, j, point[i][j]), None
 
-    def compute_solution_value(self, point):
+    def compute_results(self, point):
         #
         # Create labeled observations
         #
@@ -156,6 +160,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         # self.mip_sup.config.tee=True
         # self.mip_sup.config.debug=True
         results = self.mip_sup.generate_schedule()
+        results["point_"] = point
         #
         # This is a hack to handle the case where the MIP solver failed.
         # TODO: add more diagnostics here
@@ -169,10 +174,35 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
             # import sys
             # sys.exit(1)
         #
-        # Cache point and results, and return the total_separation statistic
+        # Return the total_separation statistic and results object
         #
-        self.results[point] = point, results
-        return -results["results"][0]["goals"]["total_separation"]
+        value = -results["results"][0]["goals"]["total_separation"]
+        return value, results
+
+
+class PMLabelSearch_Restricted(CachedTabuSearch):
+    def __init__(
+        self,
+        *,
+        config=None,
+        nresources=None,
+        nfeatures=None,
+        constraints=None,
+        labeling_restrictions=None
+    ):
+        CachedTabuSearch.__init__(self)
+        self.problem = PMLabelSearchProblem_Restricted(
+            config=config,
+            nresources=nresources,
+            nfeatures=nfeatures,
+            constraints=constraints,
+            labeling_restrictions=labeling_restrictions,
+        )
+        #
+        self.options.verbose = config.options.get("verbose", False)
+        if "max_stall_count" in config.options:
+            self.options.max_stall_count = config.options.get("max_stall_count")
+        self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
 
 
 @ray.remote(num_cpus=1)
@@ -271,37 +301,8 @@ class ParallelPMLabelSearchProblem_Restricted(TabuSearchProblem):
         return results[0]
 
 
-class PMLabelSearch_Restricted(CachedTabuSearch):
-    def __init__(
-        self,
-        *,
-        config=None,
-        nresources=None,
-        nfeatures=None,
-        constraints=None,
-        labeling_restrictions=None
-    ):
-        CachedTabuSearch.__init__(self)
-        self.problem = PMLabelSearchProblem_Restricted(
-            config=config,
-            nresources=nresources,
-            nfeatures=nfeatures,
-            constraints=constraints,
-            labeling_restrictions=labeling_restrictions,
-        )
-        #
-        self.options.verbose = config.options.get("verbose", False)
-        if "max_stall_count" in config.options:
-            self.options.max_stall_count = config.options.get("max_stall_count")
-        self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
-        #
-
-    @property
-    def results(self):
-        #
-        # Return the cached results, which are stored on self.problem
-        #
-        return self.problem.results
+class AsyncTabuSearch(object):
+    pass
 
 
 class ParallelPMLabelSearch_Restricted(AsyncTabuSearch):
