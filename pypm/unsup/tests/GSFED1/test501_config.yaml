@@ -7,7 +7,6 @@ _options:
   solver: glpk
   tee: false
   timesteps: 30
-  combine_features: false
 
 resources:
   rA:
