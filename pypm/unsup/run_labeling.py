@@ -1,33 +1,43 @@
 #
 # Iteratively label data with TABU search
 #
-# import time
-# import copy
 import random
-
-# from munch import Munch
-import pprint
 import ray
 import ray.util.queue
 from .ts_labeling import PMLabelSearch, ParallelPMLabelSearch
 from .ts_labeling2 import PMLabelSearch_Restricted, ParallelPMLabelSearch_Restricted
 
 
+#
+# Run Tabu Search to generate a labeling of
+#
+# Note: the config.label_representation data must generally be defined.
+#
 def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
-    # print("YYY",len(constraints))
+    if config.labeling_restrictions:
+        assert config.label_representation == "resource_feature_list"
     if nworkers == 1:
+        #
+        # Serial Tabu Search
+        #
         random.seed(config.seed)
-        if config.labeling_restrictions:
+        if config.label_representation == "resource_feature_list":
             ls = PMLabelSearch_Restricted(
                 config=config,
                 constraints=constraints,
                 labeling_restrictions=config.labeling_restrictions,
             )
         else:
+            assert config.label_representation == "feature_label"
             ls = PMLabelSearch(config=config, constraints=constraints)
-    else:
+    else:  # pragma: no cover
+        #
+        # Parallel Tabu Search
+        #
+        # NOTE: pytest does not work properly with ray, so we ignore this branch while testing
+        #
         ray.init(num_cpus=nworkers + 1)
-        if config.labeling_restrictions:
+        if config.label_representation == "resource_feature_list":
             ls = ParallelPMLabelSearch_Restricted(
                 config=config,
                 nworkers=nworkers,
@@ -35,21 +45,25 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
                 labeling_restrictions=config.labeling_restrictions,
             )
         else:
+            assert config.label_representation == "feature_label"
             ls = ParallelPMLabelSearch(
                 config=config, nworkers=nworkers, constraints=constraints
             )
-        ls.options.debug = debug
+    ls.options.debug = debug
     ls.options.max_iterations = config.options.get("max_iterations", 100)
     ls.options.tabu_tenure = config.options.get("tabu_tenure", 4)
+    #
+    # Run Tabu Search
+    #
     x, f = ls.run()
     #
-    # Setup results object
+    # Augment the results object
     #
-    point_, results = ls.results[x]
-    # HERE
-    # pprint.pprint(results.results)
+    results = ls.results[x]
+    point_ = results["point_"]
+    del results["point_"]
     results["solver"]["search_strategy"] = "tabu"
-    if config.labeling_restrictions:
+    if config.label_representation == "resource_feature_list":
         results["results"][0]["resource_feature_list"] = {
             k: [j for j in point_[k] if point_[k][j]] for k in point_
         }
@@ -64,7 +78,7 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
     #
     # Add feature separation scores and scores for combined features
     #
-    if not config.labeling_restrictions:
+    if config.label_representation == "feature_label":
         separation = {f: 0 for f in config.obs["observations"]}
         tmp = {}
         for k, v in point_.items():
