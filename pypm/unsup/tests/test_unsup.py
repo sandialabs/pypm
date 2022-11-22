@@ -9,152 +9,69 @@ from pypm.api import PYPM
 currdir = this_file_dir()
 
 
-def run(testname, debug=False, verify=False, nworkers=1):
+def run(dirname, testname, debug=False, verify=False, nworkers=1):
     driver = PYPM.tabu_labeling()
-    driver.load_config(join(currdir, "{}.yaml".format(testname)))
+    driver.load_config(join(currdir, dirname, "{}_config.yaml".format(testname)))
     driver.config.debug = debug
     driver.config.tee = debug
     driver.config.datafile = None
-    assert testname.startswith(driver.config.process[:-5])
+    assert testname == driver.config.process[:-12]
 
     results = driver.generate_labeling_and_schedule(nworkers=nworkers)
 
-    outputfile = join(currdir, "{}_results.yaml".format(testname))
+    outputfile = join(currdir, dirname, "{}_results.yaml".format(testname))
     results.write(outputfile)
-    baselinefile = join(currdir, "{}_baseline.yaml".format(testname))
+    baselinefile = join(currdir, dirname, "{}_baseline.yaml".format(testname))
     tmp = pyutilib.misc.compare_file(outputfile, baselinefile, tolerance=1e-7)
     assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)
 
-    labelfile = join(currdir, "{}_results.csv".format(testname))
+    labelfile = join(currdir, dirname, "{}_results.csv".format(testname))
     results.write_labels(labelfile)
-    baselinefile = join(currdir, "{}_baseline.csv".format(testname))
+    baselinefile = join(currdir, dirname, "{}_baseline.csv".format(testname))
     tmp = pyutilib.misc.compare_file(labelfile, baselinefile, tolerance=1e-7)
     assert tmp[0] == False, "Files differ:  diff {} {}".format(labelfile, baselinefile)
     os.remove(labelfile)
 
 
-def test1_12():
-    run("test1_12")
+@pytest.mark.parametrize(
+    "tname",
+    [
+        "test1",
+        "test2",
+        "test3",
+        "test4",
+        "test5",
+        "test6",
+        "test7",
+        "test100",
+        "test101",
+        "test103",
+        "test104",
+        "test105",
+        "test106",
+        "test107",
+        "test200",
+        "test201",
+        "test202",
+        "test203",
+        "test204",
+        "test205",
+        "test206",
+        "test207",
+        "test300",
+        "test301",
+        "test501",
+    ],
+)
+def test_GSFED1(tname):
+    run("GSFED1", tname)
 
-
-def test2_12():
-    run("test2_12")
-
-
-def test3_12():
-    run("test3_12")
-
-
-def test4_12():
-    run("test4_12")
-
-
-def test5_12():
-    run("test5_12")
-
-
-def test6_12():
-    run("test6_12")
-
-
-def test7_12():
-    run("test7_12")
-
-
-def test100_12():
-    run("test100_12")
-
-
-def test101_12():
-    run("test101_12")
-
-
-#
-# This test works correctly, but the labeling may vary
-# with different solvers on different platforms.
-#
-# def test102_12():
-#    run('test102_12')
-
-
-def test103_12():
-    run("test103_12")
-
-
-def test104_12():
-    run("test104_12")
-
-
-def test105_12():
-    run("test105_12")
-
-
-def test106_12():
-    run("test106_12")
-
-
-def test107_12():
-    run("test107_12")
-
-
-def test200_12():
-    run("test200_12")
-
-
-def test201_12():
-    run("test201_12")
-
-
-#
-# This test works correctly, but the labeling may vary
-# with different solvers on different platforms.
-#
-# def test202_12():
-#    run('test202_12')
-
-
-def test203_12():
-    run("test203_12")
-
-
-def test204_12():
-    run("test204_12")
-
-
-def test205_12():
-    run("test205_12")
-
-
-def test206_12():
-    run("test206_12")
-
-
-def test207_12():
-    run("test207_12")
-
-
-def test300_12():
-    run("test300_12")
-
-
-def test301_12():
-    run("test301_12")
-
-
-#
-# WEH - This code fails for some reason, complaining that the 'pypm' package is not installed.
-#
-# def test407_12():
-#    run('test407_12', nworkers=3)
-
-
-def test501_12():
-    run("test501_12")
-
-
-#
-# Tests using labeling restrictions
-#
-def test600_12():
-    run("test600_12")
+@pytest.mark.parametrize(
+    "tname",
+    [
+        "test600",
+    ],
+)
+def test_GSFED2(tname):
+    run("GSFED2", tname)
