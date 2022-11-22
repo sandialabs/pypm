@@ -27,7 +27,7 @@ results:
     a2:
       post: true
   solver_statistics:
-    evaluations: 156
+    evaluations: 155
     iterations: 26
     stall count: 25
     unique solutions: 49

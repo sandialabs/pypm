@@ -36,7 +36,7 @@ results:
       first: 8
       last: 14
   solver_statistics:
-    evaluations: 111
+    evaluations: 110
     iterations: 41
     stall count: 25
     unique solutions: 88
