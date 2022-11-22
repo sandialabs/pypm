@@ -4,7 +4,7 @@ _options:
   search_strategy: tabu
   process: test103_config.yaml
   solver: glpk
-  tee: true
+  tee: false
   timesteps: 30
   combine_features: true
 

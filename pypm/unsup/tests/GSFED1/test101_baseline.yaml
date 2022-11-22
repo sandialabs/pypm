@@ -18,10 +18,10 @@ results:
       a2: 12.0
     separation:
       ra: 1.0
-      rb: 1.0
+      rb: 0.9583333333333334
       rc: 0.2
     total_match: 13.0
-    total_separation: 2.2
+    total_separation: 2.1583333333333337
   schedule:
     a1:
       first: 0
@@ -30,10 +30,10 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 150
-    iterations: 31
+    evaluations: 151
+    iterations: 30
     stall count: 25
-    unique solutions: 35
+    unique solutions: 38
 solver:
   model:
     name: GSF-ED

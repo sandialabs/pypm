@@ -4,7 +4,7 @@ _options:
   search_strategy: tabu
   process: test101_config.yaml
   solver: glpk
-  tee: true
+  tee: false
   timesteps: 30
   combine_features: true
 
@@ -38,7 +38,7 @@ data:
     a2: {start: 6, stop: 10}
   observations:
     ra: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
     rc: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0
