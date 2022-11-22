@@ -1,0 +1,43 @@
+_options:
+  comments: 
+    - Mimicing example1_sim1_model3_sup
+    - Activity 2 isn't scheduled because there are no observations
+  search_strategy: tabu
+  process: test1_config.yaml
+  solver: glpk
+  tee: true
+  timesteps: 30
+  combine_features: true
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 5
+  resources:
+    rB:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+
+data:
+- ground_truth:
+    a1: {start: 0, stop: 7}
+  observations:
+    rb: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0
