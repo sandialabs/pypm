@@ -224,7 +224,6 @@ class Worker(object):
         self.mip_sup.config = copy.deepcopy(self.problem.config)
         self.mip_sup.config.search_strategy = "mip"
         self.mip_sup.config.model = config.options.get("tabu_model", "GSF-ED")
-        print("HERE", self.mip_sup.config.model, len(config.constraints))
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         if config.constraints:
