@@ -5,10 +5,7 @@ _options:
   process: test100_config.yaml
   solver: glpk
   label_representation: resource_feature_list
-  tee: true
-  debug: true
-  verbose: true
-  quiet: false
+  tee: false
   timesteps: 30
   combine_features: true
 
