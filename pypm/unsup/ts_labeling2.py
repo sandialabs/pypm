@@ -15,16 +15,33 @@ from .tabu_search import CachedTabuSearch, TabuSearchProblem
 
 class hdict(dict):
     def __hash__(self):
-        return hash(json.dumps(self, sort_keys=True))
-
-    def __lt__(self, other):
-        return hash(self) < hash(other)
+        return hash((frozenset(self), frozenset(self.values())))
 
     def __le__(self, other):
-        return hash(self) <= hash(other)
+        for k in sorted(self.keys()):
+            v = self[k]
+            v_ = other[k]
+            if v > v_:
+                return False
+        return True
 
     def __eq__(self, other):
-        return hash(self) == hash(other)
+        for k in self.keys():
+            v = self[k]
+            v_ = other[k]
+            if v != v_:
+                return False
+        return True
+
+    def __lt__(self, other):
+        for k in sorted(self.keys()):
+            v = self[k]
+            v_ = other[k]
+            if v > v_:
+                return False
+            elif v < v_:
+                return True
+        return False
 
 
 class PMLabelSearchProblem_Restricted(TabuSearchProblem):
@@ -223,7 +240,6 @@ class Worker(object):
         self.mip_sup.config = copy.deepcopy(self.problem.config)
         self.mip_sup.config.search_strategy = "mip"
         self.mip_sup.config.model = config.options.get("tabu_model", "GSF-ED")
-        print("HERE", self.mip_sup.config.model, len(config.constraints))
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         if config.constraints:
