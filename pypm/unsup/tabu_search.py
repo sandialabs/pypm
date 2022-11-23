@@ -1,8 +1,10 @@
 #
 # A Generic Tabu Search Solver
 #
+import os
 import abc
 import time
+import json
 from munch import Munch
 
 
@@ -66,6 +68,14 @@ class TabuSearchProblem(object):
         value, results = self.compute_results(solution)
         return solution, value, results
 
+    def write_solution_to_file(self, iteration, point, value, filename):
+        #
+        # Write information about the current point to the specified file.
+        #
+        tmp = {"iteration": iteration, "value":value, "point":point}
+        with open(filename, 'w') as OUTPUT:
+            OUTPUT.write(json.dumps(tmp))
+
 
 class TabuSearch(object):
     def __init__(self, problem=None):
@@ -92,6 +102,11 @@ class TabuSearch(object):
         self.options.search_strategy = "first_improving"
         self.options.verbose = False
         self.options.debug = False
+        #
+        # If specified, then the iteration count is used to fill in this
+        # file name template.
+        #
+        self.options.checkpoint_file_template = None
         #
         self.iteration = 0
         self.stall_count = 0
@@ -146,6 +161,12 @@ class TabuSearch(object):
         # Returns: tuple containing the solution, the solution value, and other results
         #
         return self.problem.get_requested_results()
+
+    def write_solution_to_file(self, iteration, point, value, filename):
+        #
+        # Write information about the current point to the specified file.
+        #
+        self.problem.write_solution_to_file(iteration, point, value, filename)
 
     def search_neighborhood(self, x, f_x, f_best):
         #
@@ -309,13 +330,18 @@ class TabuSearch(object):
             #
             # Update the best point seen so far
             #
-            if tabu or f_nbhd < f_best:
+            if f_nbhd < f_best:
                 #
-                # Found a tabu point, or a point that improved on the globally best
+                # Found a point that improved on the globally best
                 #
                 x_best, f_best = x_nbhd, f_nbhd
                 x, f_x = x_nbhd, f_nbhd
                 self.stall_count = 0
+                #
+                # Write file with improving solution
+                #
+                if self.options.checkpoint_file_template:
+                    self.write_solution_to_file(self.iteration, x_best, f_best, self.options.checkpoint_file_template.format(self.iteration))
             else:
                 #
                 # Update the current point to the point generated

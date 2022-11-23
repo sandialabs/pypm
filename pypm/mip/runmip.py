@@ -211,6 +211,7 @@ def load_config(
         process=options["process"],
         count_data=count_data,
         labeling_restrictions=labeling_restrictions,
+        dirname=dirname,
     )
 
 

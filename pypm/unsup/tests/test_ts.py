@@ -1,6 +1,14 @@
+import json
+import glob
+import shutil
 import math
 import random
+import os
 from pypm.unsup.tabu_search import TabuSearch, CachedTabuSearch, TabuSearchProblem
+from pypm.util.fileutils import this_file_dir
+
+currdir = this_file_dir()
+
 
 
 class LabelSearchProblem(TabuSearchProblem):
@@ -113,6 +121,64 @@ def test_cachedts_best_improving():
     assert f == 7.0
     assert x == (0, 0, 0, 0, 0, 0, 0)
     assert len(ls.cache) == 392
+
+
+def test_ts_checkpoint():
+    random.seed(39483098)
+    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls.max_iterations = 100
+    ls.options.tabu_tenure = 4
+
+    checkpoint_dir = os.path.join(currdir, "checkpoints")
+    if os.path.exists(checkpoint_dir):
+        shutil.rmtree(checkpoint_dir)
+    os.mkdir(checkpoint_dir)
+    ls.options.checkpoint_file_template = os.path.join(checkpoint_dir, "point_{}.json")
+    # ls.options.verbose=True
+    # ls.options.quiet=False
+    x, f = ls.run()
+
+    values = {}
+    points = {}
+    for fname in glob.glob( os.path.join(checkpoint_dir, "*.json")):
+        with open(fname, "r") as INPUT:
+            data = json.load(INPUT)
+            values[data["iteration"]] = data["value"]
+            points[data["iteration"]] = data["point"]
+
+    values_baseline = {
+        0: 28.04632486871978,
+        16: 9.399333666587314,
+        1: 25.06391087536808,
+        21: 8.199666833293657,
+        22: 7.0,
+        2: 23.864244042074425,
+        3: 22.467902882982898,
+        4: 21.07156172389137,
+        5: 19.675220564799844,
+        6: 14.394675325559811,
+        7: 11.798667333174627,
+        8: 10.59900049988097,
+    }
+    points_baseline = {
+        0: [3, 0, 1, 2, 5, 2, 2],
+        16: [0, 0, 0, 1, 0, 1, 0],
+        1: [1, 0, 1, 2, 5, 2, 2],
+        21: [0, 0, 0, 1, 0, 0, 0],
+        22: [0, 0, 0, 0, 0, 0, 0],
+        2: [0, 0, 1, 2, 5, 2, 2],
+        3: [0, 0, 1, 2, 5, 1, 2],
+        4: [0, 0, 1, 1, 5, 1, 2],
+        5: [0, 0, 1, 1, 5, 1, 1],
+        6: [0, 0, 1, 1, 2, 1, 1],
+        7: [0, 0, 1, 1, 0, 1, 1],
+        8: [0, 0, 0, 1, 0, 1, 1],
+    }
+    assert values == values_baseline
+    assert points == points_baseline
+
+    if os.path.exists(checkpoint_dir):
+        shutil.rmtree(checkpoint_dir)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -1,6 +1,7 @@
 #
 # Iteratively label data with TABU search
 #
+import os
 import random
 import ray
 import ray.util.queue
@@ -54,6 +55,16 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
     ls.options.debug = debug
     ls.options.max_iterations = config.options.get("max_iterations", 100)
     ls.options.tabu_tenure = config.options.get("tabu_tenure", 4)
+    if 'cache_dir' in config.options:
+        if config.dirname:
+            cache_dir = os.path.join(config.dirname, config.options['cache_dir'])
+        else:
+            cache_dir = config.options['cache_dir']
+        try:
+            os.mkdir(cache_dir)
+        except FileExistsError:
+            pass
+        ls.options.checkpoint_file_template = os.path.join(cache_dir, "point_{}.json")
     #
     # Run Tabu Search
     #
