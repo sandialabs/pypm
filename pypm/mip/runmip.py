@@ -6,7 +6,7 @@ import yaml
 import pprint
 import csv
 import sys
-from munch import Munch
+from munch import Munch, munchify
 import pandas as pd
 from os.path import join
 import os.path
@@ -176,14 +176,13 @@ def load_config(
         verbose = False
     model = options.get("model", None) if model is None else model
     solver = options.get("solver", "glpk") if solver is None else solver
-    solver_options = options.get("solver_options", {})
+    solver_options = munchify(options.get("solver_options", {}))
     count_data = set(options.get("count_data", []))
     search_strategy = options.get("search_strategy", "mip")
 
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
     pm = load_process(options["process"], dirname=dirname)
-    label_representation = options.get("label_representation", None)
     labeling_restrictions = options.get("labeling_restrictions", None)
     if labeling_restrictions is not None:
         if os.path.exists(os.path.join(dirname, labeling_restrictions)):
@@ -192,18 +191,6 @@ def load_config(
     obs = load_observations(
         data=data["data"], dirname=dirname, index=index, count_data=count_data
     )
-
-    if model in ["model11", "GSF", "model13", "GSF-ED", "GSF-makespan", "XSF"]:
-        #
-        # For supervised matching, we can confirm that the observations
-        # have the right labels
-        #
-        tmp1 = set(obs.observations.keys())
-        tmp2 = set([name for name in pm.resources])
-        assert tmp1.issubset(tmp2), (
-            "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "
-            + str(tmp1 - tmp2)
-        )
 
     return Munch(
         savefile=savefile,
@@ -224,7 +211,6 @@ def load_config(
         process=options["process"],
         count_data=count_data,
         labeling_restrictions=labeling_restrictions,
-        label_representation=label_representation,
     )
 
 
@@ -239,7 +225,6 @@ def runmip(config, constraints=[]):
             + '".  Use the old_runmip() function.'
         )
         sys.exit(0)
-
     M(config, constraints=constraints)
 
     #
@@ -251,7 +236,6 @@ def runmip(config, constraints=[]):
             print("Writing file:", config.savefile)
         M.M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
         return dict()
-
     #
     # Setup results YAML data
     #
@@ -270,11 +254,11 @@ def runmip(config, constraints=[]):
     res["data"]["datetime"] = config.obs.datetime
 
     if config.search_strategy == "mip":
+        if not config.quiet:
+            print("Optimizing model")
         #
         # Perform optimization
         #
-        if not config.quiet:
-            print("Optimizing model")
         results = perform_optimization(
             M=M,
             solver=config.solver,
@@ -282,7 +266,6 @@ def runmip(config, constraints=[]):
             tee=config.tee,
             debug=config.debug,
         )
-
         #
         # Append results to YAML data
         #
