@@ -1,0 +1,47 @@
+_options:
+  comments: 
+    - confirming that first activity is not included if it's too long
+  search_strategy: tabu
+  process: test102_config.yaml
+  solver: glpk
+  model: XSF
+  label_representation: resource_feature_list
+  tee: false
+  timesteps: 30
+  combine_features: true
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a1: {pre: True}
+    a2: {start: 6, stop: 10}
+  observations:
+    ra: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0

@@ -122,6 +122,39 @@ def test_GSFED2(tname):
     "tname",
     [
         "test100",
+        "test101",
+        "test103",
+        "test104",
+        "test105",
+        "test106",
+        "test107",
+        "test200",  # test100 without combined features
+        "test201",
+        "test202",
+        "test203",
+        "test204",
+        "test205",
+        "test206",
+        "test207",
+        "test300",  # test100 with "always-on" features
+        "test301",
+        "test401",
+        "test402",
+        "test403",
+        "test404",
+        "test405",
+        "test406",
+        "test407",
+        "test501",  # Extending test401
+        "test600",  # With labeling restrictions
+        "test900",  # test100 with solver_strategy == best_improvement
+        "test901",
+        "test902",
+        "test903",
+        "test904",
+        "test905",
+        "test906",
+        "test907",
     ],
 )
 def test_XSF2(tname):
