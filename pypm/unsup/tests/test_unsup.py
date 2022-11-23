@@ -62,6 +62,14 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
         "test406",
         "test407",
         "test501",  # Extending test401
+        "test900",  # test100 with solver_strategy == best_improvement
+        "test901",
+        "test902",
+        "test903",
+        "test904",
+        "test905",
+        "test906",
+        "test907",
     ],
 )
 def test_GSFED1(tname):
@@ -97,7 +105,24 @@ def test_GSFED1(tname):
         "test407",
         "test501",  # Extending test401
         "test600",  # With labeling restrictions
+        "test900",  # test100 with solver_strategy == best_improvement
+        "test901",
+        "test902",
+        "test903",
+        "test904",
+        "test905",
+        "test906",
+        "test907",
     ],
 )
 def test_GSFED2(tname):
     run("GSFED2", tname)
+
+@pytest.mark.parametrize(
+    "tname",
+    [
+        "test100",
+    ],
+)
+def test_XSF2(tname):
+    run("XSF2", tname)
