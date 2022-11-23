@@ -146,7 +146,7 @@ class BaseModel(object):
         tmp1 = set(self.config.obs.observations.keys())
         tmp2 = set([name for name in self.config.pm.resources])
         assert tmp1.issubset(tmp2), (
-            "For supervised process matching, we expect the observations to have labels in the    process model.  The following are unknown resource labels: "
+            "For supervised process matching, we expect the observations to have labels in the process model.  The following are unknown resource labels: "
             + str(tmp1 - tmp2)
         )
 
