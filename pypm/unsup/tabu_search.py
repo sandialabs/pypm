@@ -8,7 +8,7 @@ from munch import Munch
 
 class TabuSearchProblem(object):
     def __init__(self):
-        self._requests = set()
+        self._requests = {}
 
     @abc.abstractmethod
     def initial_solution(self):
@@ -39,21 +39,21 @@ class TabuSearchProblem(object):
         # Submit a request to compute results for a solution
         # Returns: None
         #
-        self._requests.add(solution)
+        self._requests[solution] = 1
 
     def cancel_request(self, solution):
         #
         # Cancel a request to compute results for a solution
         # Returns: None
         #
-        self._requests.discard(solution)
+        del self._requests[solution]
 
     def cancel_all_requests(self):
         #
         # Cancel all requests to compute results for solutions
         # Returns: None
         #
-        self._requests.clear()
+        self._requests = {}
 
     def get_requested_results(self):
         #
@@ -62,7 +62,7 @@ class TabuSearchProblem(object):
         #
         if len(self._requests) == 0:
             return None
-        solution = self._requests.pop()
+        solution = self._requests.popitem()[0]
         value, results = self.compute_results(solution)
         return solution, value, results
 
@@ -413,7 +413,7 @@ class CachedTabuSearch(TabuSearch):
             self.cache[solution] = value
             self.results_[solution] = results
             if self.options.verbose:  # pragma: no cover
-                print("EVALUATED: {}  VALUE: {}".format(solution, value))
+                print("REQUEST EVALUATED: {}  VALUE: {}".format(solution, value))
         return solution_results
 
     def finalize_run(self, x_best, f_best):
