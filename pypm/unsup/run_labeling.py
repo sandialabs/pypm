@@ -2,11 +2,9 @@
 # Iteratively label data with TABU search
 #
 import os
-import random
 import ray
-import ray.util.queue
-from .ts_labeling import PMLabelSearch, ParallelPMLabelSearch
-from .ts_labeling2 import PMLabelSearch_Restricted, ParallelPMLabelSearch_Restricted
+from .ts_labeling import PMLabelSearch
+from .ts_labeling2 import PMLabelSearch_Restricted
 
 
 #
@@ -18,39 +16,18 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
     label_representation = config.options["label_representation"]
     if config.labeling_restrictions:
         assert label_representation == "resource_feature_list"
-    if nworkers == 1:
-        #
-        # Serial Tabu Search
-        #
-        random.seed(config.seed)
-        if label_representation == "resource_feature_list":
-            ls = PMLabelSearch_Restricted(
-                config=config,
-                constraints=constraints,
-                labeling_restrictions=config.labeling_restrictions,
-            )
-        else:
-            assert label_representation == "feature_label"
-            ls = PMLabelSearch(config=config, constraints=constraints)
-    else:  # pragma: no cover
-        #
-        # Parallel Tabu Search
-        #
-        # NOTE: pytest does not work properly with ray, so we ignore this branch while testing
-        #
+    if nworkers > 1:
         ray.init(num_cpus=nworkers + 1)
-        if label_representation == "resource_feature_list":
-            ls = ParallelPMLabelSearch_Restricted(
-                config=config,
-                nworkers=nworkers,
-                constraints=constraints,
-                labeling_restrictions=config.labeling_restrictions,
-            )
-        else:
-            assert label_representation == "feature_label"
-            ls = ParallelPMLabelSearch(
-                config=config, nworkers=nworkers, constraints=constraints
-            )
+    if label_representation == "resource_feature_list":
+        ls = PMLabelSearch_Restricted(
+            config=config,
+            constraints=constraints,
+            labeling_restrictions=config.labeling_restrictions, 
+            nworkers=nworkers
+        )
+    else:
+        assert label_representation == "feature_label"
+        ls = PMLabelSearch(config=config, constraints=constraints, nworkers=nworkers)
     ls.options.search_strategy = config.options.get("local_search", "first_improving")
     ls.options.debug = debug
     ls.options.max_iterations = config.options.get("max_iterations", 100)

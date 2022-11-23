@@ -5,14 +5,17 @@ import math
 import random
 import os
 from pypm.unsup.tabu_search import TabuSearch, CachedTabuSearch, TabuSearchProblem
+import ray
+from pypm.unsup.parallel_tabu_search import RayTabuSearchProblem
 from pypm.util.fileutils import this_file_dir
 
 currdir = this_file_dir()
 
 
 class LabelSearchProblem(TabuSearchProblem):
-    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None, seed=None):
         TabuSearchProblem.__init__(self)
+        self.rng = random.Random(seed)
         if pm is not None:
             self.pm = pm
             self.nresources = len(pm.resources)
@@ -25,15 +28,15 @@ class LabelSearchProblem(TabuSearchProblem):
         # Each feature is randomly labeled as a resource
         point = []
         for i in range(self.nfeatures):
-            point.append(random.randint(0, self.nresources - 1))
+            point.append(self.rng.randint(0, self.nresources - 1))
         return tuple(point)
 
     def moves(self, point, _):
         # Generate moves in the neighborhood
         rorder = list(range(self.nresources))
-        random.shuffle(rorder)
+        self.rng.shuffle(rorder)
         features = list(range(self.nfeatures))
-        random.shuffle(features)
+        self.rng.shuffle(features)
 
         for i in features:
             j = rorder.index(point[i])
@@ -46,29 +49,36 @@ class LabelSearchProblem(TabuSearchProblem):
             yield tuple(nhbr), (i, rorder[(j + 1) % self.nresources]), None
 
     def compute_results(self, point):
-        # This is a dummy value used to test this searcher
+        # This objective is minimized
         return sum((i + 1) * (1 + math.sin(i / 10.0)) for i in point), None
 
 
 class LabelSearch(TabuSearch):
-    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+    def __init__(
+        self, pm=None, data=None, nresources=None, nfeatures=None, nworkers=1, seed=None
+    ):
         TabuSearch.__init__(self)
         self.problem = LabelSearchProblem(
-            pm=pm, data=data, nresources=nresources, nfeatures=nfeatures
+            pm=pm, data=data, nresources=nresources, nfeatures=nfeatures, seed=seed
         )
+        if nworkers > 1:
+            self.problem = RayTabuSearchProblem(problem=self.problem, nworkers=nworkers)
 
 
 class CachedLabelSearch(CachedTabuSearch):
-    def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
+    def __init__(
+        self, pm=None, data=None, nresources=None, nfeatures=None, nworkers=1, seed=None
+    ):
         CachedTabuSearch.__init__(self)
         self.problem = LabelSearchProblem(
-            pm=pm, data=data, nresources=nresources, nfeatures=nfeatures
+            pm=pm, data=data, nresources=nresources, nfeatures=nfeatures, seed=seed
         )
+        if nworkers > 1:
+            self.problem = RayTabuSearchProblem(problem=self.problem, nworkers=nworkers)
 
 
 def test_ts_first_improving():
-    random.seed(39483098)
-    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls = LabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.max_iterations = 100
     ls.options.tabu_tenure = 4
     # ls.options.verbose=True
@@ -80,8 +90,7 @@ def test_ts_first_improving():
 
 
 def test_ts_best_improving():
-    random.seed(39483098)
-    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls = LabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.max_iterations = 100
     ls.options.tabu_tenure = 4
     ls.options.search_strategy = "best_improving"
@@ -94,8 +103,7 @@ def test_ts_best_improving():
 
 
 def test_cachedts_first_improving():
-    random.seed(39483098)
-    ls = CachedLabelSearch(nresources=6, nfeatures=7)
+    ls = CachedLabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.max_iterations = 100
     ls.options.tabu_tenure = 4
     # ls.options.verbose=True
@@ -108,8 +116,7 @@ def test_cachedts_first_improving():
 
 
 def test_cachedts_best_improving():
-    random.seed(39483098)
-    ls = CachedLabelSearch(nresources=6, nfeatures=7)
+    ls = CachedLabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.max_iterations = 100
     ls.options.tabu_tenure = 4
     ls.options.search_strategy = "best_improving"
@@ -123,8 +130,7 @@ def test_cachedts_best_improving():
 
 
 def test_ts_checkpoint():
-    random.seed(39483098)
-    ls = LabelSearch(nresources=6, nfeatures=7)
+    ls = LabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.max_iterations = 100
     ls.options.tabu_tenure = 4
 
@@ -181,36 +187,12 @@ def test_ts_checkpoint():
 
 
 if __name__ == "__main__":  # pragma: no cover
-    random.seed(39483098)
-    ls = LabelSearch(nresources=6, nfeatures=7)
-    ls.options.max_iterations = 100
-    ls.options.tabu_tenure = 4
-    # ls.options.verbose=True
-    # ls.options.quiet=False
-    ls.run()
-
-    random.seed(39483098)
-    ls = LabelSearch(nresources=6, nfeatures=7)
+    ray.init(num_cpus=4)
+    ls = CachedLabelSearch(nresources=6, nfeatures=7, seed=39483098, nworkers=3)
+    # ls = CachedLabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.options.max_iterations = 100
     ls.options.tabu_tenure = 4
     ls.options.search_strategy = "best_improving"
     # ls.options.verbose=True
     # ls.options.quiet=False
     ls.run()
-
-    random.seed(39483098)
-    ls = CachedLabelSearch(nresources=6, nfeatures=7)
-    ls.max_iterations = 100
-    ls.options.tabu_tenure = 4
-    # ls.options.verbose=True
-    # ls.options.quiet=False
-    x, f = ls.run()
-
-    random.seed(39483098)
-    ls = CachedLabelSearch(nresources=6, nfeatures=7)
-    ls.max_iterations = 100
-    ls.options.tabu_tenure = 4
-    ls.options.search_strategy = "best_improving"
-    # ls.options.verbose=True
-    # ls.options.quiet=False
-    x, f = ls.run()

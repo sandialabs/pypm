@@ -6,6 +6,7 @@ import abc
 import time
 import json
 from munch import Munch
+#import pprint
 
 
 class TabuSearchProblem(object):
@@ -420,21 +421,23 @@ class CachedTabuSearch(TabuSearch):
             if v is None:
                 v = self.cache.get(n, None)
                 if v is not None and self.options.verbose:  # pragma: no cover
-                    print("CACHED:    {}  VALUE: {}".format(solution, v))
+                    print("CACHED MOVE:     {}  VALUE: {}".format(n, v))
             yield (n, m, v)
 
     def evaluate(self, solution):
         value = self.cache.get(solution, None)
         if value is not None:
             if self.options.verbose:  # pragma: no cover
-                print("CACHED:    {}  VALUE: {}".format(solution, value))
+                print("CACHED SOLUTION: {}  VALUE: {}".format(solution, value))
             return value
 
         value, results = self.problem.compute_results(solution)
         self.cache[solution] = value
         self.results_[solution] = results
+        #print("HERE - CACHING",solution,value)
         if self.options.verbose:  # pragma: no cover
-            print("EVALUATED: {}  VALUE: {}".format(solution, value))
+            print("EVALUATED:       {}  VALUE: {}".format(solution, value))
+        #pprint.pprint(self.cache)
         return value
 
     def get_requested_results(self):

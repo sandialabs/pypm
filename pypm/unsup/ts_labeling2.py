@@ -8,9 +8,8 @@ import json
 import pprint
 import sys
 from munch import Munch
-import ray
-import ray.util.queue
 from .tabu_search import CachedTabuSearch, TabuSearchProblem
+from .parallel_tabu_search import RayTabuSearchProblem
 
 
 class hdict(dict):
@@ -55,6 +54,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         labeling_restrictions=None
     ):
         TabuSearchProblem.__init__(self)
+        self.rng = random.Random(config.seed)
         self.config = config
         #
         self.nresources = len(config.pm.resources)
@@ -116,7 +116,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
                 continue
             point[i] = hdict()
             for j in self.labeling_restrictions[i]["optional"]:
-                point[i][j] = random.randint(0, 1)
+                point[i][j] = self.rng.randint(0, 1)
                 ctr += 1
             mv += len(self.labeling_restrictions[i]["optional"]) > 0
             for j in self.labeling_restrictions[i]["required"]:
@@ -133,14 +133,14 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         # Generate moves in the neighborhood
         #
         rorder = list(range(self.nresources))
-        random.shuffle(rorder)
+        self.rng.shuffle(rorder)
         for i_ in rorder:
             i = self.resources[i_]
             if i not in self.labeling_restrictions:
                 continue
             if len(self.labeling_restrictions[i]["optional"]) == 0:
                 continue
-            j = random.choice(list(self.labeling_restrictions[i]["optional"]))
+            j = self.rng.choice(list(self.labeling_restrictions[i]["optional"]))
             nhbr = copy.deepcopy(point)
             nhbr[i][j] = 1 - nhbr[i][j]
             yield nhbr, (i, j, point[i][j]), None
@@ -205,7 +205,8 @@ class PMLabelSearch_Restricted(CachedTabuSearch):
         nresources=None,
         nfeatures=None,
         constraints=None,
-        labeling_restrictions=None
+        labeling_restrictions=None,
+        nworkers=1
     ):
         CachedTabuSearch.__init__(self)
         self.problem = PMLabelSearchProblem_Restricted(
@@ -215,141 +216,11 @@ class PMLabelSearch_Restricted(CachedTabuSearch):
             constraints=constraints,
             labeling_restrictions=labeling_restrictions,
         )
+        if nworkers > 1:
+            self.problem = RayTabuSearchProblem(self.problem, nworkers=nworkers)
         #
         self.options.verbose = config.options.get("verbose", False)
         if "max_stall_count" in config.options:
             self.options.max_stall_count = config.options.get("max_stall_count")
         self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
 
-
-@ray.remote(num_cpus=1)
-class Worker(object):
-    def __init__(self, config):
-        random.seed(config.seed)
-        self.problem = PMLabelSearchProblem_Restricted(
-            config=config, constraints=config.constraints
-        )
-        #
-        # Setup MIP solver, using a clone of the config without observation data (config.obs)
-        #
-        from pypm.api import PYPM
-
-        self.mip_sup = PYPM.supervised_mip()
-        obs = self.problem.config.obs
-        self.problem.config.obs = None
-        self.mip_sup.config = copy.deepcopy(self.problem.config)
-        self.mip_sup.config.search_strategy = "mip"
-        self.mip_sup.config.model = config.options.get("tabu_model", "GSF-ED")
-        self.mip_sup.config.verbose = False
-        self.mip_sup.config.quiet = True
-        if config.constraints:
-            self.mip_sup.add_constraints(config.constraints)
-        self.problem.config.obs = obs
-
-    def run(self, point_queue, results_queue):
-        # NOTE - Need to rework this to allow overlapping communication
-        #           and computation
-        while True:
-            point = point_queue.get(block=True)
-            results_queue.put(self.compute_solution_value(point))
-
-    def compute_solution_value(self, point):
-        value = self.problem.compute_solution_value(point)
-        point_, results = self.problem.results[point]
-        return value, point, results, point_
-
-
-class ParallelPMLabelSearchProblem_Restricted(TabuSearchProblem):
-    def __init__(
-        self,
-        config=None,
-        nresources=None,
-        nfeatures=None,
-        nworkers=None,
-        constraints=None,
-        labeling_restrictions=None,
-    ):
-        TabuSearchProblem.__init__(self)
-        self.problem = PMLabelSearchProblem_Restricted(
-            config=config, labeling_restrictions=labeling_restrictions
-        )
-        #
-        self.nfeatures = self.problem.nfeatures
-        self.nresources = self.problem.nresources
-        #
-        nworkers = ray.available_resources() if nworkers is None else nworkers
-        config.constraints = constraints
-        config_obj = ray.put(config)
-        self.workers = [Worker.remote(config_obj) for i in range(nworkers)]
-        self.requests_queue = ray.util.queue.Queue()
-        self.results_queue = ray.util.queue.Queue()
-        for w in self.workers:
-            w.run.remote(self.requests_queue, self.results_queue)
-        #
-        self.results = {}
-        random.seed(config.seed)
-
-    def initial_solution(self):
-        return self.problem.initial_solution()
-
-    def moves(self, point, _):
-        return self.problem.moves(point, None)
-
-    def request_solution_value(self, point):
-        # print("request_solution_value")
-        return self.requests_queue.put_nowait(point)
-
-    def get_solution_value(self):
-        # print("get_solution_value")
-        if self.results_queue.empty():
-            return None
-        value, point, results, point_ = self.results_queue.get()
-        self.results[point] = point_, results
-        return value, point
-
-    def compute_solution_value(self, point):
-        # print("compute_solution_value")
-        self.request_solution_value(point)
-        results = self.get_solution_value()
-        while results == None:
-            time.sleep(0.1)
-            results = self.get_solution_value()
-        return results[0]
-
-
-class AsyncTabuSearch(object):
-    pass
-
-
-class ParallelPMLabelSearch_Restricted(AsyncTabuSearch):
-    def __init__(
-        self,
-        *,
-        config=None,
-        nresources=None,
-        nfeatures=None,
-        nworkers=1,
-        constraints=None,
-        labeling_restrictions=None
-    ):
-        AsyncTabuSearch.__init__(self)
-        self.problem = ParallelPMLabelSearchProblem_Restricted(
-            config=config,
-            nresources=nresources,
-            nfeatures=nfeatures,
-            nworkers=nworkers,
-            constraints=constraints,
-            labeling_restrictions=labeling_restrictions,
-        )
-        #
-        self.options.verbose = config.options.get("verbose", False)
-        if "max_stall_count" in config.options:
-            self.options.max_stall_count = config.options.get("max_stall_count")
-        self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
-
-    @property
-    def results(self):
-        #
-        # Return the cached results, which are stored on self.problem
-        #
-        return self.problem.results

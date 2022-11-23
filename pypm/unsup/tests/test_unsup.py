@@ -177,17 +177,17 @@ def test_misc_cached():
             values[data["iteration"]] = data["value"]
             points[data["iteration"]] = data["point"]
 
-    values_baseline = {0: -2.0, 3: -1.3333333333333333}
+    values_baseline = {13: -2.0, 4: -1.7}
     points_baseline = {
-        0: {
-            "rA": {"ra": 1, "rb": 0, "rc": 0},
-            "rB": {"ra": 1, "rb": 0, "rc": 1},
-            "rC": {"ra": 1, "rb": 1, "rc": 1},
+        13: {
+            "rA": {"rb": 0, "rc": 1, "rd": 0, "re": 0, "rf": 0},
+            "rB": {"rb": 1, "rc": 1, "rd": 0, "re": 0, "rf": 0},
+            "rC": {"rb": 1, "rc": 1, "rd": 0, "re": 0, "rf": 0},
         },
-        3: {
-            "rA": {"ra": 1, "rb": 1, "rc": 0},
-            "rB": {"ra": 1, "rb": 0, "rc": 0},
-            "rC": {"ra": 0, "rb": 1, "rc": 1},
+        4: {
+            "rA": {"rb": 1, "rc": 1, "rd": 0, "re": 1, "rf": 0},
+            "rB": {"rb": 1, "rc": 1, "rd": 0, "re": 1, "rf": 0},
+            "rC": {"rb": 0, "rc": 1, "rd": 0, "re": 1, "rf": 0},
         },
     }
     assert values == values_baseline
