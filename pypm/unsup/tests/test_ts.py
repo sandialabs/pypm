@@ -10,7 +10,6 @@ from pypm.util.fileutils import this_file_dir
 currdir = this_file_dir()
 
 
-
 class LabelSearchProblem(TabuSearchProblem):
     def __init__(self, pm=None, data=None, nresources=None, nfeatures=None):
         TabuSearchProblem.__init__(self)
@@ -140,7 +139,7 @@ def test_ts_checkpoint():
 
     values = {}
     points = {}
-    for fname in glob.glob( os.path.join(checkpoint_dir, "*.json")):
+    for fname in glob.glob(os.path.join(checkpoint_dir, "*.json")):
         with open(fname, "r") as INPUT:
             data = json.load(INPUT)
             values[data["iteration"]] = data["value"]

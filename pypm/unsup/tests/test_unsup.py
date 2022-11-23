@@ -121,6 +121,7 @@ def test_GSFED1(tname):
 def test_GSFED2(tname):
     run("GSFED2", tname)
 
+
 @pytest.mark.parametrize(
     "tname",
     [
@@ -163,29 +164,34 @@ def test_GSFED2(tname):
 def test_XSF2(tname):
     run("XSF2", tname)
 
+
 def test_misc_cached():
     run("MISC", "test_cached")
     checkpoint_dir = os.path.join(currdir, "MISC", "checkpoints")
 
     values = {}
     points = {}
-    for fname in glob.glob( os.path.join(checkpoint_dir, "*.json")):
+    for fname in glob.glob(os.path.join(checkpoint_dir, "*.json")):
         with open(fname, "r") as INPUT:
             data = json.load(INPUT)
             values[data["iteration"]] = data["value"]
             points[data["iteration"]] = data["point"]
 
-    values_baseline = {
-        0: -2.0,
-        3: -1.3333333333333333
-        }
+    values_baseline = {0: -2.0, 3: -1.3333333333333333}
     points_baseline = {
-        0: {"rA": {"ra": 1, "rb": 0, "rc": 0}, "rB": {"ra": 1, "rb": 0, "rc": 1}, "rC": {"ra": 1, "rb": 1, "rc": 1}},
-        3: {"rA": {"ra": 1, "rb": 1, "rc": 0}, "rB": {"ra": 1, "rb": 0, "rc": 0}, "rC": {"ra": 0, "rb": 1, "rc": 1}},
+        0: {
+            "rA": {"ra": 1, "rb": 0, "rc": 0},
+            "rB": {"ra": 1, "rb": 0, "rc": 1},
+            "rC": {"ra": 1, "rb": 1, "rc": 1},
+        },
+        3: {
+            "rA": {"ra": 1, "rb": 1, "rc": 0},
+            "rB": {"ra": 1, "rb": 0, "rc": 0},
+            "rC": {"ra": 0, "rb": 1, "rc": 1},
+        },
     }
     assert values == values_baseline
     assert points == points_baseline
 
     if os.path.exists(checkpoint_dir):
         shutil.rmtree(checkpoint_dir)
-

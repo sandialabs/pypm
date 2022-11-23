@@ -15,7 +15,7 @@ from .ts_labeling2 import PMLabelSearch_Restricted, ParallelPMLabelSearch_Restri
 # Note: the config.label_representation data must generally be defined.
 #
 def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
-    label_representation = config.options['label_representation']
+    label_representation = config.options["label_representation"]
     if config.labeling_restrictions:
         assert label_representation == "resource_feature_list"
     if nworkers == 1:
@@ -51,15 +51,15 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
             ls = ParallelPMLabelSearch(
                 config=config, nworkers=nworkers, constraints=constraints
             )
-    ls.options.search_strategy = config.options.get('local_search', 'first_improving')
+    ls.options.search_strategy = config.options.get("local_search", "first_improving")
     ls.options.debug = debug
     ls.options.max_iterations = config.options.get("max_iterations", 100)
     ls.options.tabu_tenure = config.options.get("tabu_tenure", 4)
-    if 'cache_dir' in config.options:
+    if "cache_dir" in config.options:
         if config.dirname:
-            cache_dir = os.path.join(config.dirname, config.options['cache_dir'])
+            cache_dir = os.path.join(config.dirname, config.options["cache_dir"])
         else:
-            cache_dir = config.options['cache_dir']
+            cache_dir = config.options["cache_dir"]
         try:
             os.mkdir(cache_dir)
         except FileExistsError:

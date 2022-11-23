@@ -72,8 +72,8 @@ class TabuSearchProblem(object):
         #
         # Write information about the current point to the specified file.
         #
-        tmp = {"iteration": iteration, "value":value, "point":point}
-        with open(filename, 'w') as OUTPUT:
+        tmp = {"iteration": iteration, "value": value, "point": point}
+        with open(filename, "w") as OUTPUT:
             OUTPUT.write(json.dumps(tmp))
 
 
@@ -341,7 +341,12 @@ class TabuSearch(object):
                 # Write file with improving solution
                 #
                 if self.options.checkpoint_file_template:
-                    self.write_solution_to_file(self.iteration, x_best, f_best, self.options.checkpoint_file_template.format(self.iteration))
+                    self.write_solution_to_file(
+                        self.iteration,
+                        x_best,
+                        f_best,
+                        self.options.checkpoint_file_template.format(self.iteration),
+                    )
             else:
                 #
                 # Update the current point to the point generated
