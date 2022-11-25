@@ -59,6 +59,10 @@ class SupervisedMIP(object):
             quiet=PYPM.options.quiet,
             index=0,
         )
+        if self.config.labeling_restrictions:
+            for activity in self.config.pm:
+                dummyname = "dummy " + activity
+                self.config.pm.resources.add(dummyname, 1)
 
     def generate_schedule(self):
         #
