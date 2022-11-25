@@ -1,0 +1,43 @@
+results:
+- datetime_schedule:
+    a1:
+      pre: '2020-01-01 00:00:00'
+    a2:
+      first: '2020-01-01 19:00:00'
+      last: '2020-01-02 00:00:00'
+      stop: '2020-01-02 01:00:00'
+  goals:
+    match:
+      a2: 10.0
+    separation:
+      rA: 0.8333333333333334
+      rB: 0.8333333333333334
+      rC: 0
+    total_match: 10.0
+    total_separation: 1.6666666666666667
+  resource_feature_list:
+    rA:
+    - ra
+    - rb
+    - rc
+    rB:
+    - ra
+    - rc
+    rC:
+    - ra
+    - rc
+  schedule:
+    a1:
+      pre: true
+    a2:
+      first: 19
+      last: 24
+  solver_statistics:
+    evaluations: 111
+    iterations: 37
+    stall count: 25
+    unique solutions: 68
+solver:
+  model:
+    name: GSF-ED
+  search_strategy: tabu

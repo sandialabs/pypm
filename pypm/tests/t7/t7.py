@@ -3,35 +3,36 @@
 #
 from pypm.api import PYPM
 
+
 def run():
-    #PYPM.options['verbose'] = True
+    # PYPM.options['verbose'] = True
 
     #
     # Configure process matching api
     #
     pm = PYPM.supervised_mip()
-    pm.load_config('config.yaml')
+    pm.load_config("config.yaml")
 
     #
     # Constraints
     #
     pm.maximize_total_match_score()
-    pm.include('Activity6')
-    pm.relax('Activity6')
+    pm.include("Activity6")
+    pm.relax("Activity6")
 
     #
     # Configure and run solver
     #
-    pm.solver_options['name'] = 'glpk'
-    #pm.solver_options['show_solver_output'] = True
+    pm.solver_options["name"] = "glpk"
+    # pm.solver_options['show_solver_output'] = True
     results = pm.generate_schedule()
     #
     # Save results
     #
-    results.write('results.yaml')
+    results.write("results.yaml")
 
     return True
 
-if __name__ == '__main__':      #pragma:nocover
-    run()
 
+if __name__ == "__main__":  # pragma:nocover
+    run()

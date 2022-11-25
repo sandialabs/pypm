@@ -1,0 +1,21 @@
+- knownFeature: []
+  possibleFeature:
+  - ra
+  - rb
+  - rc
+  - rd
+  resourceName: rA
+- knownFeature: []
+  possibleFeature:
+  - ra
+  - rb
+  - rc
+  - rd
+  resourceName: rB
+- knownFeature: []
+  possibleFeature:
+  - ra
+  - rb
+  - rc
+  - rd
+  resourceName: rC

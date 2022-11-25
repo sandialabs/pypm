@@ -29,9 +29,8 @@ def load_process(filename=None, dirname=None, data={}):
         if not dirname is None:
             filename = os.path.join(dirname, filename)
         print("Opening file:", filename)
-        with open(filename, 'r') as INPUT:
-            data=next(yaml.safe_load_all(INPUT))
+        with open(filename, "r") as INPUT:
+            data = next(yaml.safe_load_all(INPUT))
     elif type(data) is str:
-        data=next(yaml.safe_load_all(data))
+        data = next(yaml.safe_load_all(data))
     return ProcessModel(data=data)
-

@@ -104,12 +104,12 @@ def label_data(
 
     for k in tmp["Feature"]:
         resource = tmp["Resource"][k]
-        #print("HERE",k,resource)
-        #print("A", tmp["Feature"][k])
-        #print("B", obs_df[ tmp["Feature"][k] ][0])
+        # print("HERE",k,resource)
+        # print("A", tmp["Feature"][k])
+        # print("B", obs_df[ tmp["Feature"][k] ][0])
         for i in range(T):
             oldval = df[resource][i]
-            newval = obs_df[ tmp["Feature"][k] ][i]
+            newval = obs_df[tmp["Feature"][k]][i]
             df[resource].iloc[i] = max(oldval, newval)
     print(df.head())
     df.set_index("DateTime")
@@ -120,4 +120,3 @@ def label_data(
 
     print("Writing file:", labeled_obs_csvfile)
     df.to_csv(labeled_obs_csvfile, index=False)
-

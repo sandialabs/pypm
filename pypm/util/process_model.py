@@ -1,11 +1,11 @@
 # pypm.util.process_model
 
-class Resources(object):
 
+class Resources(object):
     def __init__(self):
-        self._names = {}    # names: name -> id
-        self._ids = {}      # ids: id -> name
-        self._count = {}      # ids: id -> name
+        self._names = {}  # names: name -> id
+        self._ids = {}  # ids: id -> name
+        self._count = {}  # ids: id -> name
 
     def add(self, name, count):
         i = len(self._names)
@@ -16,7 +16,7 @@ class Resources(object):
     def load(self, data):
         assert type(data) is dict
         for name in data:
-            assert (name not in self._names), "Resource {} already defined".format(name)
+            assert name not in self._names, "Resource {} already defined".format(name)
             count = None if data[name] is None else int(data[name])
             self.add(name, count)
 
@@ -45,17 +45,19 @@ class ProcessModel(object):
 
     def __init__(self, data={}):
         self.resources = Resources()
-        self._activities = {}       # activities: int_id -> activity
-        self._names = {}            # names: name -> int_id
+        self._activities = {}  # activities: int_id -> activity
+        self._names = {}  # names: name -> int_id
         if len(data) > 0:
             self.load(data)
 
     def load(self, data):
         """Load the process model from YAML/JSON data."""
-        tmp = set(['resources','activities'])
-        assert (tmp.issubset( set(data.keys()) )), "Expected data with 'resources' and 'activities'"
-        self.resources.load(data['resources'])
-        for activity in data['activities']:
+        tmp = set(["resources", "activities"])
+        assert tmp.issubset(
+            set(data.keys())
+        ), "Expected data with 'resources' and 'activities'"
+        self.resources.load(data["resources"])
+        for activity in data["activities"]:
             self._add_activity(activity)
         self._initialize()
 
@@ -79,49 +81,52 @@ class ProcessModel(object):
 
     def _add_activity(self, activity):
         """Add the activity object to the process model."""
-        assert ('name' in activity), "Missing 'name' in activity"
-        assert (activity['name'] not in self._names), "Activity name {} already defined".format(activity['name'])
+        assert "name" in activity, "Missing 'name' in activity"
+        assert (
+            activity["name"] not in self._names
+        ), "Activity name {} already defined".format(activity["name"])
         i = len(self._names)
-        activity['id'] = i
-        self._names[ activity['name'] ] = i
-        if activity.get('max_delay',None) is not None:
-            activity['delay_after_hours'] = activity['max_delay']
-            del activity['max_delay']
-        if activity.get('delay_after_hours',None) is None:
-            activity['delay_after_hours'] = None
-        if 'max_hours' in activity['duration']:
-            activity['duration'] = {'max_timesteps':activity['duration']['max_hours'], 'min_timesteps':activity['duration']['min_hours']}
-        self._activities[ i ] = activity
-        if activity.get('resources',None) is None:
-            activity['resources'] = {}
+        activity["id"] = i
+        self._names[activity["name"]] = i
+        if activity.get("max_delay", None) is not None:
+            activity["delay_after_hours"] = activity["max_delay"]
+            del activity["max_delay"]
+        if activity.get("delay_after_hours", None) is None:
+            activity["delay_after_hours"] = None
+        if "max_hours" in activity["duration"]:
+            activity["duration"] = {
+                "max_timesteps": activity["duration"]["max_hours"],
+                "min_timesteps": activity["duration"]["min_hours"],
+            }
+        self._activities[i] = activity
+        if activity.get("resources", None) is None:
+            activity["resources"] = {}
         else:
-            assert type(activity['resources']) is dict
+            assert type(activity["resources"]) is dict
             #
             # Default value is to use one copy of each resource
             #
-            for key in activity['resources']:
-                if activity['resources'][key] is None:
-                    activity['resources'][key] = 1
+            for key in activity["resources"]:
+                if activity["resources"][key] is None:
+                    activity["resources"][key] = 1
         #
         # WEH - Should we adopt the term 'predecessor'?
         #
-        if activity.get('dependencies',None) is None:
-            activity['dependencies'] = []
+        if activity.get("dependencies", None) is None:
+            activity["dependencies"] = []
 
     def _initialize(self):
         """Initialize derived data from core process model representation."""
 
     def data(self):
-        resources={name:None for name in sorted(self.resources)}
-        activities=[]
+        resources = {name: None for name in sorted(self.resources)}
+        activities = []
         for name in self:
             ans = {}
-            ans['name']=name
-            ans['delay_after_hours'] = self[name]['delay_after_hours']
-            ans['dependencies'] = self[name]['dependencies']
-            ans['resources'] = self[name]['resources']
-            ans['duration'] = self[name]['duration']
+            ans["name"] = name
+            ans["delay_after_hours"] = self[name]["delay_after_hours"]
+            ans["dependencies"] = self[name]["dependencies"]
+            ans["resources"] = self[name]["resources"]
+            ans["duration"] = self[name]["duration"]
             activities.append(ans)
         return dict(resources=resources, activities=activities)
-        
-
