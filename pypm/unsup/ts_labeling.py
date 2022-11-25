@@ -191,17 +191,19 @@ class PMLabelSearch(CachedTabuSearch):
         self, *, config=None, nresources=None, nfeatures=None, constraints=None, nworkers=1
     ):
         CachedTabuSearch.__init__(self)
-        self.problem = PMLabelSearchProblem(
+        problem = PMLabelSearchProblem(
             config=config,
             nresources=nresources,
             nfeatures=nfeatures,
             constraints=constraints,
         )
         if nworkers > 1:
-            self.problem = RayTabuSearchProblem(self.problem, nworkers=nworkers)
+            self.problem = RayTabuSearchProblem(problem=problem, nworkers=nworkers)
+        else:
+            self.problem = problem
         #
         self.options.verbose = config.options.get("verbose", False)
         if "max_stall_count" in config.options:
             self.options.max_stall_count = config.options.get("max_stall_count")
-        self.options.tabu_tenure = round(0.25 * self.problem.nfeatures) + 1
+        self.options.tabu_tenure = round(0.25 * problem.nfeatures) + 1
 

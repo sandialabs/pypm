@@ -17,7 +17,7 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
     if config.labeling_restrictions:
         assert label_representation == "resource_feature_list"
     if nworkers > 1:
-        ray.init(num_cpus=nworkers + 1)
+        ray.init(num_cpus=nworkers + 1, ignore_reinit_error=True)
     if label_representation == "resource_feature_list":
         ls = PMLabelSearch_Restricted(
             config=config,
