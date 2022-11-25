@@ -40,7 +40,7 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
 
 @pytest.fixture
 def ray_init():
-    ray.init(num_cpus=4)
+    ray.init(num_cpus=4, runtime_env={"working_dir": currdir})
     yield None
     ray.shutdown()
 
