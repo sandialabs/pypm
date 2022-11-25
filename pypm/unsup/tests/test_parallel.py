@@ -21,7 +21,7 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
     driver.config.datafile = None
     assert testname == driver.config.process[:-12]
 
-    results = driver.generate_labeling_and_schedule(nworkers=nworkers)
+    results = driver.generate_labeling_and_schedule(nworkers=nworkers, setup_ray=False)
 
     outputfile = join(currdir, dirname, "{}_results.yaml".format(testname))
     results.write(outputfile)
@@ -30,12 +30,12 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
     assert tmp[0] == False, "Files differ:  diff {} {}".format(outputfile, baselinefile)
     os.remove(outputfile)
 
-    #labelfile = join(currdir, dirname, "{}_results.csv".format(testname))
-    #results.write_labels(labelfile)
-    #baselinefile = join(currdir, dirname, "{}_baseline.csv".format(testname))
-    #tmp = pyutilib.misc.compare_file(labelfile, baselinefile, tolerance=1e-7)
-    #assert tmp[0] == False, "Files differ:  diff {} {}".format(labelfile, baselinefile)
-    #os.remove(labelfile)
+    # labelfile = join(currdir, dirname, "{}_results.csv".format(testname))
+    # results.write_labels(labelfile)
+    # baselinefile = join(currdir, dirname, "{}_baseline.csv".format(testname))
+    # tmp = pyutilib.misc.compare_file(labelfile, baselinefile, tolerance=1e-7)
+    # assert tmp[0] == False, "Files differ:  diff {} {}".format(labelfile, baselinefile)
+    # os.remove(labelfile)
 
 
 @pytest.fixture
@@ -43,6 +43,7 @@ def ray_init():
     ray.init(num_cpus=4)
     yield None
     ray.shutdown()
+
 
 @pytest.mark.parametrize(
     "tname",
@@ -90,4 +91,3 @@ def test_GSFED1(tname, ray_init):
 )
 def test_GSFED2(tname, ray_init):
     run("GSFED2", tname, nworkers=3)
-

@@ -168,7 +168,15 @@ class PMLabelSearchProblem(TabuSearchProblem):
         }
         results["point_"] = point_
         #
-        if self.penalize_features:
+        if results["results"][0] is None:
+            #
+            # This is a hack to handle the case where the MIP solver failed.
+            # TODO: add more diagnostics here
+            #
+            results["results"][0] = {"goals": {"total_separation": -999}}
+            value = 999
+        #
+        elif self.penalize_features:
             #
             # Count # of ignored features
             #
@@ -188,7 +196,13 @@ class PMLabelSearchProblem(TabuSearchProblem):
 
 class PMLabelSearch(CachedTabuSearch):
     def __init__(
-        self, *, config=None, nresources=None, nfeatures=None, constraints=None, nworkers=1
+        self,
+        *,
+        config=None,
+        nresources=None,
+        nfeatures=None,
+        constraints=None,
+        nworkers=1
     ):
         CachedTabuSearch.__init__(self)
         problem = PMLabelSearchProblem(
@@ -206,4 +220,3 @@ class PMLabelSearch(CachedTabuSearch):
         if "max_stall_count" in config.options:
             self.options.max_stall_count = config.options.get("max_stall_count")
         self.options.tabu_tenure = round(0.25 * problem.nfeatures) + 1
-

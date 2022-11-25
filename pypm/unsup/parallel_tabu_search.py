@@ -21,12 +21,7 @@ class TabuSearchWorker(object):
 
 
 class RayTabuSearchProblem(TabuSearchProblem):
-    def __init__(
-        self,
-        *,
-        problem, 
-        nworkers
-    ):
+    def __init__(self, *, problem, nworkers):
         TabuSearchProblem.__init__(self)
         self.problem = problem
         #
@@ -80,4 +75,3 @@ class RayTabuSearchProblem(TabuSearchProblem):
 
     def write_solution_to_file(self, iteration, point, value, filename):
         self.problem.write_solution_to_file(iteration, point, value, filename)
-

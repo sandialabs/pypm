@@ -81,8 +81,23 @@ def test_ts_first_improving():
     ls = LabelSearch(nresources=6, nfeatures=7, seed=39483098)
     ls.max_iterations = 100
     ls.options.tabu_tenure = 4
-    # ls.options.verbose=True
-    # ls.options.quiet=False
+    ls.options.verbose = True
+    ls.options.debug = True
+    ls.options.quiet = False
+    x, f = ls.run()
+
+    assert f == 7.0
+    assert x == (0, 0, 0, 0, 0, 0, 0)
+
+
+def test_ts_async_first_improving():
+    ls = LabelSearch(nresources=6, nfeatures=7, seed=39483098)
+    ls.max_iterations = 100
+    ls.options.tabu_tenure = 4
+    ls.options.search_strategy = "async_first_improving"
+    ls.options.verbose = True
+    ls.options.debug = True
+    ls.options.quiet = False
     x, f = ls.run()
 
     assert f == 7.0
@@ -113,6 +128,20 @@ def test_cachedts_first_improving():
     assert f == 7.0
     assert x == (0, 0, 0, 0, 0, 0, 0)
     assert len(ls.cache) == 264
+
+
+def test_cachedts_async_first_improving():
+    ls = CachedLabelSearch(nresources=6, nfeatures=7, seed=39483098)
+    ls.max_iterations = 100
+    ls.options.tabu_tenure = 4
+    ls.options.search_strategy = "async_first_improving"
+    ls.options.verbose = True
+    ls.options.quiet = False
+    x, f = ls.run()
+
+    assert f == 7.0
+    assert x == (0, 0, 0, 0, 0, 0, 0)
+    assert len(ls.cache) == 286
 
 
 def test_cachedts_best_improving():

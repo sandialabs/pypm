@@ -183,13 +183,7 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         # TODO: add more diagnostics here
         #
         if results["results"][0] is None:
-            results["results"][0] = {"goals": {"total_separation": 999}}
-            # print("ERROR")
-            # pprint.pprint(point)
-            # print(len(point))
-            # pprint.pprint(self.mip_sup.config.obs)
-            # import sys
-            # sys.exit(1)
+            results["results"][0] = {"goals": {"total_separation": -999}}
         #
         # Return the total_separation statistic and results object
         #
@@ -225,4 +219,3 @@ class PMLabelSearch_Restricted(CachedTabuSearch):
         if "max_stall_count" in config.options:
             self.options.max_stall_count = config.options.get("max_stall_count")
         self.options.tabu_tenure = round(0.25 * problem.nfeatures) + 1
-

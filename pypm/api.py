@@ -326,13 +326,14 @@ class TabuLabeling(object):
 
             self.config.labeling_restrictions = tmp
 
-    def generate_labeling_and_schedule(self, nworkers=1, debug=False):
+    def generate_labeling_and_schedule(self, nworkers=1, debug=False, setup_ray=True):
         return LabelingResults(
             run_tabu_labeling(
                 self.config,
                 constraints=self.constraints,
                 nworkers=nworkers,
                 debug=debug,
+                setup_ray=setup_ray,
             )
         )
 

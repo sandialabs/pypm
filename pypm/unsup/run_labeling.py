@@ -12,21 +12,30 @@ from .ts_labeling2 import PMLabelSearch_Restricted
 #
 # Note: the config.label_representation data must generally be defined.
 #
-def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
+def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False, setup_ray=True):
+    assert (
+        "label_representation" in config.options
+    ), "Missing required value for the pypm Tabu Search solver: label_representation.\n  Valid values are resource_feature_list and feature_label."
     label_representation = config.options["label_representation"]
     if config.labeling_restrictions:
-        assert label_representation == "resource_feature_list"
-    if nworkers > 1:
+        assert (
+            label_representation == "resource_feature_list"
+        ), "The label_representation used by Tabu Search must be resource_feature_list when using label restrictions."
+    if setup_ray and nworkers > 1:
         ray.init(num_cpus=nworkers + 1, ignore_reinit_error=True)
     if label_representation == "resource_feature_list":
         ls = PMLabelSearch_Restricted(
             config=config,
             constraints=constraints,
-            labeling_restrictions=config.labeling_restrictions, 
-            nworkers=nworkers
+            labeling_restrictions=config.labeling_restrictions,
+            nworkers=nworkers,
         )
     else:
-        assert label_representation == "feature_label"
+        assert (
+            label_representation == "feature_label"
+        ), "Bad value for label_representation: {}.  Valid values are resource_feature_list and feature_label".format(
+            label_representation
+        )
         ls = PMLabelSearch(config=config, constraints=constraints, nworkers=nworkers)
     ls.options.search_strategy = config.options.get("local_search", "first_improving")
     ls.options.debug = debug
@@ -46,6 +55,8 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False):
     # Run Tabu Search
     #
     x, f = ls.run()
+    if setup_ray and nworkers > 1:
+        ray.shutdown()
     #
     # Augment the results object
     #
