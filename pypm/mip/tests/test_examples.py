@@ -107,50 +107,68 @@ def test108_11():
     run("test108", "model11")
 
 
-# def test1_12():
-#    run('test1', 'model12')
+def test1_GSF_continuous():
+    run("test1", "GSF-continuous")
 
-# def test2_12():
-#    run('test2', 'model12')
 
-# def test3_12():
-#    run('test3', 'model12')
+def test2_GSF_continuous():
+    run("test2", "GSF-continuous")
 
-# def test4_12():
-#    run('test4', 'model12')
 
-# def test5_12():
-#    run('test5', 'model12')
+def test3_GSF_continuous():
+    run("test3", "GSF-continuous")
 
-# def test6_12():
-#    run('test6', 'model12')
 
-# def test7_12():
-#    run('test7', 'model12')
+def test4_GSF_continuous():
+    run("test4", "GSF-continuous")
 
-# def test100_12():
-#    run('test100', 'model12')
 
-# def test101_12():
-#    run('test101', 'model12')
+def test5_GSF_continuous():
+    run("test5", "GSF-continuous")
 
-# def test102_12():
-#    run('test102', 'model12')
 
-# def test103_12():
-#    run('test103', 'model12')
+def test6_GSF_continuous():
+    run("test6", "GSF-continuous")
 
-# def test104_12():
-#    run('test104', 'model12')
 
-# def test105_12():
-#    run('test105', 'model12')
+def test7_GSF_continuous():
+    run("test7", "GSF-continuous")
 
-# def test106_12():
-#    run('test106', 'model12')
 
-# def test107_12():
-#    run('test107', 'model12')
+def test100_GSF_continuous():
+    run("test100", "GSF-continuous")
+
+
+def test101_GSF_continuous():
+    run("test101", "GSF-continuous")
+
+
+def test102_GSF_continuous():
+    run("test102", "GSF-continuous")
+
+
+def test103_GSF_continuous():
+    run("test103", "GSF-continuous")
+
+
+def test104_GSF_continuous():
+    run("test104", "GSF-continuous")
+
+
+def test105_GSF_continuous():
+    run("test105", "GSF-continuous")
+
+
+def test106_GSF_continuous():
+    run("test106", "GSF-continuous")
+
+
+def test107_GSF_continuous():
+    run("test107", "GSF-continuous")
+
+
+def test108_GSF_continuous():
+    run("test108", "GSF-continuous")
 
 
 def test1_13():

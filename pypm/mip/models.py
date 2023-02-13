@@ -1323,9 +1323,7 @@ class GSF_Makespan(Z_Repn_Model):
         M.omax = pe.Constraint(J, rule=omax_)
 
         def odef_(m, j):
-            return m.o[j] == sum(t * (m.z[j, t] - m.z[j, t - 1]) for t in T) + (
-                Tmax - 1
-            ) * (1 - m.z[j, Tmax - 1])
+            return m.o[j] == sum(t * (m.z[j, t] - m.z[j, t - 1]) for t in T) + ( Tmax - 1) * (1 - m.z[j, Tmax - 1])
 
         M.odef = pe.Constraint(J, rule=odef_)
 
@@ -1409,9 +1407,59 @@ class GSF_Makespan(Z_Repn_Model):
         return M
 
 
+#
+# This is the GSF model, annotated to enforce continuity constraints
+#
+class GSF_TotalMatchScore_Continuous(GSF_TotalMatchScore):
+    def __init__(self):
+        self.name = "GSF-continuous"
+        self.description = "Supervised process matching maximizing match score with continuity constraint"
+
+    def create_model(
+        self,
+        *,
+        objective,
+        T,
+        J,
+        K,
+        S,
+        O,
+        P,
+        Q,
+        E,
+        Omega,
+        Gamma,
+        Tmax,
+        Upsilon,
+        tprev,
+        verbose
+    ):
+
+        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+
+        def continuity_(m, j, t):
+            if t == 0 or (j,t-1) not in m.a:
+                return pe.Constraint.Skip
+
+            e = m.a[j,t-1]
+            for (i,j_) in E:
+                if j_ == j and (i,t) in m.a:
+                    e += m.a[i,t]
+
+            return e >= m.a[j,t]
+                    
+        M.continuity = pe.Constraint(J, T, rule=continuity_)
+
+        return M
+
+
+
 def create_model(name):
     if name == "model11" or name == "GSF":
         return GSF_TotalMatchScore()
+
+    elif name == "GSF-continuous":
+        return GSF_TotalMatchScore_Continuous()
 
     elif name == "model13" or name == "GSF-ED":
         return GSFED_TotalMatchScore()
