@@ -5,8 +5,7 @@ _options:
   solver: glpk
   tee: true
   timesteps: 30
-  Gamma: 0
-  model: GSF-continuous
+  model: XSF-continuous
 
 resources:
   rA:
@@ -18,8 +17,8 @@ activities:
 - name: a1
   dependencies:
   duration:
-    max_hours: 7
-    min_hours: 7
+    max_hours: 6
+    min_hours: 6
   resources:
     rC:
 

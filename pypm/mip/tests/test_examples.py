@@ -299,10 +299,6 @@ def test1_XSF():
     run("test1", "XSF")
 
 
-def test1_XSF():
-    run("test1", "XSF")
-
-
 def test2_XSF():
     run("test2", "XSF")
 
@@ -361,3 +357,67 @@ def test107_XSF():
 
 def test108_XSF():
     run("test108", "XSF")
+
+
+def test1_XSF_continuous():
+    run("test1", "XSF-continuous")
+
+
+def test2_XSF_continuous():
+    run("test2", "XSF-continuous")
+
+
+def test3_XSF_continuous():
+    run("test3", "XSF-continuous")
+
+
+def test4_XSF_continuous():
+    run("test4", "XSF-continuous")
+
+
+def test5_XSF_continuous():
+    run("test5", "XSF-continuous")
+
+
+def test6_XSF_continuous():
+    run("test6", "XSF-continuous")
+
+
+def test7_XSF_continuous():
+    run("test7", "XSF-continuous")
+
+
+def test100_XSF_continuous():
+    run("test100", "XSF-continuous")
+
+
+def test101_XSF_continuous():
+    run("test101", "XSF-continuous", debug=True)
+
+
+def test102_XSF_continuous():
+    run("test102", "XSF-continuous")
+
+
+def test103_XSF_continuous():
+    run("test103", "XSF-continuous")
+
+
+def test104_XSF_continuous():
+    run("test104", "XSF-continuous")
+
+
+def test105_XSF_continuous():
+    run("test105", "XSF-continuous")
+
+
+def test106_XSF_continuous():
+    run("test106", "XSF-continuous")
+
+
+def test107_XSF_continuous():
+    run("test107", "XSF-continuous")
+
+
+def test108_XSF_continuous():
+    run("test108", "XSF-continuous")

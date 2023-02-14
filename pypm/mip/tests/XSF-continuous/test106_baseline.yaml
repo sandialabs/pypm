@@ -28,17 +28,6 @@ results:
     a1: {first: 19, last: 23}
     a2: {post: true}
   variables:
-    a:
-      ? !!python/tuple [a1, 19]
-      : 1.0
-      ? !!python/tuple [a1, 20]
-      : 1.0
-      ? !!python/tuple [a1, 21]
-      : 1.0
-      ? !!python/tuple [a1, 22]
-      : 1.0
-      ? !!python/tuple [a1, 23]
-      : 1.0
     o: {a1: 5.0}
     z:
       ? !!python/tuple [a1, 19]
@@ -64,5 +53,5 @@ results:
       ? !!python/tuple [a1, 29]
       : 1.0
 solver:
-  model: {name: GSF-continuous}
+  model: {name: XSF-continuous}
   search_strategy: mip

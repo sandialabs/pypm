@@ -1,12 +1,11 @@
 _options:
   comments: 
-    - confirming that first activity is not included if it's too long
-  process: test102.yaml
+    - confirming that first activity is included when it only weakly matches
+  process: test101.yaml
   solver: glpk
   tee: true
   timesteps: 30
-  Gamma: 0
-  model: GSF-continuous
+  model: XSF-continuous
 
 resources:
   rA:
@@ -18,8 +17,8 @@ activities:
 - name: a1
   dependencies:
   duration:
-    max_hours: 7
-    min_hours: 7
+    max_hours: 5
+    min_hours: 5
   resources:
     rC:
 
@@ -35,7 +34,6 @@ activities:
 
 data:
 - ground_truth:
-    a1: {pre: True}
     a2: {start: 6, stop: 10}
   observations:
     rA: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]

@@ -1442,11 +1442,55 @@ class GSF_TotalMatchScore_Continuous(GSF_TotalMatchScore):
                 return pe.Constraint.Skip
 
             e = m.a[j,t-1]
+            skip = True
             for (i,j_) in E:
-                if j_ == j and (i,t) in m.a:
-                    e += m.a[i,t]
+                if j_ == j:
+                    tau = tprev.get((i, t), -1) + P[i]-1
+                    if (i,tau) in m.a:
+                        skip = False
+                        e += m.a[i,tau]
+                        e += m.z[i,-1]
+            if skip:
+                return pe.Constraint.Skip
 
             return e >= m.a[j,t]
+                    
+        M.continuity = pe.Constraint(J, T, rule=continuity_)
+
+        return M
+
+#
+# This is the XSF model, annotated to enforce continuity constraints
+#
+class XSF_TotalMatchScore_Continuous(XSF_TotalMatchScore):
+    def __init__(self):
+        self.name = "XSF-continuous"
+        self.description = "Supervised process matching maximizing match score with continuity constraint"
+
+    def create_model(
+        self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, tprev, verbose
+    ):
+
+        M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+
+        def continuity_(m, j, t):
+            if t == 0:
+                return pe.Constraint.Skip
+
+            e = 0
+            skip = True
+            for (i,j_) in E:
+                if j_ == j:
+                    tau = tprev.get((i, t), -1)
+                    if (i,tau) in m.z:
+                        skip = False
+                        if tau >= 0:
+                            e += m.z[i,tau] - m.z[i,tau-1]
+                        e += m.z[i,-1]
+            if skip:
+                return pe.Constraint.Skip
+
+            return e >= m.z[j,t] - m.z[j,t-1]
                     
         M.continuity = pe.Constraint(J, T, rule=continuity_)
 
@@ -1469,6 +1513,9 @@ def create_model(name):
 
     elif name == "XSF":
         return XSF_TotalMatchScore()
+
+    elif name == "XSF-continuous":
+        return XSF_TotalMatchScore_Continuous()
 
     elif name == "model12" or name == "model14" or name == "UPM":
         return UPM_TotalMatchScore()

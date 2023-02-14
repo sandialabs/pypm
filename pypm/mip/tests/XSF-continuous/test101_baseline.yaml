@@ -15,49 +15,32 @@ data:
   timesteps: 30
 results:
 - datetime_schedule:
-    a1: {first: '2020-01-01 05:00:00', last: '2020-01-01 14:00:00', stop: '2020-01-01
-        15:00:00'}
-    a2: {first: '2020-01-01 15:00:00', last: '2020-01-01 19:00:00', stop: '2020-01-01
-        20:00:00'}
+    a1: {first: '2020-01-01 00:00:00', last: '2020-01-01 04:00:00', stop: '2020-01-01
+        05:00:00'}
+    a2: {first: '2020-01-01 05:00:00', last: '2020-01-01 10:00:00', stop: '2020-01-01
+        11:00:00'}
   goals:
-    match: {a1: 14.0, a2: 5.0}
-    separation: {rA: 1.0, rB: 0.875, rC: 0.875}
-    total_match: 19.0
-    total_separation: 2.75
-  objective: 19.0
+    match: {a1: 1.0, a2: 12.0}
+    separation: {rA: 1.0, rB: 1.0, rC: 0.2}
+    total_match: 13.0
+    total_separation: 2.2
+  objective: 13.0
   schedule:
-    a1: {first: 5, last: 14}
-    a2: {first: 15, last: 19}
+    a1: {first: 0, last: 4}
+    a2: {first: 5, last: 10}
   variables:
-    a:
-      ? !!python/tuple [a1, 5]
-      : 1.0
-      ? !!python/tuple [a1, 6]
-      : 1.0
-      ? !!python/tuple [a1, 7]
-      : 1.0
-      ? !!python/tuple [a1, 8]
-      : 1.0
-      ? !!python/tuple [a1, 9]
-      : 1.0
-      ? !!python/tuple [a1, 10]
-      : 1.0
-      ? !!python/tuple [a1, 11]
-      : 1.0
-      ? !!python/tuple [a1, 14]
-      : 1.0
-      ? !!python/tuple [a2, 15]
-      : 1.0
-      ? !!python/tuple [a2, 16]
-      : 1.0
-      ? !!python/tuple [a2, 17]
-      : 1.0
-      ? !!python/tuple [a2, 18]
-      : 1.0
-      ? !!python/tuple [a2, 19]
-      : 1.0
-    o: {a1: 14.0, a2: 5.0}
+    o: {a1: 1.0, a2: 12.0}
     z:
+      ? !!python/tuple [a1, 0]
+      : 1.0
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
       ? !!python/tuple [a1, 5]
       : 1.0
       ? !!python/tuple [a1, 6]
@@ -108,6 +91,26 @@ results:
       : 1.0
       ? !!python/tuple [a1, 29]
       : 1.0
+      ? !!python/tuple [a2, 5]
+      : 1.0
+      ? !!python/tuple [a2, 6]
+      : 1.0
+      ? !!python/tuple [a2, 7]
+      : 1.0
+      ? !!python/tuple [a2, 8]
+      : 1.0
+      ? !!python/tuple [a2, 9]
+      : 1.0
+      ? !!python/tuple [a2, 10]
+      : 1.0
+      ? !!python/tuple [a2, 11]
+      : 1.0
+      ? !!python/tuple [a2, 12]
+      : 1.0
+      ? !!python/tuple [a2, 13]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
       ? !!python/tuple [a2, 15]
       : 1.0
       ? !!python/tuple [a2, 16]
@@ -139,5 +142,5 @@ results:
       ? !!python/tuple [a2, 29]
       : 1.0
 solver:
-  model: {name: GSF-continuous}
+  model: {name: XSF-continuous}
   search_strategy: mip

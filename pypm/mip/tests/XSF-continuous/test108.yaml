@@ -5,8 +5,7 @@ _options:
   solver: glpk
   tee: true
   timesteps: 30
-  Gamma: 0
-  model: GSF-continuous
+  model: XSF-continuous
 
 resources:
   rA:
@@ -43,7 +42,10 @@ activities:
     rB:
 
 data:
-- observations:
+- ground_truth:
+    a1: {start: 20, stop: 24}
+    a2: {post: True}
+  observations:
     rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0]
     rB: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
     rC: [0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
