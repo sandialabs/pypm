@@ -42,6 +42,8 @@ def create_gannt_chart(
         "model14",
         "UPM",
         "GSF",
+        "GSF-compact",
+        "XSF-compact",
         "GSF-ED",
     ], "Cannot visualize results in {}.  Expects results generated for model3-model8,model10-model14.".format(
         results_fname
@@ -210,6 +212,8 @@ def create_gannt_chart_with_separation_metric(
         "model14",
         "UPM",
         "GSF",
+        "GSF-compact",
+        "XSF-compact",
         "GSF-ED",
     ], "Cannot visualize results in {}.  Expects results generated for model3-model8,model10-model14.".format(
         results_fname
