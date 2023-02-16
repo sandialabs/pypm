@@ -1404,12 +1404,12 @@ class GSF_Makespan(Z_Repn_Model):
 
 
 #
-# This is the GSF model, annotated to enforce continuity constraints
+# This is the GSF model, annotated to enforce compactness constraints
 #
-class GSF_TotalMatchScore_Continuous(GSF_TotalMatchScore):
+class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
     def __init__(self):
-        self.name = "GSF-continuous"
-        self.description = "Supervised process matching maximizing match score with continuity constraint"
+        self.name = "GSF-compact"
+        self.description = "Supervised process matching maximizing match score with compactness constraint"
 
     def create_model(
         self,
@@ -1433,7 +1433,7 @@ class GSF_TotalMatchScore_Continuous(GSF_TotalMatchScore):
 
         M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
 
-        def continuity_(m, j, t):
+        def compact_(m, j, t):
             if t == 0 or (j,t-1) not in m.a:
                 return pe.Constraint.Skip
 
@@ -1451,17 +1451,17 @@ class GSF_TotalMatchScore_Continuous(GSF_TotalMatchScore):
 
             return e >= m.a[j,t]
                     
-        M.continuity = pe.Constraint(J, T, rule=continuity_)
+        M.compact = pe.Constraint(J, T, rule=compact_)
 
         return M
 
 #
-# This is the XSF model, annotated to enforce continuity constraints
+# This is the XSF model, annotated to enforce compactness constraints
 #
-class XSF_TotalMatchScore_Continuous(XSF_TotalMatchScore):
+class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
     def __init__(self):
-        self.name = "XSF-continuous"
-        self.description = "Supervised process matching maximizing match score with continuity constraint"
+        self.name = "XSF-compact"
+        self.description = "Supervised process matching maximizing match score with compactness constraints"
 
     def create_model(
         self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, tprev, verbose
@@ -1469,7 +1469,7 @@ class XSF_TotalMatchScore_Continuous(XSF_TotalMatchScore):
 
         M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
 
-        def continuity_(m, j, t):
+        def compact_(m, j, t):
             if t == 0:
                 return pe.Constraint.Skip
 
@@ -1488,7 +1488,7 @@ class XSF_TotalMatchScore_Continuous(XSF_TotalMatchScore):
 
             return e >= m.z[j,t] - m.z[j,t-1]
                     
-        M.continuity = pe.Constraint(J, T, rule=continuity_)
+        M.compact = pe.Constraint(J, T, rule=compact_)
 
         return M
 
@@ -1498,8 +1498,8 @@ def create_model(name):
     if name == "model11" or name == "GSF":
         return GSF_TotalMatchScore()
 
-    elif name == "GSF-continuous":
-        return GSF_TotalMatchScore_Continuous()
+    elif name == "GSF-continuous" or name == "GSF-compact":
+        return GSF_TotalMatchScore_Compact()
 
     elif name == "model13" or name == "GSF-ED":
         return GSFED_TotalMatchScore()
@@ -1510,8 +1510,8 @@ def create_model(name):
     elif name == "XSF":
         return XSF_TotalMatchScore()
 
-    elif name == "XSF-continuous":
-        return XSF_TotalMatchScore_Continuous()
+    elif name == "XSF-continuous" or name == "XSF-compact":
+        return XSF_TotalMatchScore_Compact()
 
     elif name == "model12" or name == "model14" or name == "UPM":
         return UPM_TotalMatchScore()
