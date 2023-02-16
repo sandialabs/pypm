@@ -1118,7 +1118,6 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
 
         def odef_(m, j):
-            # return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
             total = 0
             for t in T:
                 end = t + P[j] - 1
@@ -1152,17 +1151,14 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         def precedence_lb_(m, i, j, t):
             tau = tprev.get((i, t), -1)
             return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
 
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_feasibility_(m, j, t):
+            #tau = tprev.get((j, Tmax), -1)
+            #if t > tau:
             if t + P[j] - 1 >= Tmax:
-                # if j.startswith("Final Setup"):
-                #    return pe.Constraint.Skip
-                # print("HERE",j,t,t+P[j]-1,Tmax)
-                return m.z[j, t] == m.z[j, Tmax - 1]  # - M.z[j,-1]
+                return m.z[j, t] == m.z[j, Tmax - 1]
             return pe.Constraint.Skip
 
         M.activity_feasibility = pe.Constraint(J, T, rule=activity_feasibility_)
