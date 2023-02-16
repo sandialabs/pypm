@@ -436,19 +436,21 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 
         M.zstep = pe.Constraint(J, T, rule=zstep_)
 
+        def precedence_lb_(m, i, j, t):
+            tau = tprev.get((i, t), -1)
+            return m.z[i, tau] - m.z[j, t] >= 0
+
+        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+        def activity_stop_(m, i, j, t):
+            return 1 - m.z[j, t] >= m.a[i, t]
+
+        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+
         def firsta_(m, j, t):
             return m.z[j, t] - m.z[j, t - 1] <= m.a[j, t]
 
         M.firsta = pe.Constraint(J, T, rule=firsta_)
-
-        def activity_start_(m, j, t):
-            if Gamma[j] is None:
-                tau = -1
-            else:
-                tau = max(t - (Q[j] + Gamma[j]), -1)
-            return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
-
-        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         def length_lower_(m, j):
             return sum(m.a[j, t] for t in T) >= P[j] * (m.z[j, Tmax - 1] - M.z[j, -1])
@@ -460,18 +462,14 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
-        def precedence_lb_(m, i, j, t):
-            tau = tprev.get((i, t), -1)
-            return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
+        def activity_start_(m, j, t):
+            if Gamma[j] is None:
+                tau = -1
+            else:
+                tau = max(t - (Q[j] + Gamma[j]), -1)
+            return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
-        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
-
-        def activity_stop_(m, i, j, t):
-            return 1 - m.z[j, t] >= m.a[i, t]
-
-        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         # Auxilliary computed values
 
