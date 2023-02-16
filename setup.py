@@ -43,7 +43,7 @@ requires = [
 packages = _find_packages('pypm')
 
 setup(name='pypm',
-      version='1.3.1',
+      version='1.4.1',
       url='https://cee-gitlab.sandia.gov/adapd/pypm',
       platforms=["any"],
       description='A python library for process matching',
@@ -71,8 +71,10 @@ setup(name='pypm',
       keywords=['optimization'],
       install_requires=requires,
       python_requires='>=3.7',
-      entry_points="""
-        [console_scripts]
-        pypm = pypm.pypm:main
-        """
+      entry_points={
+        "console_scripts": [
+            "pypm = pypm.pypm:main",
+            "transpose_feature_resource_constraints = pypm.util.transpose_feature_resource_constraints:main",
+        ]
+      }
       )
