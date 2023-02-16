@@ -83,11 +83,12 @@ class ProcessModelData(object):
             datetime.datetime.fromisoformat(data.obs.datetime[i])
             for i in range(len(data.obs.datetime))
         ]
+        dt.append( dt[-1]+datetime.timedelta(hours=self.hours_per_timestep))
         # dt = data.obs.datetime
         # print(dt)
         tprev = {}
         for j in pm:
-            for t in self.T:
+            for t in list(self.T)+[self.Tmax]:
                 for tau in reversed(range(-1, t - 1)):
                     last = tau + self.P[j] - 1
                     if last >= self.Tmax:
@@ -1155,9 +1156,12 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_feasibility_(m, j, t):
-            #tau = tprev.get((j, Tmax), -1)
-            #if t > tau:
-            if t + P[j] - 1 >= Tmax:
+            tau = tprev.get((j, Tmax), -1)
+            if t > tau:
+            # WEH - This is the old logic, which is weaker than the new logic b.c. it 
+            #       doesn't account for the additional information that is encoded in the
+            #       tprev values.
+            #if t + P[j] - 1 >= Tmax:       
                 return m.z[j, t] == m.z[j, Tmax - 1]
             return pe.Constraint.Skip
 
