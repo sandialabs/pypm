@@ -1,5 +1,5 @@
 #
-# Same as t1, but force the inclusion of Activity6
+# Same as t1, but force the inclusion of Activity6 at a specific date
 #
 from pypm.api import PYPM
 
@@ -17,7 +17,7 @@ def run():
     # Constraints
     #
     pm.maximize_total_match_score()
-    pm.set_latest_start_date("Activity6", "2021-01-28 16:00:00")
+    pm.set_latest_start_date("Activity6", "2021-01-29 05:00:00")
 
     #
     # Configure and run solver

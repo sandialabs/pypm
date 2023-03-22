@@ -7,30 +7,30 @@ results:
     Activity3:
       pre: '2021-01-01 03:00:00'
     Activity4:
-      first: '2021-01-01 03:00:00'
-      last: '2021-01-03 04:00:00'
-      stop: '2021-01-03 05:00:00'
+      first: '2021-01-01 07:00:00'
+      last: '2021-01-03 08:00:00'
+      stop: '2021-01-03 09:00:00'
     Activity5:
-      first: '2021-01-09 07:00:00'
-      last: '2021-01-09 16:00:00'
-      stop: '2021-01-09 17:00:00'
+      first: '2021-01-15 07:00:00'
+      last: '2021-01-15 16:00:00'
+      stop: '2021-01-15 17:00:00'
     Activity6:
-      first: '2021-01-28 16:00:00'
-      last: '2021-01-29 16:00:00'
-      stop: '2021-01-29 17:00:00'
+      first: '2021-01-29 05:00:00'
+      last: '2021-01-29 14:00:00'
+      stop: '2021-01-29 15:00:00'
   goals:
     match:
       Activity4: 30.0
       Activity5: 20.0
-      Activity6: 10.0
+      Activity6: 8.0
     separation:
       A: 0.949748743718593
       B: 0
-      C: 0.14285714285714285
-      D: 0.125
-      E: 0.3533783783783784
-    total_match: 60.0
-    total_separation: 1.5709842649541141
+      C: 0.16666666666666666
+      D: 0.14285714285714285
+      E: 0.3764705882352941
+    total_match: 58.0
+    total_separation: 1.6357431414776966
   schedule:
     Activity1:
       pre: true
@@ -39,14 +39,14 @@ results:
     Activity3:
       pre: true
     Activity4:
-      first: 0
-      last: 49
+      first: 4
+      last: 53
     Activity5:
-      first: 196
-      last: 205
+      first: 340
+      last: 349
     Activity6:
-      first: 661
-      last: 685
+      first: 674
+      last: 683
 solver:
   model:
     name: GSF
