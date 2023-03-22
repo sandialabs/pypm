@@ -218,4 +218,7 @@ class PMLabelSearch_Restricted(CachedTabuSearch):
         self.options.verbose = config.options.get("verbose", False)
         if "max_stall_count" in config.options:
             self.options.max_stall_count = config.options.get("max_stall_count")
+        if "stall_tolerance" in config.options:
+            self.options.stall_tolerance = config.options.get("stall_tolerance")
         self.options.tabu_tenure = round(0.25 * problem.nfeatures) + 1
+
