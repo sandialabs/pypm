@@ -1452,7 +1452,7 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
                     # Skip if latest time that activity i can start is before the time window.
                     #
                     if tau == None or tau < 0:
-                        return pe.Constraint.Skip
+                        continue
                     tau = tau + P[i]-1
                     if (i,tau) not in m.a:
                         # WEH - Can this ever happen?
@@ -1508,7 +1508,7 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
                     # Skip if latest time that activity i can start is before the time window.
                     #
                     if tau == None or tau < 0:
-                        return pe.Constraint.Skip
+                        continue
                     #
                     # NOTE:  Since we consider fixed-length activities, 
                     #           the activity is executed at time tau + P[i]-1 if it is
