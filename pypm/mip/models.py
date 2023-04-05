@@ -1436,22 +1436,42 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
         M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
 
         def compact_(m, j, t):
-            if t == 0 or (j,t-1) not in m.a:
+            #
+            # If we are at time step 0, then there are no precedesors in the
+            # time window.
+            #
+            if t == 0:
                 return pe.Constraint.Skip
 
-            e = m.a[j,t-1]
+            e = 0
             skip = True
             for (i,j_) in E:
                 if j_ == j:
-                    tau = tprev.get((i, t), -1) + P[i]-1
-                    if (i,tau) in m.a:
-                        skip = False
-                        e += m.a[i,tau]
-                        e += m.z[i,-1]
+                    tau = tprev.get((i,t),None)
+                    #
+                    # Skip if latest time that activity i can start is before the time window.
+                    #
+                    if tau == None or tau < 0:
+                        return pe.Constraint.Skip
+                    tau = tau + P[i]-1
+                    if (i,tau) not in m.a:
+                        # WEH - Can this ever happen?
+                        print("BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}", i, j, tprev.get((i,t)), tau, t)
+                        return pe.Constraint.Skip
+                    skip = False
+                    e += m.a[i,tau]
+                    e += m.z[i,-1]
+            #
+            # If no predecessor activites, then skip this constraint.
+            #
             if skip:
                 return pe.Constraint.Skip
-
-            return e >= m.a[j,t]
+            #
+            # We cannot start activity j at time step if the last time steps
+            # that the predecessor activities could be executed are all 
+            # not active.
+            #
+            return e >= m.z[j, t] - m.z[j, t-1] 
                     
         M.compact = pe.Constraint(J, T, rule=compact_)
 
@@ -1472,6 +1492,10 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
         M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
 
         def compact_(m, j, t):
+            #
+            # If we are at time step 0, then there are no precedesors in the
+            # time window.
+            #
             if t == 0:
                 return pe.Constraint.Skip
 
@@ -1479,12 +1503,29 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
             skip = True
             for (i,j_) in E:
                 if j_ == j:
-                    tau = tprev.get((i, t), -1)
-                    if (i,tau) in m.z:
-                        skip = False
-                        if tau >= 0:
-                            e += m.z[i,tau] - m.z[i,tau-1]
-                        e += m.z[i,-1]
+                    tau = tprev.get((i,t),None)
+                    #
+                    # Skip if latest time that activity i can start is before the time window.
+                    #
+                    if tau == None or tau < 0:
+                        return pe.Constraint.Skip
+                    #
+                    # NOTE:  Since we consider fixed-length activities, 
+                    #           the activity is executed at time tau + P[i]-1 if it is
+                    #           executed at time tau.  Hence, we don't adjust tau here,
+                    #           but instead test the value z[i,tau]-z[i,tau-1] to detect
+                    #           if the activity is executed at time tau+P[i]-1.
+                    #
+                    if (i,tau) not in m.z:
+                        # WEH - Can this ever happen?
+                        print("BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}", i, j, tprev.get((i,t)), tau, t)
+                        return pe.Constraint.Skip
+                    skip = False
+                    e += m.z[i,tau] - m.z[i,tau-1]
+                    e += m.z[i,-1]
+            #
+            # If no predecessor activites, then skip this constraint.
+            #
             if skip:
                 return pe.Constraint.Skip
 
@@ -1500,7 +1541,7 @@ def create_model(name):
     if name == "model11" or name == "GSF":
         return GSF_TotalMatchScore()
 
-    elif name == "GSF-continuous" or name == "GSF-compact":
+    elif name == "GSF-compact":
         return GSF_TotalMatchScore_Compact()
 
     elif name == "model13" or name == "GSF-ED":
@@ -1512,7 +1553,7 @@ def create_model(name):
     elif name == "XSF":
         return XSF_TotalMatchScore()
 
-    elif name == "XSF-continuous" or name == "XSF-compact":
+    elif name == "XSF-compact":
         return XSF_TotalMatchScore_Compact()
 
     elif name == "model12" or name == "model14" or name == "UPM":

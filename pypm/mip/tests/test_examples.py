@@ -107,68 +107,72 @@ def test108_11():
     run("test108", "model11")
 
 
-def test1_GSF_continuous():
-    run("test1", "GSF-continuous")
+def test1_GSF_compact():
+    run("test1", "GSF-compact")
 
 
-def test2_GSF_continuous():
-    run("test2", "GSF-continuous")
+def test2_GSF_compact():
+    run("test2", "GSF-compact")
 
 
-def test3_GSF_continuous():
-    run("test3", "GSF-continuous")
+def test3_GSF_compact():
+    run("test3", "GSF-compact")
 
 
-def test4_GSF_continuous():
-    run("test4", "GSF-continuous")
+def test4_GSF_compact():
+    run("test4", "GSF-compact")
 
 
-def test5_GSF_continuous():
-    run("test5", "GSF-continuous")
+def test5_GSF_compact():
+    run("test5", "GSF-compact")
 
 
-def test6_GSF_continuous():
-    run("test6", "GSF-continuous")
+def test6_GSF_compact():
+    run("test6", "GSF-compact")
 
 
-def test7_GSF_continuous():
-    run("test7", "GSF-continuous")
+def test7_GSF_compact():
+    run("test7", "GSF-compact")
 
 
-def test100_GSF_continuous():
-    run("test100", "GSF-continuous")
+def test100_GSF_compact():
+    run("test100", "GSF-compact")
 
 
-def test101_GSF_continuous():
-    run("test101", "GSF-continuous")
+def test101_GSF_compact():
+    run("test101", "GSF-compact")
 
 
-def test102_GSF_continuous():
-    run("test102", "GSF-continuous")
+def test102_GSF_compact():
+    run("test102", "GSF-compact")
 
 
-def test103_GSF_continuous():
-    run("test103", "GSF-continuous")
+def test103_GSF_compact():
+    run("test103", "GSF-compact")
 
 
-def test104_GSF_continuous():
-    run("test104", "GSF-continuous")
+def test104_GSF_compact():
+    run("test104", "GSF-compact")
 
 
-def test105_GSF_continuous():
-    run("test105", "GSF-continuous")
+def test105_GSF_compact():
+    run("test105", "GSF-compact")
 
 
-def test106_GSF_continuous():
-    run("test106", "GSF-continuous")
+def test106_GSF_compact():
+    run("test106", "GSF-compact")
 
 
-def test107_GSF_continuous():
-    run("test107", "GSF-continuous")
+def test107_GSF_compact():
+    run("test107", "GSF-compact")
 
 
-def test108_GSF_continuous():
-    run("test108", "GSF-continuous")
+def test108_GSF_compact():
+    run("test108", "GSF-compact")
+
+
+def test300_GSF_compact():
+    run("test300", "GSF-compact")
 
 
 def test1_13():
@@ -359,65 +363,69 @@ def test108_XSF():
     run("test108", "XSF")
 
 
-def test1_XSF_continuous():
-    run("test1", "XSF-continuous")
+def test1_XSF_compact():
+    run("test1", "XSF-compact")
 
 
-def test2_XSF_continuous():
-    run("test2", "XSF-continuous")
+def test2_XSF_compact():
+    run("test2", "XSF-compact")
 
 
-def test3_XSF_continuous():
-    run("test3", "XSF-continuous")
+def test3_XSF_compact():
+    run("test3", "XSF-compact")
 
 
-def test4_XSF_continuous():
-    run("test4", "XSF-continuous")
+def test4_XSF_compact():
+    run("test4", "XSF-compact")
 
 
-def test5_XSF_continuous():
-    run("test5", "XSF-continuous")
+def test5_XSF_compact():
+    run("test5", "XSF-compact")
 
 
-def test6_XSF_continuous():
-    run("test6", "XSF-continuous")
+def test6_XSF_compact():
+    run("test6", "XSF-compact")
 
 
-def test7_XSF_continuous():
-    run("test7", "XSF-continuous")
+def test7_XSF_compact():
+    run("test7", "XSF-compact")
 
 
-def test100_XSF_continuous():
-    run("test100", "XSF-continuous")
+def test100_XSF_compact():
+    run("test100", "XSF-compact")
 
 
-def test101_XSF_continuous():
-    run("test101", "XSF-continuous", debug=True)
+def test101_XSF_compact():
+    run("test101", "XSF-compact", debug=True)
 
 
-def test102_XSF_continuous():
-    run("test102", "XSF-continuous")
+def test102_XSF_compact():
+    run("test102", "XSF-compact")
 
 
-def test103_XSF_continuous():
-    run("test103", "XSF-continuous")
+def test103_XSF_compact():
+    run("test103", "XSF-compact")
 
 
-def test104_XSF_continuous():
-    run("test104", "XSF-continuous")
+def test104_XSF_compact():
+    run("test104", "XSF-compact")
 
 
-def test105_XSF_continuous():
-    run("test105", "XSF-continuous")
+def test105_XSF_compact():
+    run("test105", "XSF-compact")
 
 
-def test106_XSF_continuous():
-    run("test106", "XSF-continuous")
+def test106_XSF_compact():
+    run("test106", "XSF-compact")
 
 
-def test107_XSF_continuous():
-    run("test107", "XSF-continuous")
+def test107_XSF_compact():
+    run("test107", "XSF-compact")
 
 
-def test108_XSF_continuous():
-    run("test108", "XSF-continuous")
+def test108_XSF_compact():
+    run("test108", "XSF-compact")
+
+def test300_XSF_compact():
+    run("test300", "XSF-compact")
+
