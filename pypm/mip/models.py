@@ -1435,6 +1435,8 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
 
         M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
 
+        M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
+
         def compact_(m, j, t):
             #
             # If we are at time step 0, then there are no precedesors in the
@@ -1460,7 +1462,6 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
                         return pe.Constraint.Skip
                     skip = False
                     e += m.a[i,tau]
-                    e += m.z[i,-1]
             #
             # If no predecessor activites, then skip this constraint.
             #
@@ -1471,9 +1472,12 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
             # that the predecessor activities could be executed are all 
             # not active.
             #
-            return e >= m.z[j, t] - m.z[j, t-1] 
-                    
+            return e + m.z_pre[j] >= m.z[j, t] - m.z[j, t-1] 
         M.compact = pe.Constraint(J, T, rule=compact_)
+
+        def compact_z_(m, i, j):
+            return m.z[i,-1] >= m.z_pre[j]
+        M.compact_z = pe.Constraint(E, rule=compact_z_)
 
         return M
 
@@ -1490,6 +1494,8 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
     ):
 
         M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+
+        M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
 
         def compact_(m, j, t):
             #
@@ -1522,16 +1528,18 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
                         return pe.Constraint.Skip
                     skip = False
                     e += m.z[i,tau] - m.z[i,tau-1]
-                    e += m.z[i,-1]
             #
             # If no predecessor activites, then skip this constraint.
             #
             if skip:
                 return pe.Constraint.Skip
 
-            return e >= m.z[j,t] - m.z[j,t-1]
-                    
+            return e + m.z_pre[j] >= m.z[j,t] - m.z[j,t-1]
         M.compact = pe.Constraint(J, T, rule=compact_)
+
+        def compact_z_(m, i, j):
+            return m.z[i,-1] >= m.z_pre[j]
+        M.compact_z = pe.Constraint(E, rule=compact_z_)
 
         return M
 

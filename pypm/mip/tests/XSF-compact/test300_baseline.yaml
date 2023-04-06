@@ -228,6 +228,7 @@ results:
       : 1.0
       ? !!python/tuple [a4, 29]
       : 1.0
+    z_pre: {}
 solver:
   model: {name: XSF-compact}
   search_strategy: mip

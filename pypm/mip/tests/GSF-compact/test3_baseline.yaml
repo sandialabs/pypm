@@ -142,6 +142,7 @@ results:
       : 1.0
       ? !!python/tuple [a2, 29]
       : 1.0
+    z_pre: {}
 solver:
   model: {name: GSF-compact}
   search_strategy: mip
