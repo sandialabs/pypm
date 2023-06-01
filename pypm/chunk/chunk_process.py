@@ -38,7 +38,7 @@ def update(p, k, K=None, workhours=None):
     else:
         p["duration"]["max_timesteps"] = int(tmp)
 
-    p["hours_per_timestep"] = int(k)
+    return int(k)
 
 
 def chunk_process(filename, output, step):
@@ -51,21 +51,21 @@ def chunk_process(filename, output, step):
         p = process[name]
 
         if step == "2h":
-            update(p, 2)
+            process.hours_per_timestep = update(p, 2)
         elif step == "2h_workday(7-17)":
-            update(p, 2, workhours=[7, 17])
+            process.hours_per_timestep = update(p, 2, workhours=[7, 17])
         elif step == "4h":
-            update(p, 4)
+            process.hours_per_timestep = update(p, 4)
         elif step == "8h":
-            update(p, 8)
+            process.hours_per_timestep = update(p, 8)
         elif step == "3:55554h":
-            update(p, 5, 24 / 5)
+            process.hours_per_timestep = update(p, 5, 24 / 5)
         elif step == "5h_workday(7-17)":
-            update(p, 5, workhours=[7, 17])
+            process.hours_per_timestep = update(p, 5, workhours=[7, 17])
         elif step == "10h_workday(7-17)":
-            update(p, 10, workhours=[7, 17])
+            process.hours_per_timestep = update(p, 10, workhours=[7, 17])
         elif step == "1h":
-            pass
+            process.hours_per_timestep = 1
         else:
             print("ERROR: Unexpected chunk step {}".format(step))
             sys.exit(1)

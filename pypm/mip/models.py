@@ -1,4 +1,5 @@
 import datetime
+import pprint
 import pyomo.environ as pe
 
 #
@@ -39,16 +40,7 @@ class ProcessModelData(object):
             j: 0 if pm[j]["delay_after_hours"] is None else pm[j]["delay_after_hours"]
             for j in pm
         }
-        for j in pm:
-            self.hours_per_timestep = pm[j].get("hours_per_timestep", 1)
-            break
-        # except:
-        #    self.P = {j:pm[j]['duration']['min_hours'] for j in pm}
-        #    self.Q = {j:pm[j]['duration']['max_hours'] for j in pm}
-        #    self.Omega = {j:0 if pm[j]['delay_after_hours'] is None else pm[j]['delay_after_hours'] for j in pm}
-        #    self.hours_per_timestep = 1
-        #    print("ATTENTION: Using original chunked process representation")
-        # self.count = {name:pm.resources.count(name) for name in pm.resources}
+        self.hours_per_timestep = pm.hours_per_timestep
 
         self.J = list(sorted(pm))
         self.K = {j: set(pm[j]["resources"].keys()) for j in pm}
@@ -83,8 +75,8 @@ class ProcessModelData(object):
             datetime.datetime.fromisoformat(data.obs.datetime[i])
             for i in range(len(data.obs.datetime))
         ]
-        # dt = data.obs.datetime
-        # print(dt)
+
+        print("  HoursPerTimestep", self.hours_per_timestep)
         tprev = {}
         for j in pm:
             for t in self.T:
@@ -362,6 +354,7 @@ class GSF_TotalMatchScore(Z_Repn_Model):
             Upsilon=d.Upsilon,
             tprev=d.tprev,
             verbose=config.verbose,
+            debug=config.debug,
         )
 
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
@@ -383,7 +376,8 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         Tmax,
         Upsilon,
         tprev,
-        verbose
+        verbose,
+        debug
     ):
 
         if verbose:
@@ -394,6 +388,14 @@ class GSF_TotalMatchScore(Z_Repn_Model):
             else:
                 print("  Gamma", self.config.options.get("Gamma", None))
             print("  Upsilon", Upsilon)
+
+        if debug:
+            print("")
+            print("  Omega")
+            pprint.pprint(Omega)
+            print("")
+            print("  tprev")
+            pprint.pprint(tprev)
 
         assert (
             objective == "total_match_score"
