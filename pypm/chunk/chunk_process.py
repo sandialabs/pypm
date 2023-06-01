@@ -6,9 +6,6 @@ from pypm.util import load_process
 
 
 def update(p, k, K=None, workhours=None):
-    #
-    # NOTE:  This code does not change the delay_after_hours value, which is not chunked.
-    #
     if K is None:
         K = k
     if workhours is None:
@@ -37,6 +34,11 @@ def update(p, k, K=None, workhours=None):
         )
     else:
         p["duration"]["max_timesteps"] = int(tmp)
+
+    if p.get("delay_after_hours",None) is not None:
+        delay = p["delay_after_hours"]
+        tmp = delay / k
+        p["delay_after_timesteps"] = tmp
 
     return int(k)
 

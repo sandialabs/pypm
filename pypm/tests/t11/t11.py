@@ -1,5 +1,5 @@
 #
-# Simple process matching
+# Set the activity min/max lengths to be equal to the min value
 #
 from munch import Munch
 from pypm.api import PYPM

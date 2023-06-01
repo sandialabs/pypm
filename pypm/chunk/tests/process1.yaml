@@ -15,7 +15,7 @@ activities:
     rC: 
 
 - name: a2
-  max_delay: 24
+  delay_after_hours: 24
   dependencies:
   - a1
   duration:

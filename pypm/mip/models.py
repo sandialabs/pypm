@@ -37,7 +37,7 @@ class ProcessModelData(object):
         self.P = {j: pm[j]["duration"]["min_timesteps"] for j in pm}
         self.Q = {j: pm[j]["duration"]["max_timesteps"] for j in pm}
         self.Omega = {
-            j: 0 if pm[j]["delay_after_hours"] is None else pm[j]["delay_after_hours"]
+            j: 0 if pm[j]["delay_after_timesteps"] is None else pm[j]["delay_after_timesteps"]
             for j in pm
         }
         self.hours_per_timestep = pm.hours_per_timestep
@@ -86,12 +86,11 @@ class ProcessModelData(object):
                     if last >= self.Tmax:
                         continue
                     tmp = dt[last] + datetime.timedelta(
-                        hours=self.hours_per_timestep + self.Omega[j]
+                        hours=self.hours_per_timestep * (1 + self.Omega[j])
                     )
                     if tmp > dt[t]:
                         continue
                     tprev[j, t] = tau
-                    # print(j,tau,t)
                     break
         self.tprev = tprev
 
@@ -349,7 +348,6 @@ class GSF_TotalMatchScore(Z_Repn_Model):
             P=d.P,
             Q=d.Q,
             E=d.E,
-            Omega=d.Omega,
             Gamma=d.Gamma,
             Tmax=d.Tmax,
             Upsilon=d.Upsilon,
@@ -372,7 +370,6 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         P,
         Q,
         E,
-        Omega,
         Gamma,
         Tmax,
         Upsilon,
@@ -389,14 +386,6 @@ class GSF_TotalMatchScore(Z_Repn_Model):
             else:
                 print("  Gamma", self.config.options.get("Gamma", None))
             print("  Upsilon", Upsilon)
-
-        if debug:
-            print("")
-            print("  Omega")
-            pprint.pprint(Omega)
-            print("")
-            print("  tprev")
-            pprint.pprint(tprev)
 
         assert (
             objective == "total_match_score"
@@ -524,7 +513,6 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
             P=d.P,
             Q=d.Q,
             E=d.E,
-            Omega=d.Omega,
             Gamma=d.Gamma,
             Tmax=d.Tmax,
             Upsilon=d.Upsilon,
@@ -549,7 +537,6 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         P,
         Q,
         E,
-        Omega,
         Gamma,
         Tmax,
         Upsilon,
@@ -642,7 +629,6 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            # tprev = max(t- (Q[j]+Gamma[j]+Omega[j]), -1)
             if Gamma[j] is None:
                 tau = -1
             else:
@@ -664,8 +650,6 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         def precedence_lb_(m, i, j, t):
             tau = tprev.get((i, t), -1)
             return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
 
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
@@ -818,7 +802,6 @@ class UPM_TotalMatchScore(Z_Repn_Model):
             P=d.P,
             Q=d.Q,
             E=d.E,
-            Omega=d.Omega,
             Gamma=d.Gamma,
             Tmax=d.Tmax,
             Upsilon=d.Upsilon,
@@ -848,7 +831,6 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         P,
         Q,
         E,
-        Omega,
         Gamma,
         Tmax,
         Upsilon,
@@ -872,7 +854,6 @@ class UPM_TotalMatchScore(Z_Repn_Model):
             print("Model Options")
             print("  Delta", Delta)
             print("  Gamma", Gamma)
-            print("  Omega", Omega)
             print("  Xi", Xi)
             print("  Upsilon", Upsilon)
 
@@ -1030,8 +1011,6 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         def precedence_lb_(m, i, j, t):
             tau = tprev.get((i, t), -1)
             return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
 
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
@@ -1084,7 +1063,6 @@ class XSF_TotalMatchScore(Z_Repn_Model):
             P=d.P,
             Q=d.Q,
             E=d.E,
-            Omega=d.Omega,
             Tmax=d.Tmax,
             Upsilon=d.Upsilon,
             tprev=d.tprev,
@@ -1094,7 +1072,7 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
     def create_model(
-        self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, tprev, verbose
+        self, *, objective, T, J, K, S, O, P, Q, E, Tmax, Upsilon, tprev, verbose
     ):
 
         if verbose:
@@ -1261,7 +1239,6 @@ class GSF_Makespan(Z_Repn_Model):
             P=d.P,
             Q=d.Q,
             E=d.E,
-            Omega=d.Omega,
             Gamma=d.Gamma,
             Tmax=d.Tmax,
             Upsilon=d.Upsilon,
@@ -1283,7 +1260,6 @@ class GSF_Makespan(Z_Repn_Model):
         P,
         Q,
         E,
-        Omega,
         Gamma,
         Tmax,
         Upsilon,
@@ -1370,8 +1346,6 @@ class GSF_Makespan(Z_Repn_Model):
         def precedence_lb_(m, i, j, t):
             tau = tprev.get((i, t), -1)
             return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
 
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
@@ -1427,7 +1401,6 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
         P,
         Q,
         E,
-        Omega,
         Gamma,
         Tmax,
         Upsilon,
@@ -1436,7 +1409,7 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
         debug
     ):
 
-        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose, debug=debug)
+        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose, debug=debug)
 
         M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
 
@@ -1493,10 +1466,10 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
         self.description = "Supervised process matching maximizing match score with compactness constraints"
 
     def create_model(
-        self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, tprev, verbose
+        self, *, objective, T, J, K, S, O, P, Q, E, Tmax, Upsilon, tprev, verbose
     ):
 
-        M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+        M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
 
         M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
 

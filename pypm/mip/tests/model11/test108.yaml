@@ -28,7 +28,7 @@ activities:
   duration:
     max_hours: 6
     min_hours: 6
-  max_delay: 2
+  delay_after_hours: 2
   resources:
 
 - name: a3

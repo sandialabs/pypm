@@ -90,11 +90,14 @@ class ProcessModel(object):
         i = len(self._names)
         activity["id"] = i
         self._names[activity["name"]] = i
-        if activity.get("max_delay", None) is not None:
-            activity["delay_after_hours"] = activity["max_delay"]
-            del activity["max_delay"]
-        if activity.get("delay_after_hours", None) is None:
-            activity["delay_after_hours"] = None
+
+        assert activity.get("max_delay",None) is None, "Use of 'max_delay' is disallowed.  Use 'delay_after_hours'."
+        if activity.get("delay_after_hours", None) is not None:
+            activity["delay_after_timesteps"] = activity["delay_after_hours"]
+            del activity["delay_after_hours"]
+        if activity.get("delay_after_timesteps", None) is None:
+            activity["delay_after_timesteps"] = None
+
         if "max_hours" in activity["duration"]:
             activity["duration"] = {
                 "max_timesteps": activity["duration"]["max_hours"],
@@ -126,7 +129,7 @@ class ProcessModel(object):
         for name in self:
             ans = {}
             ans["name"] = name
-            ans["delay_after_hours"] = self[name]["delay_after_hours"]
+            ans["delay_after_timesteps"] = self[name]["delay_after_timesteps"]
             ans["dependencies"] = self[name]["dependencies"]
             ans["resources"] = self[name]["resources"]
             ans["duration"] = self[name]["duration"]

@@ -1,5 +1,5 @@
 #
-# Simple process matching
+# Same as t1, but executing on a chunked representation
 #
 from pypm.api import PYPM
 

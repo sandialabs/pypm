@@ -18,7 +18,7 @@ resources:
 activities:
 
 - name: a1
-  max_delay: 1
+  delay_after_hours: 1
   dependencies:
   duration:
     max_hours: 5

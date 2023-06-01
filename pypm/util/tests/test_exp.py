@@ -21,7 +21,7 @@ activities:
 
 - name: a1
   dependencies:
-  max_delay: 10
+  delay_after_hours: 10
   duration:
     max_hours: 8
     min_hours: 4
