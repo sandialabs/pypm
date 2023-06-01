@@ -8,7 +8,7 @@ activities:
   resources:
     rB: 1
     rC: 1
-- delay_after_timesteps: 24
+- delay_after_timesteps: 12.0
   dependencies:
   - a1
   duration:
