@@ -6,27 +6,13 @@ from pypm.util import load_process
 
 
 def update(p, k, K=None, workhours=None):
+    #
+    # NOTE:  This code does not change the delay_after_hours value, which is not chunked.
+    #
     if K is None:
         K = k
     if workhours is None:
         workhours = [0, 24]
-
-    max_delay = p["delay_after_hours"]
-    p["delay_after_hours"] = max_delay
-    # if max_delay is not None:
-    #    #
-    #    # Rescaling max_delay to include the specified # of work hours per day
-    #    #
-    #    max_delay = max_delay * (workhours[1]-workhours[0])/ 24
-    #    #
-    #    # Chunk the max_delay into K-bins, and round up to the nearest integer
-    #    #
-    #    tmp = max_delay / K
-    #    if tmp - int(tmp) > 1e-7:
-    #        print("WARNING: max_delay is not evenly divisible by {}.  Rounding up chunked max_delay.")
-    #        p['max_delay'] = int(math.ceil(tmp))
-    #    else:
-    #        p['max_delay'] = int(tmp)
 
     min_hours = p["duration"]["min_timesteps"]
     tmp = min_hours / k
