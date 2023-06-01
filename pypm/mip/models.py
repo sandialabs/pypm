@@ -1432,10 +1432,11 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
         Tmax,
         Upsilon,
         tprev,
-        verbose
+        verbose,
+        debug
     ):
 
-        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose, debug=debug)
 
         M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
 
