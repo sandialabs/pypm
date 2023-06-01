@@ -52,6 +52,10 @@ class SupervisedMIP(object):
         self.objective = Munch(goal="total_match_score")
         self.solver_options = Munch(name=None, show_solver_output=None)
 
+    def activities(self):
+        for activity in self.config.pm:
+            yield activity
+
     def load_config(self, yamlfile, index=0):
         self.config = load_config(
             datafile=yamlfile,
@@ -60,7 +64,7 @@ class SupervisedMIP(object):
             index=0,
         )
         if self.config.labeling_restrictions:
-            for activity in self.config.pm:
+            for activity in self.activities():
                 dummyname = "dummy " + activity
                 self.config.pm.resources.add(dummyname, 1)
 
@@ -123,6 +127,10 @@ class SupervisedMIP(object):
         self.constraints.append(Munch(activity=activity, constraint="include"))
         return len(self.constraints) - 1
 
+    def include_all(self):
+        for activity in self.activities():
+            self.include(activity)
+
     # def exclude(self, activity):
     #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
     #    return len(self.constraints)-1
@@ -133,11 +141,19 @@ class SupervisedMIP(object):
         )
         return len(self.constraints) - 1
 
+    def set_earliest_start_dates(self, startdate):
+        for activity in self.activities():
+            self.set_earliest_start_date(activity, startdate)
+
     def set_latest_start_date(self, activity, startdate):
         self.constraints.append(
             Munch(activity=activity, constraint="latest_start", startdate=startdate)
         )
         return len(self.constraints) - 1
+
+    def set_latest_start_dates(self, startdate):
+        for activity in self.activities():
+            self.set_latest_start_date(activity, startdate)
 
     def fix_start_date(self, activity, startdate):
         self.constraints.append(
@@ -149,9 +165,17 @@ class SupervisedMIP(object):
         self.constraints.append(Munch(activity=activity, constraint="relax"))
         return len(self.constraints) - 1
 
+    def relax_all(self):
+        for activity in self.activities():
+            self.relax(activity)
+
     def relax_start_date(self, activity):
         self.constraints.append(Munch(activity=activity, constraint="relax_start"))
         return len(self.constraints) - 1
+
+    def relax_start_dates(self):
+        for activity in self.activities():
+            self.relax_start_date(activity)
 
     def set_activity_duration(self, activity, minval, maxval):
         self.constraints.append(
@@ -257,6 +281,10 @@ class TabuLabeling(object):
         self.config = Munch()
         self.constraints = []
 
+    def activities(self):
+        for activity in self.config.pm:
+            yield activity
+
     def load_config(self, yamlfile, index=0):
         self.config = load_config(
             datafile=yamlfile,
@@ -269,7 +297,7 @@ class TabuLabeling(object):
         # Process the labeling restrictions file
         #
         if self.config.labeling_restrictions:
-            for activity in self.config.pm:
+            for activity in self.activities():
                 dummyname = "dummy " + activity
                 self.config.pm.resources.add(dummyname, 1)
 
@@ -360,6 +388,10 @@ class TabuLabeling(object):
         self.constraints.append(Munch(activity=activity, constraint="include"))
         return len(self.constraints) - 1
 
+    def include_all(self):
+        for activity in self.activities():
+            self.include(activity)
+
     # def exclude(self, activity):
     #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
     #    return len(self.constraints)-1
@@ -370,11 +402,19 @@ class TabuLabeling(object):
         )
         return len(self.constraints) - 1
 
+    def set_earliest_start_dates(self, startdate):
+        for activity in self.activities():
+            self.set_earliest_start_date(activity, startdate)
+
     def set_latest_start_date(self, activity, startdate):
         self.constraints.append(
             Munch(activity=activity, constraint="latest_start", startdate=startdate)
         )
         return len(self.constraints) - 1
+
+    def set_latest_start_dates(self, startdate):
+        for activity in self.activities():
+            self.set_latest_start_date(activity, startdate)
 
     def fix_start_date(self, activity, startdate):
         self.constraints.append(
@@ -386,9 +426,17 @@ class TabuLabeling(object):
         self.constraints.append(Munch(activity=activity, constraint="relax"))
         return len(self.constraints) - 1
 
+    def relax_all(self):
+        for activity in self.activities():
+            self.relax(activity)
+
     def relax_start_date(self, activity):
         self.constraints.append(Munch(activity=activity, constraint="relax_start"))
         return len(self.constraints) - 1
+
+    def relax_start_dates(self):
+        for activity in self.activities():
+            self.relax_start_date(activity)
 
     def set_activity_duration(self, activity, minval, maxval):
         self.constraints.append(

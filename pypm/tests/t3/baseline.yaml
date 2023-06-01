@@ -2,8 +2,8 @@ results:
 - datetime_schedule:
     Activity1:
       first: '2021-01-02 08:00:00'
-      last: '2021-01-02 17:00:00'
-      stop: '2021-01-02 18:00:00'
+      last: '2021-01-02 16:00:00'
+      stop: '2021-01-02 17:00:00'
     Activity2:
       first: '2021-01-09 07:00:00'
       last: '2021-01-10 22:00:00'
@@ -29,17 +29,17 @@ results:
       Activity4: 10.0
       Activity5: 20.0
     separation:
-      A: 0.9083756345177665
-      B: 0.8587939698492463
+      A: 0.9584178498985801
+      B: 0.9588353413654619
       C: 0
       D: 0
       E: 0.27790055248618784
     total_match: 58.0
-    total_separation: 2.0450701568532006
+    total_separation: 2.1951537437502298
   schedule:
     Activity1:
       first: 29
-      last: 38
+      last: 37
     Activity2:
       first: 196
       last: 235

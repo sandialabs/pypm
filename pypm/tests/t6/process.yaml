@@ -10,8 +10,8 @@ activities:
 - name: Activity1
   dependencies:
   duration:
-    max_hours: 10
-    min_hours: 10
+    max_hours: 9
+    min_hours: 9
   resources:
     A:
     B:
@@ -67,7 +67,7 @@ activities:
   dependencies:
   - Activity5
   duration:
-    max_hours: 70
+    max_hours: 10
     min_hours: 10
   resources:
     D:

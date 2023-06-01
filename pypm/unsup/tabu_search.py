@@ -94,6 +94,7 @@ class TabuSearch(object):
         # an improving solution.
         #
         self.options.max_stall_count = self.options.max_iterations / 4
+        self.options.stall_tolerance = 0.0
         self.options.tabu_tenure = 2
         #
         # Search strategies
@@ -438,11 +439,15 @@ class TabuSearch(object):
             #
             if f_nbhd < f_best:
                 #
+                # Reset the stall count if this is a "big enough" improvement
+                #
+                if f_nbhd + self.options.stall_tolerance < f_best:
+                    self.stall_count = 0
+                #
                 # Found a point that improved on the globally best
                 #
                 x_best, f_best = x_nbhd, f_nbhd
                 x, f_x = x_nbhd, f_nbhd
-                self.stall_count = 0
                 #
                 # Write file with improving solution
                 #

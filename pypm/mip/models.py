@@ -75,11 +75,12 @@ class ProcessModelData(object):
             datetime.datetime.fromisoformat(data.obs.datetime[i])
             for i in range(len(data.obs.datetime))
         ]
-
-        print("  HoursPerTimestep", self.hours_per_timestep)
+        dt.append( dt[-1]+datetime.timedelta(hours=self.hours_per_timestep))
+        # dt = data.obs.datetime
+        # print(dt)
         tprev = {}
         for j in pm:
-            for t in self.T:
+            for t in list(self.T)+[self.Tmax]:
                 for tau in reversed(range(-1, t - 1)):
                     last = tau + self.P[j] - 1
                     if last >= self.Tmax:
@@ -437,19 +438,21 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 
         M.zstep = pe.Constraint(J, T, rule=zstep_)
 
+        def precedence_lb_(m, i, j, t):
+            tau = tprev.get((i, t), -1)
+            return m.z[i, tau] - m.z[j, t] >= 0
+
+        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+
+        def activity_stop_(m, i, j, t):
+            return 1 - m.z[j, t] >= m.a[i, t]
+
+        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+
         def firsta_(m, j, t):
             return m.z[j, t] - m.z[j, t - 1] <= m.a[j, t]
 
         M.firsta = pe.Constraint(J, T, rule=firsta_)
-
-        def activity_start_(m, j, t):
-            if Gamma[j] is None:
-                tau = -1
-            else:
-                tau = max(t - (Q[j] + Gamma[j]), -1)
-            return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
-
-        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         def length_lower_(m, j):
             return sum(m.a[j, t] for t in T) >= P[j] * (m.z[j, Tmax - 1] - M.z[j, -1])
@@ -461,18 +464,14 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
-        def precedence_lb_(m, i, j, t):
-            tau = tprev.get((i, t), -1)
-            return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
+        def activity_start_(m, j, t):
+            if Gamma[j] is None:
+                tau = -1
+            else:
+                tau = max(t - (Q[j] + Gamma[j]), -1)
+            return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
-        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
-
-        def activity_stop_(m, i, j, t):
-            return 1 - m.z[j, t] >= m.a[i, t]
-
-        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
         # Auxilliary computed values
 
@@ -1120,7 +1119,6 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
 
         def odef_(m, j):
-            # return m.o[j] == sum(sum((S[j,k]*O[k][t])*m.a[j,t] for k in K[j]) for t in T)
             total = 0
             for t in T:
                 end = t + P[j] - 1
@@ -1154,17 +1152,17 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         def precedence_lb_(m, i, j, t):
             tau = tprev.get((i, t), -1)
             return m.z[i, tau] - m.z[j, t] >= 0
-            # tprev = max(t- (P[i]+Omega[i]), -1)
-            # return m.z[i,tprev] - m.z[j,t] >= 0
 
         M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
         def activity_feasibility_(m, j, t):
-            if t + P[j] - 1 >= Tmax:
-                # if j.startswith("Final Setup"):
-                #    return pe.Constraint.Skip
-                # print("HERE",j,t,t+P[j]-1,Tmax)
-                return m.z[j, t] == m.z[j, Tmax - 1]  # - M.z[j,-1]
+            tau = tprev.get((j, Tmax), -1)
+            if t > tau:
+            # WEH - This is the old logic, which is weaker than the new logic b.c. it 
+            #       doesn't account for the additional information that is encoded in the
+            #       tprev values.
+            #if t + P[j] - 1 >= Tmax:       
+                return m.z[j, t] == m.z[j, Tmax - 1]
             return pe.Constraint.Skip
 
         M.activity_feasibility = pe.Constraint(J, T, rule=activity_feasibility_)
@@ -1325,9 +1323,7 @@ class GSF_Makespan(Z_Repn_Model):
         M.omax = pe.Constraint(J, rule=omax_)
 
         def odef_(m, j):
-            return m.o[j] == sum(t * (m.z[j, t] - m.z[j, t - 1]) for t in T) + (
-                Tmax - 1
-            ) * (1 - m.z[j, Tmax - 1])
+            return m.o[j] == sum(t * (m.z[j, t] - m.z[j, t - 1]) for t in T) + ( Tmax - 1) * (1 - m.z[j, Tmax - 1])
 
         M.odef = pe.Constraint(J, rule=odef_)
 
@@ -1411,9 +1407,152 @@ class GSF_Makespan(Z_Repn_Model):
         return M
 
 
+#
+# This is the GSF model, annotated to enforce compactness constraints
+#
+class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
+    def __init__(self):
+        self.name = "GSF-compact"
+        self.description = "Supervised process matching maximizing match score with compactness constraint"
+
+    def create_model(
+        self,
+        *,
+        objective,
+        T,
+        J,
+        K,
+        S,
+        O,
+        P,
+        Q,
+        E,
+        Omega,
+        Gamma,
+        Tmax,
+        Upsilon,
+        tprev,
+        verbose
+    ):
+
+        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+
+        M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
+
+        def compact_(m, j, t):
+            #
+            # If we are at time step 0, then there are no precedesors in the
+            # time window.
+            #
+            if t == 0:
+                return pe.Constraint.Skip
+
+            e = 0
+            skip = True
+            for (i,j_) in E:
+                if j_ == j:
+                    tau = tprev.get((i,t),None)
+                    #
+                    # Skip if latest time that activity i can start is before the time window.
+                    #
+                    if tau == None or tau < 0:
+                        continue
+                    tau = tau + P[i]-1
+                    if (i,tau) not in m.a:
+                        # WEH - Can this ever happen?
+                        print("BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}", i, j, tprev.get((i,t)), tau, t)
+                        return pe.Constraint.Skip
+                    skip = False
+                    e += m.a[i,tau]
+            #
+            # If no predecessor activites, then skip this constraint.
+            #
+            if skip:
+                return pe.Constraint.Skip
+            #
+            # We cannot start activity j at time step if the last time steps
+            # that the predecessor activities could be executed are all 
+            # not active.
+            #
+            return e + m.z_pre[j] >= m.z[j, t] - m.z[j, t-1] 
+        M.compact = pe.Constraint(J, T, rule=compact_)
+
+        def compact_z_(m, i, j):
+            return m.z[i,-1] >= m.z_pre[j]
+        M.compact_z = pe.Constraint(E, rule=compact_z_)
+
+        return M
+
+#
+# This is the XSF model, annotated to enforce compactness constraints
+#
+class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
+    def __init__(self):
+        self.name = "XSF-compact"
+        self.description = "Supervised process matching maximizing match score with compactness constraints"
+
+    def create_model(
+        self, *, objective, T, J, K, S, O, P, Q, E, Omega, Tmax, Upsilon, tprev, verbose
+    ):
+
+        M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Omega=Omega, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+
+        M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
+
+        def compact_(m, j, t):
+            #
+            # If we are at time step 0, then there are no precedesors in the
+            # time window.
+            #
+            if t == 0:
+                return pe.Constraint.Skip
+
+            e = 0
+            skip = True
+            for (i,j_) in E:
+                if j_ == j:
+                    tau = tprev.get((i,t),None)
+                    #
+                    # Skip if latest time that activity i can start is before the time window.
+                    #
+                    if tau == None or tau < 0:
+                        continue
+                    #
+                    # NOTE:  Since we consider fixed-length activities, 
+                    #           the activity is executed at time tau + P[i]-1 if it is
+                    #           executed at time tau.  Hence, we don't adjust tau here,
+                    #           but instead test the value z[i,tau]-z[i,tau-1] to detect
+                    #           if the activity is executed at time tau+P[i]-1.
+                    #
+                    if (i,tau) not in m.z:
+                        # WEH - Can this ever happen?
+                        print("BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}", i, j, tprev.get((i,t)), tau, t)
+                        return pe.Constraint.Skip
+                    skip = False
+                    e += m.z[i,tau] - m.z[i,tau-1]
+            #
+            # If no predecessor activites, then skip this constraint.
+            #
+            if skip:
+                return pe.Constraint.Skip
+
+            return e + m.z_pre[j] >= m.z[j,t] - m.z[j,t-1]
+        M.compact = pe.Constraint(J, T, rule=compact_)
+
+        def compact_z_(m, i, j):
+            return m.z[i,-1] >= m.z_pre[j]
+        M.compact_z = pe.Constraint(E, rule=compact_z_)
+
+        return M
+
+
+
 def create_model(name):
     if name == "model11" or name == "GSF":
         return GSF_TotalMatchScore()
+
+    elif name == "GSF-compact":
+        return GSF_TotalMatchScore_Compact()
 
     elif name == "model13" or name == "GSF-ED":
         return GSFED_TotalMatchScore()
@@ -1423,6 +1562,9 @@ def create_model(name):
 
     elif name == "XSF":
         return XSF_TotalMatchScore()
+
+    elif name == "XSF-compact":
+        return XSF_TotalMatchScore_Compact()
 
     elif name == "model12" or name == "model14" or name == "UPM":
         return UPM_TotalMatchScore()

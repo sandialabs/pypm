@@ -3,13 +3,13 @@ results:
     Activity1:
       pre: '2021-01-01 03:00:00'
     Activity2:
-      first: '2021-01-01 03:00:00'
-      last: '2021-01-02 18:00:00'
-      stop: '2021-01-02 19:00:00'
+      first: '2021-01-01 07:00:00'
+      last: '2021-01-02 22:00:00'
+      stop: '2021-01-02 23:00:00'
     Activity3:
-      first: '2021-01-11 03:00:00'
-      last: '2021-01-11 12:00:00'
-      stop: '2021-01-11 13:00:00'
+      first: '2021-01-11 11:00:00'
+      last: '2021-01-11 20:00:00'
+      stop: '2021-01-11 21:00:00'
     Activity4:
       first: '2021-01-27 15:00:00'
       last: '2021-01-29 16:00:00'
@@ -37,11 +37,11 @@ results:
     Activity1:
       pre: true
     Activity2:
-      first: 0
-      last: 39
+      first: 4
+      last: 43
     Activity3:
-      first: 240
-      last: 249
+      first: 248
+      last: 257
     Activity4:
       first: 636
       last: 685

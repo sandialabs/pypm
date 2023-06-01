@@ -43,14 +43,13 @@ requires = [
 ]
 packages = _find_packages("pypm")
 
-setup(
-    name="pypm",
-    version="1.2.2",
-    url="https://cee-gitlab.sandia.gov/adapd/pypm",
-    platforms=["any"],
-    description="A python library for process matching",
-    # long_description=read('README.md'),
-    classifiers=[
+setup(name='pypm',
+      version='1.4.2',
+      url='https://cee-gitlab.sandia.gov/adapd/pypm',
+      platforms=["any"],
+      description='A python library for process matching',
+      #long_description=read('README.md'),
+      classifiers=[
         #'Development Status :: 5 - Production/Stable',
         "Intended Audience :: End Users/Desktop",
         "Intended Audience :: Science/Research",
@@ -67,15 +66,16 @@ setup(
         #'Programming Language :: Python :: Implementation :: CPython',
         #'Programming Language :: Python :: Implementation :: Jython',
         #'Programming Language :: Python :: Implementation :: PyPy',
-        "Topic :: Scientific/Engineering :: Mathematics",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-    ],
-    packages=packages,
-    keywords=["optimization"],
-    install_requires=requires,
-    python_requires=">=3.7",
-    entry_points="""
-        [console_scripts]
-        pypm = pypm.pypm:main
-        """,
-)
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Software Development :: Libraries :: Python Modules' ],
+      packages=packages,
+      keywords=['optimization'],
+      install_requires=requires,
+      python_requires='>=3.7',
+      entry_points={
+        "console_scripts": [
+            "pypm = pypm.pypm:main",
+            "transpose_feature_resource_constraints = pypm.util.transpose_feature_resource_constraints:main",
+        ]
+      }
+      )

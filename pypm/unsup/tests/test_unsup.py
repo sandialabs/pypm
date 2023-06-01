@@ -47,6 +47,7 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
         "test105",
         "test106",
         "test107",
+        "test108",
         "test200",  # test100 without combined features
         "test201",
         "test202",
@@ -73,6 +74,7 @@ def run(dirname, testname, debug=False, verify=False, nworkers=1):
         "test905",
         "test906",
         "test907",
+        "test908",
     ],
 )
 def test_GSFED1(tname):
