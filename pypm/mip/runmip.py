@@ -154,7 +154,7 @@ def load_config(
     tee=None,
     solver=None,
     dirname=None,
-    debug=False,
+    debug=None,
     verbose=None,
     quiet=None,
     seed=123456789237498
@@ -167,6 +167,7 @@ def load_config(
     options = data["_options"]
     savefile = options.get("write", None)
     tee = options.get("tee", False) if tee is None else tee
+    debug = options.get("debug", False) if debug is None else debug
     seed = options.get("seed", False) if seed is None else seed
     verbose = options.get("verbose", False) if verbose is None else verbose
     quiet = options.get("quiet", False) if quiet is None else quiet
