@@ -40,7 +40,8 @@ class ProcessModelData(object):
             j: 0 if pm[j]["delay_after_timesteps"] is None else pm[j]["delay_after_timesteps"]
             for j in pm
         }
-        self.hours_per_timestep = pm.hours_per_timestep
+        hours_per_timestep = pm.hours_per_timestep
+        #timesteps_per_day = pm.timesteps_per_day
 
         self.J = list(sorted(pm))
         self.K = {j: set(pm[j]["resources"].keys()) for j in pm}
@@ -69,15 +70,16 @@ class ProcessModelData(object):
                     self.P[j] = con.minval
                     self.Q[j] = con.maxval
 
-        # for i in data.obs.datetime:
-        #    print(i,type(data.obs.datetime[i]))
-        dt = [
-            datetime.datetime.fromisoformat(data.obs.datetime[i])
-            for i in range(len(data.obs.datetime))
-        ]
-        dt.append( dt[-1]+datetime.timedelta(hours=self.hours_per_timestep))
-        # dt = data.obs.datetime
-        # print(dt)
+        if False:
+            # for i in data.obs.datetime:
+            #    print(i,type(data.obs.datetime[i]))
+            dt = [
+                datetime.datetime.fromisoformat(data.obs.datetime[i])
+                for i in range(len(data.obs.datetime))
+            ]
+            dt.append( dt[-1]+datetime.timedelta(hours=hours_per_timestep))
+            # dt = data.obs.datetime
+            # print(dt)
         tprev = {}
         for j in pm:
             for t in list(self.T)+[self.Tmax]:
@@ -85,10 +87,9 @@ class ProcessModelData(object):
                     last = tau + self.P[j] - 1
                     if last >= self.Tmax:
                         continue
-                    tmp = dt[last] + datetime.timedelta(
-                        hours=self.hours_per_timestep * (1 + self.Omega[j])
-                    )
-                    if tmp > dt[t]:
+                    tmp = last + 1 + self.Omega[j]
+                    #tmp = dt[last] + datetime.timedelta(hours=hours_per_timestep * (1 + self.Omega[j]))
+                    if tmp > t:
                         continue
                     tprev[j, t] = tau
                     break
