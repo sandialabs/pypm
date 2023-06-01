@@ -16,6 +16,7 @@ activities:
     min_timesteps: 3
   name: a2
   resources: {}
+hours_per_timestep: 2
 resources:
   rA: null
   rB: null

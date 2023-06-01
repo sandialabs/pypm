@@ -45,6 +45,7 @@ class ProcessModel(object):
 
     def __init__(self, data={}):
         self.resources = Resources()
+        self.hours_per_timestep = 1
         self._activities = {}  # activities: int_id -> activity
         self._names = {}  # names: name -> int_id
         if len(data) > 0:
@@ -59,6 +60,7 @@ class ProcessModel(object):
         self.resources.load(data["resources"])
         for activity in data["activities"]:
             self._add_activity(activity)
+        self.hours_per_timestep = data.get('hours_per_timestep',1)
         self._initialize()
 
     def __len__(self):
@@ -129,4 +131,4 @@ class ProcessModel(object):
             ans["resources"] = self[name]["resources"]
             ans["duration"] = self[name]["duration"]
             activities.append(ans)
-        return dict(resources=resources, activities=activities)
+        return dict(resources=resources, activities=activities, hours_per_timestep=self.hours_per_timestep)
