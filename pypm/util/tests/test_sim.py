@@ -422,7 +422,7 @@ activities:
     rA:
 
 - name: a4
-  max_delay: 5
+  delay_after_hours: 5
   dependencies:
   - a1
   duration:
@@ -477,7 +477,7 @@ resources:
 activities:
 
 - name: a1
-  max_delay: 4
+  delay_after_hours: 4
   dependencies:
   duration:
     max_hours: 4
@@ -506,7 +506,7 @@ activities:
     rA:
 
 - name: a4
-  max_delay: 5
+  delay_after_hours: 5
   dependencies:
   - a1
   duration:

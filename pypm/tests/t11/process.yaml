@@ -18,7 +18,7 @@ activities:
     C:
 
 - name: Activity2
-  max_delay: 200
+  delay_after_hours: 200
   dependencies: 
   - Activity1
   duration:
@@ -30,7 +30,7 @@ activities:
     C:
 
 - name: Activity3
-  max_delay: 200
+  delay_after_hours: 200
   dependencies: 
   - Activity2
   duration:
@@ -50,7 +50,7 @@ activities:
     E:
 
 - name: Activity5
-  max_delay: 312
+  delay_after_hours: 312
   dependencies:
   - Activity4
   - Activity3
@@ -63,7 +63,7 @@ activities:
     E:
 
 - name: Activity6
-  max_delay: 168
+  delay_after_hours: 168
   dependencies:
   - Activity5
   duration:

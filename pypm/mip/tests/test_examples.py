@@ -106,6 +106,11 @@ def test107_11():
 def test108_11():
     run("test108", "model11")
 
+def test301_11():
+    run("test301", "model11")
+
+def test302_11():
+    run("test302", "model11")
 
 def test1_GSF_compact():
     run("test1", "GSF-compact")
@@ -173,6 +178,12 @@ def test108_GSF_compact():
 
 def test300_GSF_compact():
     run("test300", "GSF-compact")
+
+def test301_GSF_compact():
+    run("test301", "GSF-compact")
+
+def test302_GSF_compact():
+    run("test302", "GSF-compact")
 
 
 def test1_13():

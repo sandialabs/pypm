@@ -1,53 +1,46 @@
 results:
 - datetime_schedule:
     Activity1:
-      pre: '2021-01-01 03:00:00'
+      pre: '2021-01-01 07:00:00'
     Activity2:
-      first: '2021-01-01 03:00:00'
-      last: '2021-01-02 18:00:00'
-      stop: '2021-01-02 19:00:00'
+      pre: '2021-01-01 07:00:00'
     Activity3:
-      first: '2021-01-11 03:00:00'
-      last: '2021-01-11 12:00:00'
-      stop: '2021-01-11 13:00:00'
+      pre: '2021-01-01 07:00:00'
     Activity4:
-      first: '2021-01-27 15:00:00'
-      last: '2021-01-29 16:00:00'
-      stop: '2021-01-29 17:00:00'
+      first: '2021-01-01 07:00:00'
+      last: '2021-01-05 07:00:00'
+      stop: '2021-01-06 07:00:00'
     Activity5:
-      first: '2021-02-06 07:00:00'
-      last: '2021-02-06 16:00:00'
-      stop: '2021-02-06 17:00:00'
+      first: '2021-01-29 07:00:00'
+      last: '2021-01-29 07:00:00'
+      stop: '2021-01-30 07:00:00'
     Activity6:
-      post: '2021-02-11 23:00:00'
+      post: '2021-02-11 07:00:00'
   goals:
     match:
-      Activity2: 30.0
-      Activity4: 10.0
-      Activity5: 20.0
+      Activity4: 3.0
+      Activity5: 2.0
     separation:
-      A: 0.949748743718593
+      A: 0.8780487804878049
       B: 0
-      C: 0.1111111111111111
-      D: 0.1
-      E: 0.27790055248618784
-    total_match: 60.0
-    total_separation: 1.438760407315892
+      C: 0.2
+      D: 0.16666666666666666
+      E: 0.25
+    total_match: 5.0
+    total_separation: 1.4947154471544717
   schedule:
     Activity1:
       pre: true
     Activity2:
-      first: 0
-      last: 39
+      pre: true
     Activity3:
-      first: 240
-      last: 249
+      pre: true
     Activity4:
-      first: 636
-      last: 685
+      first: 0
+      last: 4
     Activity5:
-      first: 868
-      last: 877
+      first: 28
+      last: 28
     Activity6:
       post: true
 solver:

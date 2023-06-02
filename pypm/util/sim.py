@@ -22,18 +22,18 @@ class Simulator(object):
         #
         self.observe_activities = observe_activities
 
-    def _delay_start(self, maxdelay):
-        yield self.env.timeout(random.randint(0, maxdelay))
+    def _delay_start(self, delay_after_hours):
+        yield self.env.timeout(random.randint(0, delay_after_hours))
 
     def _sink(self, pred=[]):
         for p in pred:
             yield p
 
-    def _execute_activity(self, *, minlen, maxlen, maxdelay, name, pred):
+    def _execute_activity(self, *, minlen, maxlen, delay_after_hours, name, pred):
         for p in pred:
             yield p
-        if maxdelay is not None and maxdelay > 0:
-            yield self.env.process(self._delay_start(maxdelay))
+        if delay_after_hours is not None and delay_after_hours > 0:
+            yield self.env.process(self._delay_start(delay_after_hours))
         activity_len = random.randint(minlen, maxlen)
         self.ground_truth[name] = dict(
             start=self.env.now, stop=self.env.now + activity_len - 1
@@ -63,7 +63,7 @@ class Simulator(object):
             self._execute_activity(
                 minlen=activity["duration"]["min_timesteps"],
                 maxlen=activity["duration"]["max_timesteps"],
-                maxdelay=activity["delay_after_hours"],
+                delay_after_hours=activity["delay_after_timesteps"],
                 name=activity["name"],
                 pred=pred,
             )

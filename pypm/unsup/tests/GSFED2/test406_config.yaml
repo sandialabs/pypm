@@ -8,7 +8,6 @@ _options:
   tee: false
   timesteps: 30
   combine_features: true
-  #max_delay: 2
 
 resources:
   rA:

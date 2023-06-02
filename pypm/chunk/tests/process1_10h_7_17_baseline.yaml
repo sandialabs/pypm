@@ -1,5 +1,5 @@
 activities:
-- delay_after_hours: null
+- delay_after_timesteps: null
   dependencies: []
   duration:
     max_timesteps: 1
@@ -8,7 +8,7 @@ activities:
   resources:
     rB: 1
     rC: 1
-- delay_after_hours: 24
+- delay_after_timesteps: 2.4
   dependencies:
   - a1
   duration:

@@ -46,6 +46,7 @@ class ProcessModel(object):
     def __init__(self, data={}):
         self.resources = Resources()
         self.hours_per_timestep = 1
+        self.timesteps_per_day = 1
         self._activities = {}  # activities: int_id -> activity
         self._names = {}  # names: name -> int_id
         if len(data) > 0:
@@ -61,6 +62,7 @@ class ProcessModel(object):
         for activity in data["activities"]:
             self._add_activity(activity)
         self.hours_per_timestep = data.get('hours_per_timestep',1)
+        self.timesteps_per_day = data.get('timesteps_per_day',24)
         self._initialize()
 
     def __len__(self):
@@ -90,11 +92,14 @@ class ProcessModel(object):
         i = len(self._names)
         activity["id"] = i
         self._names[activity["name"]] = i
-        if activity.get("max_delay", None) is not None:
-            activity["delay_after_hours"] = activity["max_delay"]
-            del activity["max_delay"]
-        if activity.get("delay_after_hours", None) is None:
-            activity["delay_after_hours"] = None
+
+        assert activity.get("max_delay",None) is None, "Use of 'max_delay' is disallowed.  Use 'delay_after_hours'."
+        if activity.get("delay_after_hours", None) is not None:
+            activity["delay_after_timesteps"] = activity["delay_after_hours"]
+            del activity["delay_after_hours"]
+        if activity.get("delay_after_timesteps", None) is None:
+            activity["delay_after_timesteps"] = None
+
         if "max_hours" in activity["duration"]:
             activity["duration"] = {
                 "max_timesteps": activity["duration"]["max_hours"],
@@ -126,9 +131,10 @@ class ProcessModel(object):
         for name in self:
             ans = {}
             ans["name"] = name
-            ans["delay_after_hours"] = self[name]["delay_after_hours"]
+            ans["delay_after_timesteps"] = self[name]["delay_after_timesteps"]
             ans["dependencies"] = self[name]["dependencies"]
             ans["resources"] = self[name]["resources"]
             ans["duration"] = self[name]["duration"]
             activities.append(ans)
+        #return dict(resources=resources, activities=activities, hours_per_timestep=self.hours_per_timestep, timesteps_per_day=self.timesteps_per_day)
         return dict(resources=resources, activities=activities, hours_per_timestep=self.hours_per_timestep)

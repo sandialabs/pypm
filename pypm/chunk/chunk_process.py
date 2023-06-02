@@ -6,9 +6,6 @@ from pypm.util import load_process
 
 
 def update(p, k, K=None, workhours=None):
-    #
-    # NOTE:  This code does not change the delay_after_hours value, which is not chunked.
-    #
     if K is None:
         K = k
     if workhours is None:
@@ -38,6 +35,11 @@ def update(p, k, K=None, workhours=None):
     else:
         p["duration"]["max_timesteps"] = int(tmp)
 
+    if p.get("delay_after_timesteps",None) is not None:
+        delay = p["delay_after_timesteps"]
+        tmp = delay / k
+        p["delay_after_timesteps"] = tmp
+
     return int(k)
 
 
@@ -52,20 +54,36 @@ def chunk_process(filename, output, step):
 
         if step == "2h":
             process.hours_per_timestep = update(p, 2)
+            process.timesteps_per_day = 12
+
         elif step == "2h_workday(7-17)":
             process.hours_per_timestep = update(p, 2, workhours=[7, 17])
+            process.timesteps_per_day = 5
+
         elif step == "4h":
             process.hours_per_timestep = update(p, 4)
+            process.timesteps_per_day = 6
+
         elif step == "8h":
             process.hours_per_timestep = update(p, 8)
+            process.timesteps_per_day = 6
+
         elif step == "3:55554h":
             process.hours_per_timestep = update(p, 5, 24 / 5)
+            process.timesteps_per_day = 5
+
         elif step == "5h_workday(7-17)":
             process.hours_per_timestep = update(p, 5, workhours=[7, 17])
+            process.timesteps_per_day = 2
+
         elif step == "10h_workday(7-17)":
             process.hours_per_timestep = update(p, 10, workhours=[7, 17])
+            process.timesteps_per_day = 1
+
         elif step == "1h":
             process.hours_per_timestep = 1
+            process.timesteps_per_day = 24
+
         else:
             print("ERROR: Unexpected chunk step {}".format(step))
             sys.exit(1)
