@@ -36,21 +36,11 @@ class ProcessModelData(object):
         self.E = [(pm[dep]["name"], i) for i in pm for dep in pm[i]["dependencies"]]
         self.P = {j: pm[j]["duration"]["min_timesteps"] for j in pm}
         self.Q = {j: pm[j]["duration"]["max_timesteps"] for j in pm}
-        self.Omega = {
-            j: 0 if pm[j]["delay_after_timesteps"] is None else pm[j]["delay_after_timesteps"]
-            for j in pm
-        }
         hours_per_timestep = pm.hours_per_timestep
-        #timesteps_per_day = pm.timesteps_per_day
 
         self.J = list(sorted(pm))
         self.K = {j: set(pm[j]["resources"].keys()) for j in pm}
-        # self.Kall = list(sorted(self.count.keys()))
         self.JK = [(j, k) for j in self.J for k in self.K[j]]
-        # self.J_k = {k:[] for k in Kall}
-        # for j in self.J:
-        #    for k in self.K[j]:
-        #        self.J_k[k].append(j)
 
         if "Gamma" in data.options and type(data.options["Gamma"]) is dict:
             self.Gamma = data.options["Gamma"]
@@ -70,26 +60,36 @@ class ProcessModelData(object):
                     self.P[j] = con.minval
                     self.Q[j] = con.maxval
 
-        if False:
-            # for i in data.obs.datetime:
-            #    print(i,type(data.obs.datetime[i]))
-            dt = [
-                datetime.datetime.fromisoformat(data.obs.datetime[i])
-                for i in range(len(data.obs.datetime))
-            ]
-            dt.append( dt[-1]+datetime.timedelta(hours=hours_per_timestep))
-            # dt = data.obs.datetime
-            # print(dt)
+        #
+        # Omega[j] is the delay_after value for activity j, in 'timesteps' units
+        #
+        self.Omega = {
+            j: 0 if pm[j]["delay_after_timesteps"] is None else pm[j]["delay_after_timesteps"]
+            for j in pm
+        }
+        #
+        # tprev[j,t] is the latest time that activity can start and complete before time step t
+        #
         tprev = {}
+        #
+        # Loop over activities j
+        #
         for j in pm:
+            #
+            # Loop over t = 0 ... Tmax
+            #
             for t in list(self.T)+[self.Tmax]:
+                #
+                # For (j,t), we loop for tau = t-1 ... -1
+                #
                 for tau in reversed(range(-1, t - 1)):
-                    last = tau + self.P[j] - 1
-                    if last >= self.Tmax:
-                        continue
-                    tmp = last + 1 + self.Omega[j]
-                    #tmp = dt[last] + datetime.timedelta(hours=hours_per_timestep * (1 + self.Omega[j]))
-                    if tmp > t:
+                    #
+                    # If we start at tau, then
+                    #       tau + P[j] - 1 is the last time step that the activity is executed
+                    #       tau + P[j] - 1 + Omega[j] is the last time step after the delay
+                    # We continue to decrement tau if this value is not less than tau 
+                    #
+                    if tau + self.P[j] - 1 + self.Omega[j] >= t:
                         continue
                     tprev[j, t] = tau
                     break
