@@ -44,7 +44,7 @@ requires = [
 packages = _find_packages("pypm")
 
 setup(name='pypm',
-      version='1.4.2',
+      version='1.5.0',
       url='https://cee-gitlab.sandia.gov/adapd/pypm',
       platforms=["any"],
       description='A python library for process matching',
