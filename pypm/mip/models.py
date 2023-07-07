@@ -1526,7 +1526,7 @@ def create_model(name):
     if name == "model11" or name == "GSF":
         return GSF_TotalMatchScore()
 
-    elif name == "GSF-compact":
+    elif name == "GSF-compact" or name == "GSFC":
         return GSF_TotalMatchScore_Compact()
 
     elif name == "model13" or name == "GSF-ED":
@@ -1538,8 +1538,9 @@ def create_model(name):
     elif name == "XSF":
         return XSF_TotalMatchScore()
 
-    elif name == "XSF-compact":
+    elif name == "XSF-compact" or name == "XSFC":
         return XSF_TotalMatchScore_Compact()
 
     elif name == "model12" or name == "model14" or name == "UPM":
         return UPM_TotalMatchScore()
+
