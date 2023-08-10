@@ -8,20 +8,51 @@ from .mip.runmip import load_config, runmip
 from .unsup.run_labeling import run_tabu_labeling
 
 
-class Results(object):
+class MatchingResults(object):
+    """
+    This class contains results generated from the :any:`SupervisedMIP` optimizer.
+
+    TODO: More detail about the nature of these results?
+    """
+
     def __init__(self, results):
         self.results = results
 
     def __getitem__(self, key):
+        """
+        Get the results for the specified key.
+
+        Return
+        ------
+        : Any
+            Data for the specified results key.
+        """
         return self.results[key]
 
     def __setitem__(self, key, value):
+        """
+        Set the results for the specified key.
+        """
         self.results[key] = value
 
     def __delitem__(self, key):
+        """
+        Delete the results for the specified key.
+        """
         del self.results[key]
 
     def write(self, yamlfile, verbose=False):
+        """
+        Write a YAML file containing results from process matching.
+
+        Arguments
+        ---------
+        yamlfile: `str`
+            The filename of the YAML results file.
+        verbose: `bool`
+            If `true`, then print all data in the results object.  Otherwise,
+            selectively print the *data* and *results* data.
+        """
         if verbose:
             with open(yamlfile, "w") as OUTPUT:
                 print("Writing file: {}".format(yamlfile))
@@ -45,6 +76,11 @@ class Results(object):
 
 
 class SupervisedMIP(object):
+    """
+    This class contains coordinates the execution of an integer programming optimizer to 
+    find a feasible schedule of process activities that best aligns with data observations.
+    """
+
     def __init__(self, model=None):
         self.model = model
         self.config = Munch()
@@ -53,10 +89,25 @@ class SupervisedMIP(object):
         self.solver_options = Munch(name=None, show_solver_output=None)
 
     def activities(self):
+        """
+        Return a generator for the names of the activities in the process model.
+
+        Yields
+        ------
+        activity: `str`
+        """
         for activity in self.config.pm:
             yield activity
 
-    def load_config(self, yamlfile, index=0):
+    def load_config(self, yamlfile):
+        """
+        Load a YAML configuration file.
+
+        Arguments
+        ---------
+        yamlfile: `str`
+            The filename of the YAML configuration file.
+        """
         self.config = load_config(
             datafile=yamlfile,
             verbose=PYPM.options.verbose,
@@ -69,6 +120,13 @@ class SupervisedMIP(object):
                 self.config.pm.resources.add(dummyname, 1)
 
     def generate_schedule(self):
+        """
+        Generate a schedule (TODO)
+
+        Returns
+        -------
+        :any:`pypm.api.MatchingResults`
+        """
         #
         # Setup the self.config data using class data
         #
@@ -108,76 +166,229 @@ class SupervisedMIP(object):
             pprint.pprint(self.config.solver_options, indent=4)
             print("")
 
-        return Results(runmip(self.config, constraints=self.constraints))
+        return MatchingResults(runmip(self.config, constraints=self.constraints))
 
     #
     # Constraint methods
     #
 
     def add_constraints(self, constraints):
+        """
+        Add the given constraints on the schedule.
+
+        Arguments
+        ---------
+        constraints: List
+            A list of tuples that define constraints on the schedule.
+        """
         self.constraints = constraints
 
-    def reset_constraints(self):
+    def remove_constraints(self):
+        """
+        Remove all constraints on the schedule.
+        """
         self.constraints = []
 
-    def reset_constraint(self, index):
+    def remove_constraint(self, index):
+        """
+        Remove the specified constraint on the schedule.
+
+        Arguments
+        ---------
+        index: `int`
+            The index of the constraint that will be removed.
+        """
         self.constraints[index] = None
 
     def include(self, activity):
+        """
+        Include the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity that is included in the schedule.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(Munch(activity=activity, constraint="include"))
         return len(self.constraints) - 1
 
     def include_all(self):
+        """
+        Include all activities in the schedule.
+        """
         for activity in self.activities():
             self.include(activity)
 
-    # def exclude(self, activity):
-    #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
-    #    return len(self.constraints)-1
-
     def set_earliest_start_date(self, activity, startdate):
+        """
+        Set the earliest start date for the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        startdate: `str`
+            The ISO string representation of the earliest start date.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(activity=activity, constraint="earliest_start", startdate=startdate)
         )
         return len(self.constraints) - 1
 
     def set_earliest_start_dates(self, startdate):
+        """
+        Set the earliest start date for all activities in the schedule.
+
+        Arguments
+        ---------
+        startdate: `str`
+            The ISO string representation of the earliest start date.
+        """
         for activity in self.activities():
             self.set_earliest_start_date(activity, startdate)
 
     def set_latest_start_date(self, activity, startdate):
+        """
+        Set the latest start date for the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        startdate: `str`
+            The ISO string representation of the latest start date.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(activity=activity, constraint="latest_start", startdate=startdate)
         )
         return len(self.constraints) - 1
 
     def set_latest_start_dates(self, startdate):
+        """
+        Set the latest start date for all activities in the schedule.
+
+        Arguments
+        ---------
+        startdate: `str`
+            The ISO string representation of the latest start date.
+        """
         for activity in self.activities():
             self.set_latest_start_date(activity, startdate)
 
     def fix_start_date(self, activity, startdate):
+        """
+        Fix the start date for the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        startdate: `str`
+            The ISO string representation of the start date.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(activity=activity, constraint="fix_start", startdate=startdate)
         )
         return len(self.constraints) - 1
 
     def relax(self, activity):
+        """
+        Relax (unfix) the schedule of the specified activity.
+
+        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for the 
+        specified activity.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(Munch(activity=activity, constraint="relax"))
         return len(self.constraints) - 1
 
     def relax_all(self):
+        """
+        Relax (unfix) the schedule of all activities.
+
+        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for all
+        activities.
+        """
         for activity in self.activities():
             self.relax(activity)
 
     def relax_start_date(self, activity):
+        """
+        Relax (unfix) the start date in the schedule of the specified activity.
+
+        This method remove constraints associated with the start date, for the 
+        specified activity.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(Munch(activity=activity, constraint="relax_start"))
         return len(self.constraints) - 1
 
     def relax_start_dates(self):
+        """
+        Relax (unfix) the start date in the schedule of all activities.
+
+        This method remove constraints associated with the start date, for all
+        activities.
+        """
         for activity in self.activities():
             self.relax_start_date(activity)
 
     def set_activity_duration(self, activity, minval, maxval):
+        """
+        Set the activity duration in the schedule of the specified activity.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        minval: `int`
+            The minimum number of hours for the activity.
+        maxval: `int`
+            The maximum number of hours for the activity.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(
                 activity=activity,
@@ -197,24 +408,29 @@ class SupervisedMIP(object):
 
     def maximize_total_match_score(self):
         """
-        Scheduling objective is to maximize the sum of match scores for all activities.
+        Set the scheduling objective to maximize the sum of match scores for all activities.
         """
         self.objective = Munch(goal="total_match_score")
 
     def maximize_total_separation_score(self):
         """
-        Scheduling objective is to maximize the sum of separation scores for all activities.
+        Set the scheduling objective to maximize the sum of separation scores for all activities.
         """
         self.objective = Munch(goal="total_separation_score")
 
     def minimize_makespan(self):
         """
-        Scheduling objective is to minimize the start time of the latest activity
+        Set the scheduling objective to minimize the start time of the latest activity
         """
         self.objective = Munch(goal="minimize_makespan")
 
 
 class UnsupervisedMIP(SupervisedMIP):
+    """
+    This is a deprecated strategy for performing process matching with unlabeled data.
+
+    The Tabu search method is demonstrably better.
+    """
     def __init__(self):
         SupervisedMIP.__init__(self)
         self.model = "UPM"
@@ -254,11 +470,29 @@ class UnsupervisedMIP(SupervisedMIP):
             pprint.pprint(self.config.solver_options, indent=4)
             print("")
 
-        return Results(runmip(self.config, constraints=self.constraints))
+        return MatchingResults(runmip(self.config, constraints=self.constraints))
 
 
-class LabelingResults(Results):
+class LabelingResults(MatchingResults):
+    """
+    This class contains results generated from the :any:`TabuLabeling` optimizer.
+
+    TODO: More detail about the nature of these results?
+    """
+
     def write_labels(self, csvfile):
+        """
+        Write a CSV file containing results from labeling optimization.
+
+        TODO: document the columns
+
+        TODO: document feature_label and resource_feature_list options.
+
+        Arguments
+        ---------
+        csvfile: `str`
+            The filename of the CSV results file.
+        """
         if "feature_label" in self.results["results"][0]:
             with open(csvfile, "w") as OUTPUT:
                 print("Writing file: {}".format(csvfile))
@@ -277,15 +511,36 @@ class LabelingResults(Results):
 
 
 class TabuLabeling(object):
+    """
+    This class contains coordinates the execution of a tabu search optimizer to 
+    find the association of data observations features to resources in a process model that
+    maximizes an information separation score.
+    """
+
     def __init__(self):
         self.config = Munch()
         self.constraints = []
 
     def activities(self):
+        """
+        Return a generator for the names of the activities in the process model.
+
+        Yields
+        ------
+        activity: `str`
+        """
         for activity in self.config.pm:
             yield activity
 
-    def load_config(self, yamlfile, index=0):
+    def load_config(self, yamlfile):
+        """
+        Load a YAML configuration file.
+
+        Arguments
+        ---------
+        yamlfile: `str`
+            The filename of the YAML configuration file.
+        """
         self.config = load_config(
             datafile=yamlfile,
             verbose=PYPM.options.verbose,
@@ -361,6 +616,13 @@ class TabuLabeling(object):
             self.config.labeling_restrictions = tmp
 
     def generate_labeling_and_schedule(self, nworkers=1, debug=False, setup_ray=True):
+        """
+        Generate a labeling and optimal schedule (TODO)
+
+        Returns
+        -------
+        :any:`pypm.api.LabelingResults`
+        """
         return LabelingResults(
             run_tabu_labeling(
                 self.config,
@@ -376,69 +638,222 @@ class TabuLabeling(object):
     #
 
     def add_constraints(self, constraints):
+        """
+        Add the given constraints on the schedule.
+
+        Arguments
+        ---------
+        constraints: List
+            A list of tuples that define constraints on the schedule.
+        """
         self.constraints = constraints
 
-    def reset_constraints(self):
+    def remove_constraints(self):
+        """
+        Remove all constraints on the schedule.
+        """
         self.constraints = []
 
-    def reset_constraint(self, index):
+    def remove_constraint(self, index):
+        """
+        Remove the specified constraint on the schedule.
+
+        Arguments
+        ---------
+        index: `int`
+            The index of the constraint that will be removed.
+        """
         self.constraints[index] = None
 
     def include(self, activity):
+        """
+        Include the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity that is included in the schedule.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(Munch(activity=activity, constraint="include"))
         return len(self.constraints) - 1
 
     def include_all(self):
+        """
+        Include all activities in the schedule.
+        """
         for activity in self.activities():
             self.include(activity)
 
-    # def exclude(self, activity):
-    #    self.constraints.append( Munch(activity=activity, constraint="exclude") )
-    #    return len(self.constraints)-1
-
     def set_earliest_start_date(self, activity, startdate):
+        """
+        Set the earliest start date for the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        startdate: `str`
+            The ISO string representation of the earliest start date.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(activity=activity, constraint="earliest_start", startdate=startdate)
         )
         return len(self.constraints) - 1
 
     def set_earliest_start_dates(self, startdate):
+        """
+        Set the earliest start date for all activities in the schedule.
+
+        Arguments
+        ---------
+        startdate: `str`
+            The ISO string representation of the earliest start date.
+        """
         for activity in self.activities():
             self.set_earliest_start_date(activity, startdate)
 
     def set_latest_start_date(self, activity, startdate):
+        """
+        Set the latest start date for the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        startdate: `str`
+            The ISO string representation of the latest start date.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(activity=activity, constraint="latest_start", startdate=startdate)
         )
         return len(self.constraints) - 1
 
     def set_latest_start_dates(self, startdate):
+        """
+        Set the latest start date for all activities in the schedule.
+
+        Arguments
+        ---------
+        startdate: `str`
+            The ISO string representation of the latest start date.
+        """
         for activity in self.activities():
             self.set_latest_start_date(activity, startdate)
 
     def fix_start_date(self, activity, startdate):
+        """
+        Fix the start date for the specified activity in the schedule.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        startdate: `str`
+            The ISO string representation of the start date.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(activity=activity, constraint="fix_start", startdate=startdate)
         )
         return len(self.constraints) - 1
 
     def relax(self, activity):
+        """
+        Relax (unfix) the schedule of the specified activity.
+
+        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for the 
+        specified activity.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(Munch(activity=activity, constraint="relax"))
         return len(self.constraints) - 1
 
     def relax_all(self):
+        """
+        Relax (unfix) the schedule of all activities.
+
+        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for all
+        activities.
+        """
         for activity in self.activities():
             self.relax(activity)
 
     def relax_start_date(self, activity):
+        """
+        Relax (unfix) the start date in the schedule of the specified activity.
+
+        This method remove constraints associated with the start date, for the 
+        specified activity.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(Munch(activity=activity, constraint="relax_start"))
         return len(self.constraints) - 1
 
     def relax_start_dates(self):
+        """
+        Relax (unfix) the start date in the schedule of all activities.
+
+        This method remove constraints associated with the start date, for all
+        activities.
+        """
         for activity in self.activities():
             self.relax_start_date(activity)
 
     def set_activity_duration(self, activity, minval, maxval):
+        """
+        Set the activity duration in the schedule of the specified activity.
+
+        Arguments
+        ---------
+        activity: `str`
+            The name of the activity.
+        minval: `int`
+            The minimum number of hours for the activity.
+        maxval: `int`
+            The maximum number of hours for the activity.
+
+        Returns
+        -------
+        : `int`
+            The index of the constraint that is added.
+        """
         self.constraints.append(
             Munch(
                 activity=activity,
@@ -455,13 +870,37 @@ class PYPM_api(object):
         self.options = Munch(verbose=None, quiet=False)
 
     def supervised_mip(self):
+        """ Initialize a solver interface for labeled process matching.
+
+        Returns
+        -------
+        :any:`pypm.api.SupervisedMIP`
+        """
         return SupervisedMIP()
 
     def unsupervised_mip(self):
         return UnsupervisedMIP()
 
     def tabu_labeling(self):
+        """ Initialize a solver interface for unlabeled process matching.
+
+        Returns
+        -------
+        :any:`pypm.api.TabuLabeling`
+        """
         return TabuLabeling()
 
 
 PYPM = PYPM_api()
+""" The main pypm interface object (:any:`pypm.api.PYPM_api`).
+
+`PYPM` is a global object that contains methods to initialize
+different process matching solvers.
+
+Examples
+--------
+
+A process matching solver is created for labeled data using the `supervised_mip` method:
+
+>>> pm = PYPM.supervised_mip()
+"""
