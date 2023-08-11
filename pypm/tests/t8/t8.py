@@ -18,7 +18,7 @@ def run():
     #
     pm.maximize_total_match_score()
     con = pm.include("Activity6")
-    pm.reset_constraint(con)
+    pm.remove_constraint(con)
 
     #
     # Configure and run solver
