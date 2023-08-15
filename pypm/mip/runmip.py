@@ -184,10 +184,15 @@ def load_config(
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
     pm = load_process(options["process"], dirname=dirname)
+    label_representation = options.get("label_representation", None)
     labeling_restrictions = options.get("labeling_restrictions", None)
     if labeling_restrictions is not None:
         if os.path.exists(os.path.join(dirname, labeling_restrictions)):
             labeling_restrictions = os.path.join(dirname, labeling_restrictions)
+    nworkers = options.get("nworkers", None)
+    max_iterations = options.get("max_iterations", None)
+    stall_count = options.get("stall_count", None)
+    tabu_model = options.get("tabu_model", None)
 
     obs = load_observations(
         data=data["data"], dirname=dirname, index=index, count_data=count_data
@@ -211,7 +216,12 @@ def load_config(
         seed=seed,
         process=options["process"],
         count_data=count_data,
+        label_representation=label_representation,
         labeling_restrictions=labeling_restrictions,
+        nworkers=nworkers,
+        max_iterations=max_iterations,
+        stall_count=stall_count,
+        tabu_model=tabu_model,
         dirname=dirname,
     )
 

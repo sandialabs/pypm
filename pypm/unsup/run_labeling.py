@@ -15,7 +15,7 @@ from .ts_labeling2 import PMLabelSearch_Restricted
 def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False, setup_ray=True):
     assert (
         "label_representation" in config.options
-    ), "Missing required value for the pypm Tabu Search solver: label_representation.\n  Valid values are resource_feature_list and feature_label."
+    ), "Missing required value for the pypm Tabu Search solver: label_representation.\n  Valid values are resource_feature_list and feature_label.  The 'resource_feature_list' options is generally recommended."
     label_representation = config.options["label_representation"]
     if config.labeling_restrictions:
         assert (

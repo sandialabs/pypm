@@ -615,7 +615,7 @@ class TabuLabeling(object):
 
             self.config.labeling_restrictions = tmp
 
-    def generate_labeling_and_schedule(self, nworkers=1, debug=False, setup_ray=True):
+    def generate_labeling_and_schedule(self, nworkers=None, debug=None, setup_ray=True):
         """
         Generate a labeling and optimal schedule (TODO)
 
@@ -623,6 +623,38 @@ class TabuLabeling(object):
         -------
         :any:`pypm.api.LabelingResults`
         """
+        nworkers = nworkers
+        if nworkers is None:
+            nworkers = self.config.nworkers
+        if nworkers is None:
+            nworkers = 1
+        debug = debug
+        if debug is None:
+            debug = self.config.debug
+        if debug is None:
+            debug = False
+    
+        if not self.config.quiet:
+            print("")
+            print("Tabu Labeling Configuration")
+            print("---------------------------")
+            print("quiet", self.config.quiet)
+            print("verbose", self.config.verbose)
+            print("debug", debug)
+            print("tee", self.config.tee)
+            print("process", self.config.process)
+            print("tabu_model", self.config.tabu_model)
+            print("solver", self.config.solver)
+            print("nworkers", nworkers)
+            print("setup_ray", setup_ray)
+            print("label_representation", self.config.label_representation)
+            print("labeling_restrictions", self.config.labeling_restrictions is not None)
+            print("max_iterations", self.config.max_iterations)
+            print("stall_count", self.config.stall_count)
+            print("solver_options")
+            pprint.pprint(self.config.solver_options, indent=4)
+            print("")
+
         return LabelingResults(
             run_tabu_labeling(
                 self.config,
