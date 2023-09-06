@@ -41,6 +41,7 @@ requires = [
     "ray",
     "munch",
 ]
+# sphinx, myst-parser, furo
 packages = _find_packages("pypm")
 
 setup(name='pypm',

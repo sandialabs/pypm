@@ -95,3 +95,9 @@ def test_t12():
 
 def test_e1():
     run("e1", retval=None)
+
+
+def test_t101():
+    run("t101")
+
+

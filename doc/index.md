@@ -15,7 +15,9 @@ hide-toc: true
 :hidden:
 :maxdepth: 2
 
-api
+process
+api_labeled
+api_unlabeled
 solvers
 api_reference
 ```

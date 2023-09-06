@@ -926,13 +926,13 @@ class PYPM_api(object):
 PYPM = PYPM_api()
 """ The main pypm interface object (:any:`pypm.api.PYPM_api`).
 
-`PYPM` is a global object that contains methods to initialize
+``PYPM`` is a global object that contains methods to initialize
 different process matching solvers.
 
-Examples
---------
+Example
+-------
 
-A process matching solver is created for labeled data using the `supervised_mip` method:
+A process matching solver is created for labeled data using the ``supervised_mip`` method:
 
 >>> pm = PYPM.supervised_mip()
 """
