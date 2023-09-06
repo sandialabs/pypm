@@ -9,7 +9,6 @@ _options:
   timesteps: 30
   count_data:
     - rC
-  Gamma: 0
 
 resources:
   rA:
