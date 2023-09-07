@@ -455,11 +455,10 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         M.length_upper = pe.Constraint(J, rule=length_upper_)
 
         def activity_start_(m, j, t):
-            #if Gamma[j] is None:
-            #    tau = -1
-            #else:
-            #    tau = max(t - (Q[j] + Gamma[j]), -1)
-            tau = max(t - Q[j], -1)
+            if Gamma[j] is None:
+                tau = -1
+            else:
+                tau = max(t - (Q[j] + Gamma[j]), -1)
             return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
@@ -631,11 +630,10 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            #if Gamma[j] is None:
-            #    tau = -1
-            #else:
-            #    tau = max(t - (Q[j] + Gamma[j]), -1)
-            tau = max(t - Q[j], -1)
+            if Gamma[j] is None:
+                tau = -1
+            else:
+                tau = max(t - (Q[j] + Gamma[j]), -1)
             return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
@@ -993,11 +991,10 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            #if Gamma[j] is None:
-            #    tau = -1
-            #else:
-            #    tau = max(t - (Q[j] + Gamma[j]), -1)
-            tau = max(t - Q[j], -1)
+            if Gamma[j] is None:
+                tau = -1
+            else:
+                tau = max(t - (Q[j] + Gamma[j]), -1)
             return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
@@ -1329,11 +1326,10 @@ class GSF_Makespan(Z_Repn_Model):
         M.firsta = pe.Constraint(J, T, rule=firsta_)
 
         def activity_start_(m, j, t):
-            #if Gamma[j] is None:
-            #    tau = -1
-            #else:
-            #    tau = max(t - (Q[j] + Gamma[j]), -1)
-            tau = max(t - Q[j], -1)
+            if Gamma[j] is None:
+                tau = -1
+            else:
+                tau = max(t - (Q[j] + Gamma[j]), -1)
             return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
         M.activity_start = pe.Constraint(J, T, rule=activity_start_)
