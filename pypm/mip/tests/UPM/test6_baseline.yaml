@@ -21,11 +21,11 @@ results:
         20:00:00'}
   feature_label: {rA: rA, rB: rC}
   goals:
-    match: {a1: 7.00000000000001, a2: 5.0}
+    match: {a1: 7.0, a2: 5.0}
     separation: {rA: 1.0, rB: 1.0}
-    total_match: 12.00000000000001
+    total_match: 12.0
     total_separation: 2.0
-  objective: 12.00000000000001
+  objective: 12.0
   schedule:
     a1: {first: 5, last: 11}
     a2: {first: 15, last: 19}
@@ -60,7 +60,7 @@ results:
       : 1.0
       ? !!python/tuple [rC, rB]
       : 1.0
-    o: {a1: 7.00000000000001, a2: 5.0}
+    o: {a1: 7.0, a2: 5.0}
     r:
       ? !!python/tuple [a1, rC, 5]
       : 1.0

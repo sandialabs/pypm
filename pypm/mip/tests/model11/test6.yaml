@@ -5,6 +5,7 @@ _options:
   solver: glpk
   tee: false
   timesteps: 30
+  Gamma: 0
 
 resources:
   rA:
