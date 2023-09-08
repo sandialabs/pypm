@@ -18,6 +18,5 @@ hide-toc: true
 process
 api_labeled
 api_unlabeled
-solvers
 api_reference
 ```
