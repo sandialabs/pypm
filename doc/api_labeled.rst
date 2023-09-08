@@ -108,3 +108,23 @@ file can specify the matching model used with the ``model`` key:
 .. literalinclude:: ../pypm/tests/t13/config.yaml
 
 
+Optimization Solvers
+--------------------
+
+.. _pyomo: https://www.pyomo.org
+
+Pypm uses optimization solvers to predict the best alignment of a
+process with multi-dimensional data. Optimization formulations for process
+matching are implemented with the `pyomo`_ optimization modeling software.
+Pypm users can apply any of the integer programming optimization solvers
+that are interfaced through `pyomo`_.  The solver can be specified in
+a pypm configuration file with the ``solver`` key:
+
+.. literalinclude:: ../pypm/tests/t2/config.yaml
+
+See the `pyomo documentation
+<https://pyomo.readthedocs.io/en/stable/index.html>`_ for details
+about solvers that it supports.  Note that pypm is tested using the
+`glpk <https://www.gnu.org/software/glpk/>`_.
+
+

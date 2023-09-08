@@ -1,4 +1,5 @@
 _options:
   process: process.yaml
+  solver: glpk
 data:
   filename: data.csv

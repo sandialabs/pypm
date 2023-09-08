@@ -22,7 +22,7 @@ def run():
     #
     # Configure and run solver
     #
-    pm.solver_options["name"] = "glpk"
+    # pm.solver_options["name"] = "glpk"
     # pm.solver_options['show_solver_output'] = True
     results = pm.generate_schedule()
     #
