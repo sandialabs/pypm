@@ -5,28 +5,17 @@ from pypm.api import PYPM
 
 
 def run():
-    # PYPM.options['verbose'] = True
-
-    #
-    # Configure process matching api
-    #
-    pm = PYPM.supervised_mip()
+    
+    pm = PYPM.tabu_labeling()
     pm.load_config("config.yaml")
 
-    #
-    # Constraints
-    #
-    pm.maximize_total_match_score()
-
-    #
     # Configure and run solver
-    #
-    pm.solver_options["name"] = "glpk"
-    # pm.solver_options['show_solver_output'] = True
-    results = pm.generate_schedule()
-    #
+    results = pm.generate_labeling_and_schedule()
+    
+    # Save labels
+    results.write_labels("labels.csv")
+
     # Save results
-    #
     results.write("results.yaml")
 
     return True
