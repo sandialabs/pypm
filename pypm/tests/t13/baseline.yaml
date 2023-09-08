@@ -1,0 +1,45 @@
+results:
+- datetime_schedule:
+    Activity1:
+      pre: '2021-01-01 03:00:00'
+    Activity2:
+      first: '2021-01-01 07:00:00'
+      last: '2021-01-02 22:00:00'
+      stop: '2021-01-02 23:00:00'
+    Activity3:
+      post: '2021-02-11 23:00:00'
+    Activity4:
+      post: '2021-02-11 23:00:00'
+    Activity5:
+      post: '2021-02-11 23:00:00'
+    Activity6:
+      post: '2021-02-11 23:00:00'
+  goals:
+    match:
+      Activity2: 30.0
+    separation:
+      A: 0
+      B: 0
+      C: 0.25
+      D: 0.25
+      E: 0.20854922279792745
+    total_match: 30.0
+    total_separation: 0.7085492227979274
+  schedule:
+    Activity1:
+      pre: true
+    Activity2:
+      first: 4
+      last: 43
+    Activity3:
+      post: true
+    Activity4:
+      post: true
+    Activity5:
+      post: true
+    Activity6:
+      post: true
+solver:
+  model:
+    name: CompactMatches_VariableLengthActivities
+  search_strategy: mip

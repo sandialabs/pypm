@@ -1,0 +1,5 @@
+_options:
+  process: process.yaml
+  model: CompactMatches_VariableLengthActivities
+data:
+  filename: data.csv
