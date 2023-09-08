@@ -136,7 +136,7 @@ class SupervisedMIP(object):
                     if len(self.config.count_data) > 0:
                         self.config.model = "GSF-ED"  # model13
                     else:
-                        self.config.model = "GSF"  # model11
+                        self.config.model = "UnrestrictedMatches_VariableLengthActivities"  # model11 OR GSF
                 elif self.objective.goal == "minimize_makespan":
                     self.config.model = "GSF-makespan"
                 else:

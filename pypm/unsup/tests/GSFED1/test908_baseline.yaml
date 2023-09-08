@@ -29,8 +29,8 @@ results:
     evaluations: 156
     iterations: 26
     stall count: 25
-    unique solutions: 39
+    unique solutions: 48
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

@@ -30,5 +30,5 @@ results:
     unique solutions: 16
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

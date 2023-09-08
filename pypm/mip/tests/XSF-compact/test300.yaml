@@ -6,7 +6,7 @@ _options:
   tee: true
   timesteps: 30
   Gamma: 0
-  model: XSF-compact
+  model: CompactMatches_FixedLengthActivities
 
 resources:
   rA:

@@ -30,11 +30,11 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 151
+    evaluations: 145
     iterations: 30
     stall count: 25
-    unique solutions: 38
+    unique solutions: 53
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

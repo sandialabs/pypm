@@ -179,20 +179,23 @@ def test_misc_cached():
             values[data["iteration"]] = data["value"]
             points[data["iteration"]] = data["point"]
 
-    values_baseline = {13: -2.0, 4: -1.7}
+    #values_baseline = {13: -2.0, 4: -1.7}
+    values_baseline = {3: -1.5454545454545454, 4: -1.7727272727272727, 5: -2.0}
     points_baseline = {
-        13: {
-            "rA": {"rb": 0, "rc": 1, "rd": 0, "re": 0, "rf": 0},
-            "rB": {"rb": 1, "rc": 1, "rd": 0, "re": 0, "rf": 0},
-            "rC": {"rb": 1, "rc": 1, "rd": 0, "re": 0, "rf": 0},
-        },
-        4: {
-            "rA": {"rb": 1, "rc": 1, "rd": 0, "re": 1, "rf": 0},
-            "rB": {"rb": 1, "rc": 1, "rd": 0, "re": 1, "rf": 0},
-            "rC": {"rb": 0, "rc": 1, "rd": 0, "re": 1, "rf": 0},
-        },
-    }
+        3: {'rA': {'rb': 1, 'rc': 1, 'rd': 0, 're': 1, 'rf': 1},
+            'rB': {'rb': 1, 'rc': 1, 'rd': 1, 're': 1, 'rf': 0},
+            'rC': {'rb': 0, 'rc': 1, 'rd': 0, 're': 0, 'rf': 0}},
+        4: {'rA': {'rb': 1, 'rc': 1, 'rd': 0, 're': 1, 'rf': 1},
+            'rB': {'rb': 1, 'rc': 1, 'rd': 0, 're': 1, 'rf': 0},
+            'rC': {'rb': 0, 'rc': 1, 'rd': 0, 're': 0, 'rf': 0}},
+        5: {'rA': {'rb': 1, 'rc': 1, 'rd': 0, 're': 1, 'rf': 1},
+            'rB': {'rb': 1, 'rc': 1, 'rd': 0, 're': 0, 'rf': 0},
+            'rC': {'rb': 0, 'rc': 1, 'rd': 0, 're': 0, 'rf': 0}}
+        }
     assert values == values_baseline
+    import pprint
+    pprint.pprint(points)
+    pprint.pprint(points_baseline)
     assert points == points_baseline
 
     if os.path.exists(checkpoint_dir):

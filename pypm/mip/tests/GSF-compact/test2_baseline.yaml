@@ -152,5 +152,5 @@ results:
       : 1.0
     z_pre: {}
 solver:
-  model: {name: GSF-compact}
+  model: {name: CompactMatches_VariableLengthActivities}
   search_strategy: mip

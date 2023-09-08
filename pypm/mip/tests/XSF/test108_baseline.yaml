@@ -141,5 +141,5 @@ results:
       ? !!python/tuple [a3, 29]
       : 1.0
 solver:
-  model: {name: XSF}
+  model: {name: UnrestrictedMatches_FixedLengthActivities}
   search_strategy: mip

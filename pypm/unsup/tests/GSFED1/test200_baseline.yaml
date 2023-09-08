@@ -7,9 +7,9 @@ results:
       last: '2020-01-01 10:00:00'
       stop: '2020-01-01 11:00:00'
   feature_label:
-    ra: rB
-    rb: rA
-    rc: rC
+    ra: rA
+    rb: rB
+    rc: IGNORED
   goals:
     match:
       a2: 12.0
@@ -26,11 +26,11 @@ results:
       first: 5
       last: 10
   solver_statistics:
-    evaluations: 81
+    evaluations: 74
     iterations: 28
     stall count: 25
-    unique solutions: 29
+    unique solutions: 26
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

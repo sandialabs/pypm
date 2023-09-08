@@ -1,4 +1,4 @@
 Feature,Resource
-ra,rB
-rb,rA
-rc,rC
+ra,rA
+rb,rB
+rc,IGNORED

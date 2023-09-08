@@ -86,5 +86,5 @@ results:
       : 1.0
     z_pre: {}
 solver:
-  model: {name: XSF-compact}
+  model: {name: CompactMatches_FixedLengthActivities}
   search_strategy: mip

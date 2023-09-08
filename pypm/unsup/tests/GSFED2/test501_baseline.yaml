@@ -17,12 +17,14 @@ results:
     total_separation: 2.0
   resource_feature_list:
     rA:
+    - rb
     - rc
+    - re
+    - rf
     rB:
     - rb
     - rc
     rC:
-    - rb
     - rc
   schedule:
     a1:
@@ -31,11 +33,11 @@ results:
     a2:
       post: true
   solver_statistics:
-    evaluations: 112
-    iterations: 39
+    evaluations: 91
+    iterations: 31
     stall count: 25
-    unique solutions: 103
+    unique solutions: 72
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

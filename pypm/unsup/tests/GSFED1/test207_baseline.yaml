@@ -26,11 +26,11 @@ results:
       first: 20
       last: 25
   solver_statistics:
-    evaluations: 68
+    evaluations: 73
     iterations: 25
     stall count: 25
-    unique solutions: 31
+    unique solutions: 30
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

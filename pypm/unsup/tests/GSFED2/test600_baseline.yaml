@@ -1,13 +1,13 @@
 results:
 - datetime_schedule:
     a1:
-      first: '2020-01-01 00:00:00'
-      last: '2020-01-01 07:00:00'
-      stop: '2020-01-01 08:00:00'
-    a2:
-      first: '2020-01-01 08:00:00'
+      first: '2020-01-01 10:00:00'
       last: '2020-01-01 14:00:00'
       stop: '2020-01-01 15:00:00'
+    a2:
+      first: '2020-01-01 15:00:00'
+      last: '2020-01-01 20:00:00'
+      stop: '2020-01-01 21:00:00'
   goals:
     match:
       a1: 5.0
@@ -15,32 +15,31 @@ results:
     separation:
       dummy a1: 0
       dummy a2: 0
-      rA: 0.875
-      rB: 0.875
-      rC: 0.76
+      rA: 0.7916666666666666
+      rB: 0.7916666666666666
+      rC: 0.84
     total_match: 17.0
-    total_separation: 2.51
+    total_separation: 2.4233333333333333
   resource_feature_list:
     rA:
-    - rb
+    - rc
     rB:
-    - rb
+    - rc
     rC:
-    - ra
     - rb
   schedule:
     a1:
-      first: 0
-      last: 7
-    a2:
-      first: 8
+      first: 10
       last: 14
+    a2:
+      first: 15
+      last: 20
   solver_statistics:
-    evaluations: 110
-    iterations: 41
+    evaluations: 151
+    iterations: 64
     stall count: 25
-    unique solutions: 88
+    unique solutions: 122
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

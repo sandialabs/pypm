@@ -23,8 +23,8 @@ results:
     - rb
     rB:
     - ra
-    rC:
     - rb
+    rC:
     - rc
   schedule:
     a1:
@@ -34,11 +34,11 @@ results:
       first: 24
       last: 29
   solver_statistics:
-    evaluations: 82
+    evaluations: 83
     iterations: 29
     stall count: 25
-    unique solutions: 43
+    unique solutions: 45
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

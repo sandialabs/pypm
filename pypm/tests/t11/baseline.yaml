@@ -52,5 +52,5 @@ results:
       post: true
 solver:
   model:
-    name: GSF
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: mip

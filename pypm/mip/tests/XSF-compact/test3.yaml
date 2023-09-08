@@ -5,7 +5,7 @@ _options:
   solver: glpk
   tee: false
   timesteps: 30
-  model: XSF-compact
+  model: CompactMatches_FixedLengthActivities
 
 resources:
   rA:

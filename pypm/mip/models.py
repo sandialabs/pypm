@@ -330,8 +330,12 @@ class Z_Repn_Model(BaseModel):
 # This is the GSF model in Figure 3.2
 #
 class GSF_TotalMatchScore(Z_Repn_Model):
-    def __init__(self):
-        self.name = "GSF"
+    def __init__(self, *, gaps_allowed):
+        self.gaps_allowed = gaps_allowed
+        if gaps_allowed:
+            self.name = "UnrestrictedMatches_VariableLengthActivities_GapsAllowed"
+        else:
+            self.name = "UnrestrictedMatches_VariableLengthActivities"
         self.description = "Supervised process matching maximizing match score"
 
     def __call__(self, config, constraints=[]):
@@ -339,6 +343,7 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         d = self.data = ProcessModelData(config, constraints)
         self.constraints = constraints
 
+        Gamma = d.Gamma if self.gaps_allowed else {j: 0 for j in d.J}
         self.M = self.create_model(
             objective=config.objective,
             J=d.J,
@@ -349,7 +354,7 @@ class GSF_TotalMatchScore(Z_Repn_Model):
             P=d.P,
             Q=d.Q,
             E=d.E,
-            Gamma=d.Gamma,
+            Gamma=Gamma,
             Tmax=d.Tmax,
             Upsilon=d.Upsilon,
             tprev=d.tprev,
@@ -1046,7 +1051,7 @@ class UPM_TotalMatchScore(Z_Repn_Model):
 #
 class XSF_TotalMatchScore(Z_Repn_Model):
     def __init__(self):
-        self.name = "XSF"
+        self.name = "UnrestrictedMatches_FixedLengthActivities"
         self.description = "Supervised process matching maximizing match score"
 
     def __call__(self, config, constraints=[]):
@@ -1387,7 +1392,8 @@ class GSF_Makespan(Z_Repn_Model):
 #
 class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
     def __init__(self):
-        self.name = "GSF-compact"
+        super().__init__(gaps_allowed=False)
+        self.name = "CompactMatches_VariableLengthActivities"
         self.description = "Supervised process matching maximizing match score with compactness constraint"
 
     def create_model(
@@ -1410,6 +1416,9 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
         debug
     ):
 
+        if Gamma != 0:
+            print("Warning: Gamma is set to zero in CompactMatches_VariableLengthActivities")
+        Gamma = {j: 0 for j in J}
         M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose, debug=debug)
 
         M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
@@ -1463,7 +1472,7 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
 #
 class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
     def __init__(self):
-        self.name = "XSF-compact"
+        self.name = "CompactMatches_FixedLengthActivities"
         self.description = "Supervised process matching maximizing match score with compactness constraints"
 
     def create_model(
@@ -1523,10 +1532,13 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
 
 
 def create_model(name):
-    if name == "model11" or name == "GSF":
-        return GSF_TotalMatchScore()
+    if name == "model11" or name == "GSF" or name == "UnrestrictedMatches_VariableLengthActivities_GapsAllowed":
+        return GSF_TotalMatchScore(gaps_allowed=True)
 
-    elif name == "GSF-compact" or name == "GSFC":
+    elif name == "UnrestrictedMatches_VariableLengthActivities":
+        return GSF_TotalMatchScore(gaps_allowed=False)
+
+    elif name == "GSF-compact" or name == "GSFC" or name == "CompactMatches_VariableLengthActivities":
         return GSF_TotalMatchScore_Compact()
 
     elif name == "model13" or name == "GSF-ED":
@@ -1535,10 +1547,10 @@ def create_model(name):
     elif name == "GSF-makespan":
         return GSF_Makespan()
 
-    elif name == "XSF":
+    elif name == "XSF" or name == "UnrestrictedMatches_FixedLengthActivities":
         return XSF_TotalMatchScore()
 
-    elif name == "XSF-compact" or name == "XSFC":
+    elif name == "XSF-compact" or name == "XSFC" or name == "CompactMatches_FixedLengthActivities":
         return XSF_TotalMatchScore_Compact()
 
     elif name == "model12" or name == "model14" or name == "UPM":

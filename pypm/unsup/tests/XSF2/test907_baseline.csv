@@ -1,8 +1,6 @@
 Resource,Feature
 rA,ra
-rA,rb
 rA,rc
 rB,ra
 rB,rc
-rC,ra
-rC,rc
+rC,rb

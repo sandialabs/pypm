@@ -18,14 +18,12 @@ results:
   resource_feature_list:
     rA:
     - ra
-    - rb
     - rc
     rB:
     - ra
     - rc
     rC:
-    - ra
-    - rc
+    - rb
   schedule:
     a1:
       pre: true
@@ -36,8 +34,8 @@ results:
     evaluations: 111
     iterations: 37
     stall count: 25
-    unique solutions: 70
+    unique solutions: 75
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu

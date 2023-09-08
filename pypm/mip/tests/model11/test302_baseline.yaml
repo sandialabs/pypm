@@ -350,5 +350,5 @@ results:
       ? !!python/tuple [a5, 44]
       : 1.0
 solver:
-  model: {name: GSF}
+  model: {name: UnrestrictedMatches_VariableLengthActivities}
   search_strategy: mip

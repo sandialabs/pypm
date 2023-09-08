@@ -1,7 +1,7 @@
 results:
 - datetime_schedule:
     a1:
-      first: '2020-01-01 02:00:00'
+      first: '2020-01-01 03:00:00'
       last: '2020-01-01 09:00:00'
       stop: '2020-01-01 10:00:00'
     a2:
@@ -28,7 +28,7 @@ results:
     - rc
   schedule:
     a1:
-      first: 2
+      first: 3
       last: 9
     a2:
       first: 10
@@ -40,5 +40,5 @@ results:
     unique solutions: 48
 solver:
   model:
-    name: GSF-ED
+    name: UnrestrictedMatches_VariableLengthActivities
   search_strategy: tabu
