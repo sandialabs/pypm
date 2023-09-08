@@ -9,7 +9,7 @@ Labeled Observations
 --------------------
 
 For example, consider the following excerpt of CSV data from the file
-``observations.csv``.  Each row in the file defines the observations
+``data.csv``.  Each row in the file defines the observations
 associated with the features ``A`` through ``E`` at a specific date-time.
 The values of each observations are assumed to lie in the interval
 [0,1]. Zero indicates no observation of a resource, one indicates an
@@ -76,7 +76,7 @@ Pypm optimizes schedules in two ways.  Unrestricted matches are completely
 flexible;  the starting times of activities can occur at any time,
 including before or after the time horizon of the available data.  The
 only constraint on unrestricted matches is the precedence relationships
-between activities, which are specified in activities `dependencies` in
+between activities, which are specified by activity dependencies in
 the process model.  Compact matches schedule minimize the time between the
 start of an activity and the end of all dependencies for that activity.
 Thus, the schedule of compact matches is largely determined by the
@@ -84,11 +84,11 @@ starting times of the earliest scheduled activity with no dependencies.
 
 Pypm supports two models for activity execution:  with fixed-length
 activities and with variable-length activities.  When matching with
-fixed-length activities, the `min_hours` or `min_timesteps` value is
+fixed-length activities, the ``min_hours`` or ``min_timesteps`` value is
 used to specify the duration of each activity.  When matching with
 variable-length activities, the duration used in a schedule may vary
-between `min_hours` and `max_hours` (or respectively `min_timesteps`
-and `max_timesteps`).
+between  ``min_hours`` and ``max_hours`` (or respectively ``min_timesteps``
+and ``max_timesteps``).
 
 Finally, some pypm models support gaps in the execution of activities.
 These models are useful in applications where data includes natural
@@ -102,8 +102,8 @@ optimal match, from fastest to slowest.  However, it is important to
 note that this ordering will depend on the optimization solver used to
 optimize the schedule (see below).
 
-The default model used in pypm is **UnrestrictedMatches_VariableLengthActivities**. The configuration
-file can specify the matching model used with the **model** key:
+The default model used in pypm is ``UnrestrictedMatches_VariableLengthActivities``. The configuration
+file can specify the matching model used with the ``model`` key:
 
 .. literalinclude:: ../pypm/tests/t13/config.yaml
 
