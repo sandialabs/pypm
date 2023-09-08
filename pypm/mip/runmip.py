@@ -191,7 +191,7 @@ def load_config(
             labeling_restrictions = os.path.join(dirname, labeling_restrictions)
     nworkers = options.get("nworkers", None)
     max_iterations = options.get("max_iterations", None)
-    stall_count = options.get("stall_count", None)
+    max_stall_count = options.get("max_stall_count", None)
     tabu_model = options.get("tabu_model", None)
 
     obs = load_observations(
@@ -220,7 +220,7 @@ def load_config(
         labeling_restrictions=labeling_restrictions,
         nworkers=nworkers,
         max_iterations=max_iterations,
-        stall_count=stall_count,
+        max_stall_count=max_stall_count,
         tabu_model=tabu_model,
         dirname=dirname,
     )
