@@ -40,6 +40,8 @@ def run_tabu_labeling(config, constraints=[], nworkers=1, debug=False, setup_ray
     ls.options.search_strategy = config.options.get("local_search", "first_improving")
     ls.options.debug = debug
     ls.options.max_iterations = config.options.get("max_iterations", 100)
+    if 'max_stall_count' in config.options:
+        ls.options.max_stall_count = config.options.get("max_stall_count")
     ls.options.tabu_tenure = config.options.get("tabu_tenure", 4)
     if "cache_dir" in config.options:
         if config.dirname:
