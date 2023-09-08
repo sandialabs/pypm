@@ -1,4 +1,0 @@
-Pypm Solvers
-============
-
-TODO HERE

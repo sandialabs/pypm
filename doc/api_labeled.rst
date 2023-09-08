@@ -9,7 +9,7 @@ Labeled Observations
 --------------------
 
 For example, consider the following excerpt of CSV data from the file
-``observations.csv``.  Each row in the file defines the observations
+``data.csv``.  Each row in the file defines the observations
 associated with the features ``A`` through ``E`` at a specific date-time.
 The values of each observations are assumed to lie in the interval
 [0,1]. Zero indicates no observation of a resource, one indicates an
@@ -51,7 +51,80 @@ schedule.  For example:
 
 .. literalinclude:: ../pypm/tests/t1/baseline.yaml
 
-.. note::
 
-    What does it mean if Gamma is omitted?  I think we want Gamma=0 to be the default.
+Matching Models
+---------------
+
+Pypm supports different matching models to allow for flexibility in the process execution that
+may need to be considered when optimizing a schedule.  The following table summarizes these matching models:
+
++----------------------------------------------------------+----------+-----------------+------------+
+| Name                                                     | Schedule | Activity Length | Allow Gaps |
++==========================================================+==========+=================+============+
+| UnrestrictedMatches_FixedLengthActivities                | Flexible | Fixed           | No         |
++----------------------------------------------------------+----------+-----------------+------------+
+| UnrestrictedMatches_VariableLengthActivities             | Flexible | Variable        | No         |
++----------------------------------------------------------+----------+-----------------+------------+
+| UnrestrictedMatches_VariableLengthActivities_GapsAllowed | Flexible | Variable        | Yes        |
++----------------------------------------------------------+----------+-----------------+------------+
+| CompactMatches_FixedLengthActivities                     | Compact  | Fixed           | No         |
++----------------------------------------------------------+----------+-----------------+------------+
+| CompactMatches_VariableLengthActivities                  | Compact  | Variable        | No         |
++----------------------------------------------------------+----------+-----------------+------------+
+
+Pypm optimizes schedules in two ways.  Unrestricted matches are completely
+flexible;  the starting times of activities can occur at any time,
+including before or after the time horizon of the available data.  The
+only constraint on unrestricted matches is the precedence relationships
+between activities, which are specified by activity dependencies in
+the process model.  Compact matches schedule minimize the time between the
+start of an activity and the end of all dependencies for that activity.
+Thus, the schedule of compact matches is largely determined by the
+starting times of the earliest scheduled activity with no dependencies.
+
+Pypm supports two models for activity execution:  with fixed-length
+activities and with variable-length activities.  When matching with
+fixed-length activities, the ``min_hours`` or ``min_timesteps`` value is
+used to specify the duration of each activity.  When matching with
+variable-length activities, the duration used in a schedule may vary
+between  ``min_hours`` and ``max_hours`` (or respectively ``min_timesteps``
+and ``max_timesteps``).
+
+Finally, some pypm models support gaps in the execution of activities.
+These models are useful in applications where data includes natural
+breaks (e.g. weekends or evenings), or where disruptions are expecting
+in activity execution.
+
+These different matching models have important implications for the
+time required to generate a schedule that best aligns with the data.
+The table above is roughly ordered by the time required to compute an
+optimal match, from fastest to slowest.  However, it is important to
+note that this ordering will depend on the optimization solver used to
+optimize the schedule (see below).
+
+The default model used in pypm is ``UnrestrictedMatches_VariableLengthActivities``. The configuration
+file can specify the matching model used with the ``model`` key:
+
+.. literalinclude:: ../pypm/tests/t13/config.yaml
+
+
+Optimization Solvers
+--------------------
+
+.. _pyomo: https://www.pyomo.org
+
+Pypm uses optimization solvers to predict the best alignment of a
+process with multi-dimensional data. Optimization formulations for process
+matching are implemented with the `pyomo`_ optimization modeling software.
+Pypm users can apply any of the integer programming optimization solvers
+that are interfaced through `pyomo`_.  The solver can be specified in
+a pypm configuration file with the ``solver`` key:
+
+.. literalinclude:: ../pypm/tests/t2/config.yaml
+
+See the `pyomo documentation
+<https://pyomo.readthedocs.io/en/stable/index.html>`_ for details
+about solvers that it supports.  Note that pypm is tested using the
+`glpk <https://www.gnu.org/software/glpk/>`_.
+
 

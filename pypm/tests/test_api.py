@@ -93,6 +93,10 @@ def test_t12():
     run("t12")
 
 
+def test_t13():
+    run("t13")
+
+
 def test_e1():
     run("e1", retval=None)
 

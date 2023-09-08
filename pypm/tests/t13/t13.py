@@ -1,5 +1,5 @@
 #
-# Same as t1, but force the inclusion of Activity6
+# Simple process matching
 #
 from pypm.api import PYPM
 
@@ -17,12 +17,11 @@ def run():
     # Constraints
     #
     pm.maximize_total_match_score()
-    pm.include("Activity6")
 
     #
     # Configure and run solver
     #
-    # pm.solver_options["name"] = "glpk"
+    pm.solver_options["name"] = "glpk"
     # pm.solver_options['show_solver_output'] = True
     results = pm.generate_schedule()
     #

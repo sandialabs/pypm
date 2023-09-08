@@ -5,11 +5,11 @@ Process Description
 -------------------
 
 Pypm considers process models that describe the execution of *activities*
-that represent the steps in the process.  Activities define the basic
+that represent the steps in a process.  Activities define the basic
 unit of work in a process, and they have following features:
 
 * **name** - An activity has a unique name
-* **resources** - The execution of an activity may require one-or-more resources.  The resources used by an activity can generate observations (see below).
+* **resources** - The execution of an activity may require one-or-more resources.  The resources used by an activity can generate observations.
 * **dependencies** - The execution of an activity may require the completion of one-or-more activities in the process, including the delay after the activity is executed.
 * **duration** - An activity has a minimum and maximum duration, which is an integer value defined in hours or timesteps.
 * **delay** - An activity may have a delay after execution before dependent activities can be executed.
