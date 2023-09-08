@@ -650,7 +650,7 @@ class TabuLabeling(object):
             print("label_representation", self.config.label_representation)
             print("labeling_restrictions", self.config.labeling_restrictions is not None)
             print("max_iterations", self.config.max_iterations)
-            print("stall_count", self.config.stall_count)
+            print("max_stall_count", self.config.max_stall_count)
             print("solver_options")
             pprint.pprint(self.config.solver_options, indent=4)
             print("")
