@@ -2,6 +2,7 @@
 # Simple process matching
 #
 from pypm.api import PYPM
+from pypm.util import label_data
 
 
 def run():
@@ -17,6 +18,12 @@ def run():
 
     # Save results
     results.write("results.yaml")
+
+    # Generate labeled data
+    label_data(feature_label_csvfile='./labels.csv',
+                        process_yamlfile='./process.yaml',
+                        obs_csvfile='./unlabeled.csv',
+                        labeled_obs_csvfile='./labeled.csv')
 
     return True
 
