@@ -84,7 +84,9 @@ class PMLabelSearchProblem_Restricted(TabuSearchProblem):
         config.obs = None
         self.mip_sup.config = copy.deepcopy(config)
         self.mip_sup.config.search_strategy = "mip"
-        self.mip_sup.config.model = config.options.get("tabu_model", "UnrestrictedMatches_VariableLengthActivities")
+        self.mip_sup.config.model = config.options.get(
+            "tabu_model", "UnrestrictedMatches_VariableLengthActivities"
+        )
         self.mip_sup.config.verbose = False
         self.mip_sup.config.quiet = True
         if constraints:
@@ -221,4 +223,3 @@ class PMLabelSearch_Restricted(CachedTabuSearch):
         if "stall_tolerance" in config.options:
             self.options.stall_tolerance = config.options.get("stall_tolerance")
         self.options.tabu_tenure = round(0.25 * problem.nfeatures) + 1
-

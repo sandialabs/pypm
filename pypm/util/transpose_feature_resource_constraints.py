@@ -3,7 +3,6 @@ import pandas as pd
 
 
 def get_resources_from_process(process):
-
     resources = list(process["resources"].keys())
 
     # Add proxy resources for activities without resources
@@ -16,7 +15,6 @@ def get_resources_from_process(process):
 
 
 def get_features_from_data(dataframe):
-
     return set(dataframe.columns.tolist())
 
 
@@ -128,7 +126,6 @@ _name_key = {"Feature": "featureName", "Resource": "resourceName"}
 def transpose_constraints_file(
     constraints_file, data_file, process_file, output_file, contract_transpose=True
 ):
-
     # Load the list of declared resources in the process
     with open(process_file, "r") as f:
         process = yaml.safe_load(f)

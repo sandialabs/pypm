@@ -35,7 +35,7 @@ def update(p, k, K=None, workhours=None):
     else:
         p["duration"]["max_timesteps"] = int(tmp)
 
-    if p.get("delay_after_timesteps",None) is not None:
+    if p.get("delay_after_timesteps", None) is not None:
         delay = p["delay_after_timesteps"]
         tmp = delay / k
         p["delay_after_timesteps"] = tmp

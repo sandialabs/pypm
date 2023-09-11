@@ -108,7 +108,7 @@ def label_data(
         for i in range(T):
             newval = obs_df[tmp["Feature"][k]][i]
             oldval = df[resource][i]
-            newvals.append( max(oldval, newval) )
+            newvals.append(max(oldval, newval))
         df[resource] = newvals
     print(df.head())
     df.set_index("DateTime")

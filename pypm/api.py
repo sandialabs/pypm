@@ -75,7 +75,7 @@ class MatchingResults(object):
 
 class SupervisedMIP(object):
     """
-    This class contains coordinates the execution of an integer programming optimizer to 
+    This class contains coordinates the execution of an integer programming optimizer to
     find a feasible schedule of process activities that best aligns with data observations.
     """
 
@@ -317,7 +317,7 @@ class SupervisedMIP(object):
         """
         Relax (unfix) the schedule of the specified activity.
 
-        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for the 
+        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for the
         specified activity.
 
         Arguments
@@ -347,7 +347,7 @@ class SupervisedMIP(object):
         """
         Relax (unfix) the start date in the schedule of the specified activity.
 
-        This method remove constraints associated with the start date, for the 
+        This method remove constraints associated with the start date, for the
         specified activity.
 
         Arguments
@@ -433,6 +433,7 @@ class UnsupervisedMIP(SupervisedMIP):
 
     The Tabu search method is demonstrably better.
     """
+
     def __init__(self):
         SupervisedMIP.__init__(self)
         self.model = "UPM"
@@ -508,7 +509,7 @@ class LabelingResults(MatchingResults):
 
 class TabuLabeling(object):
     """
-    This class contains coordinates the execution of a tabu search optimizer to 
+    This class contains coordinates the execution of a tabu search optimizer to
     find the association of data observations features to resources in a process model that
     maximizes an information separation score.
     """
@@ -632,7 +633,7 @@ class TabuLabeling(object):
             debug = self.config.debug
         if debug is None:
             debug = False
-    
+
         if not self.config.quiet:
             print("")
             print("Tabu Labeling Configuration")
@@ -647,7 +648,9 @@ class TabuLabeling(object):
             print("nworkers", nworkers)
             print("setup_ray", setup_ray)
             print("label_representation", self.config.label_representation)
-            print("labeling_restrictions", self.config.labeling_restrictions is not None)
+            print(
+                "labeling_restrictions", self.config.labeling_restrictions is not None
+            )
             print("max_iterations", self.config.max_iterations)
             print("max_stall_count", self.config.max_stall_count)
             print("solver_options")
@@ -811,7 +814,7 @@ class TabuLabeling(object):
         """
         Relax (unfix) the schedule of the specified activity.
 
-        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for the 
+        This method remove constraints associated with the ``include*``, ``set*`` and ``fix*`` methods, for the
         specified activity.
 
         Arguments
@@ -841,7 +844,7 @@ class TabuLabeling(object):
         """
         Relax (unfix) the start date in the schedule of the specified activity.
 
-        This method remove constraints associated with the start date, for the 
+        This method remove constraints associated with the start date, for the
         specified activity.
 
         Arguments
@@ -901,7 +904,7 @@ class PYPM_api(object):
         self.options = Munch(verbose=None, quiet=False)
 
     def supervised_mip(self):
-        """ Initialize a solver interface for labeled process matching.
+        """Initialize a solver interface for labeled process matching.
 
         Returns
         -------
@@ -913,7 +916,7 @@ class PYPM_api(object):
         return UnsupervisedMIP()
 
     def tabu_labeling(self):
-        """ Initialize a solver interface for unlabeled process matching.
+        """Initialize a solver interface for unlabeled process matching.
 
         Returns
         -------

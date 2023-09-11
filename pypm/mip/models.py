@@ -2,6 +2,7 @@ import datetime
 import pprint
 import pyomo.environ as pe
 
+
 #
 # Collect all of the nonzero variables in a Pyomo model
 #
@@ -64,7 +65,9 @@ class ProcessModelData(object):
         # Omega[j] is the delay_after value for activity j, in 'timesteps' units
         #
         self.Omega = {
-            j: 0 if pm[j]["delay_after_timesteps"] is None else pm[j]["delay_after_timesteps"]
+            j: 0
+            if pm[j]["delay_after_timesteps"] is None
+            else pm[j]["delay_after_timesteps"]
             for j in pm
         }
         #
@@ -78,7 +81,7 @@ class ProcessModelData(object):
             #
             # Loop over t = 0 ... Tmax
             #
-            for t in list(self.T)+[self.Tmax]:
+            for t in list(self.T) + [self.Tmax]:
                 #
                 # For (j,t), we loop for tau = t-1 ... -1
                 #
@@ -87,7 +90,7 @@ class ProcessModelData(object):
                     # If we start at tau, then
                     #       tau + P[j] - 1 is the last time step that the activity is executed
                     #       tau + P[j] - 1 + Omega[j] is the last time step after the delay
-                    # We continue to decrement tau if this value is not less than tau 
+                    # We continue to decrement tau if this value is not less than tau
                     #
                     if tau + self.P[j] - 1 + self.Omega[j] >= t:
                         continue
@@ -383,7 +386,6 @@ class GSF_TotalMatchScore(Z_Repn_Model):
         verbose,
         debug
     ):
-
         if verbose:
             print("")
             print("Model Options")
@@ -551,7 +553,6 @@ class GSFED_TotalMatchScore(Z_Repn_Model):
         tprev,
         verbose
     ):
-
         assert (
             objective == "total_match_score"
         ), "Model11 can not optimize the goal {}".format(objective)
@@ -723,7 +724,7 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         results = Z_Repn_Model.summarize(self)
 
         results["feature_label"] = {}
-        for (k, u) in self.M.m:
+        for k, u in self.M.m:
             if pe.value(self.M.m[k, u]) > 1 - 1e-7:
                 results["feature_label"][u] = k
 
@@ -850,7 +851,6 @@ class UPM_TotalMatchScore(Z_Repn_Model):
         tprev,
         verbose
     ):
-
         assert (
             objective == "total_match_score"
         ), "UPM can not optimize the goal {}".format(objective)
@@ -1080,7 +1080,6 @@ class XSF_TotalMatchScore(Z_Repn_Model):
     def create_model(
         self, *, objective, T, J, K, S, O, P, Q, E, Tmax, Upsilon, tprev, verbose
     ):
-
         if verbose:
             print("")
             print("Model Options")
@@ -1142,10 +1141,10 @@ class XSF_TotalMatchScore(Z_Repn_Model):
         def activity_feasibility_(m, j, t):
             tau = tprev.get((j, Tmax), -1)
             if t > tau:
-            # WEH - This is the old logic, which is weaker than the new logic b.c. it 
-            #       doesn't account for the additional information that is encoded in the
-            #       tprev values.
-            #if t + P[j] - 1 >= Tmax:       
+                # WEH - This is the old logic, which is weaker than the new logic b.c. it
+                #       doesn't account for the additional information that is encoded in the
+                #       tprev values.
+                # if t + P[j] - 1 >= Tmax:
                 return m.z[j, t] == m.z[j, Tmax - 1]
             return pe.Constraint.Skip
 
@@ -1255,24 +1254,8 @@ class GSF_Makespan(Z_Repn_Model):
         self.enforce_constraints(self.M, constraints, verbose=config.verbose)
 
     def create_model(
-        self,
-        *,
-        objective,
-        T,
-        J,
-        K,
-        S,
-        O,
-        P,
-        Q,
-        E,
-        Gamma,
-        Tmax,
-        Upsilon,
-        tprev,
-        verbose
+        self, *, objective, T, J, K, S, O, P, Q, E, Gamma, Tmax, Upsilon, tprev, verbose
     ):
-
         if verbose:
             print("")
             print("Model Options")
@@ -1305,7 +1288,9 @@ class GSF_Makespan(Z_Repn_Model):
         M.omax = pe.Constraint(J, rule=omax_)
 
         def odef_(m, j):
-            return m.o[j] == sum(t * (m.z[j, t] - m.z[j, t - 1]) for t in T) + ( Tmax - 1) * (1 - m.z[j, Tmax - 1])
+            return m.o[j] == sum(t * (m.z[j, t] - m.z[j, t - 1]) for t in T) + (
+                Tmax - 1
+            ) * (1 - m.z[j, Tmax - 1])
 
         M.odef = pe.Constraint(J, rule=odef_)
 
@@ -1415,11 +1400,29 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
         verbose,
         debug
     ):
-
         if Gamma != 0:
-            print("Warning: Gamma is set to zero in CompactMatches_VariableLengthActivities")
+            print(
+                "Warning: Gamma is set to zero in CompactMatches_VariableLengthActivities"
+            )
         Gamma = {j: 0 for j in J}
-        M = GSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Gamma=Gamma, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose, debug=debug)
+        M = GSF_TotalMatchScore.create_model(
+            self,
+            objective=objective,
+            T=T,
+            J=J,
+            K=K,
+            S=S,
+            O=O,
+            P=P,
+            Q=Q,
+            E=E,
+            Gamma=Gamma,
+            Tmax=Tmax,
+            Upsilon=Upsilon,
+            tprev=tprev,
+            verbose=verbose,
+            debug=debug,
+        )
 
         M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
 
@@ -1433,21 +1436,28 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
 
             e = 0
             skip = True
-            for (i,j_) in E:
+            for i, j_ in E:
                 if j_ == j:
-                    tau = tprev.get((i,t),None)
+                    tau = tprev.get((i, t), None)
                     #
                     # Skip if latest time that activity i can start is before the time window.
                     #
                     if tau == None or tau < 0:
                         continue
-                    tau = tau + P[i]-1
-                    if (i,tau) not in m.a:
+                    tau = tau + P[i] - 1
+                    if (i, tau) not in m.a:
                         # WEH - Can this ever happen?
-                        print("BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}", i, j, tprev.get((i,t)), tau, t)
+                        print(
+                            "BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}",
+                            i,
+                            j,
+                            tprev.get((i, t)),
+                            tau,
+                            t,
+                        )
                         return pe.Constraint.Skip
                     skip = False
-                    e += m.a[i,tau]
+                    e += m.a[i, tau]
             #
             # If no predecessor activites, then skip this constraint.
             #
@@ -1455,17 +1465,20 @@ class GSF_TotalMatchScore_Compact(GSF_TotalMatchScore):
                 return pe.Constraint.Skip
             #
             # We cannot start activity j at time step if the last time steps
-            # that the predecessor activities could be executed are all 
+            # that the predecessor activities could be executed are all
             # not active.
             #
-            return e + m.z_pre[j] >= m.z[j, t] - m.z[j, t-1] 
+            return e + m.z_pre[j] >= m.z[j, t] - m.z[j, t - 1]
+
         M.compact = pe.Constraint(J, T, rule=compact_)
 
         def compact_z_(m, i, j):
-            return m.z[i,-1] >= m.z_pre[j]
+            return m.z[i, -1] >= m.z_pre[j]
+
         M.compact_z = pe.Constraint(E, rule=compact_z_)
 
         return M
+
 
 #
 # This is the XSF model, annotated to enforce compactness constraints
@@ -1478,8 +1491,22 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
     def create_model(
         self, *, objective, T, J, K, S, O, P, Q, E, Tmax, Upsilon, tprev, verbose
     ):
-
-        M = XSF_TotalMatchScore.create_model(self, objective=objective, T=T, J=J, K=K, S=S, O=O, P=P, Q=Q, E=E, Tmax=Tmax, Upsilon=Upsilon, tprev=tprev, verbose=verbose)
+        M = XSF_TotalMatchScore.create_model(
+            self,
+            objective=objective,
+            T=T,
+            J=J,
+            K=K,
+            S=S,
+            O=O,
+            P=P,
+            Q=Q,
+            E=E,
+            Tmax=Tmax,
+            Upsilon=Upsilon,
+            tprev=tprev,
+            verbose=verbose,
+        )
 
         M.z_pre = pe.Var(J, within=pe.Binary, initialize=0)
 
@@ -1493,52 +1520,68 @@ class XSF_TotalMatchScore_Compact(XSF_TotalMatchScore):
 
             e = 0
             skip = True
-            for (i,j_) in E:
+            for i, j_ in E:
                 if j_ == j:
-                    tau = tprev.get((i,t),None)
+                    tau = tprev.get((i, t), None)
                     #
                     # Skip if latest time that activity i can start is before the time window.
                     #
                     if tau == None or tau < 0:
                         continue
                     #
-                    # NOTE:  Since we consider fixed-length activities, 
+                    # NOTE:  Since we consider fixed-length activities,
                     #           the activity is executed at time tau + P[i]-1 if it is
                     #           executed at time tau.  Hence, we don't adjust tau here,
                     #           but instead test the value z[i,tau]-z[i,tau-1] to detect
                     #           if the activity is executed at time tau+P[i]-1.
                     #
-                    if (i,tau) not in m.z:
+                    if (i, tau) not in m.z:
                         # WEH - Can this ever happen?
-                        print("BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}", i, j, tprev.get((i,t)), tau, t)
+                        print(
+                            "BUG in compact formulation? ({},{}) precedence, tprev={} tau={} t={}",
+                            i,
+                            j,
+                            tprev.get((i, t)),
+                            tau,
+                            t,
+                        )
                         return pe.Constraint.Skip
                     skip = False
-                    e += m.z[i,tau] - m.z[i,tau-1]
+                    e += m.z[i, tau] - m.z[i, tau - 1]
             #
             # If no predecessor activites, then skip this constraint.
             #
             if skip:
                 return pe.Constraint.Skip
 
-            return e + m.z_pre[j] >= m.z[j,t] - m.z[j,t-1]
+            return e + m.z_pre[j] >= m.z[j, t] - m.z[j, t - 1]
+
         M.compact = pe.Constraint(J, T, rule=compact_)
 
         def compact_z_(m, i, j):
-            return m.z[i,-1] >= m.z_pre[j]
+            return m.z[i, -1] >= m.z_pre[j]
+
         M.compact_z = pe.Constraint(E, rule=compact_z_)
 
         return M
 
 
-
 def create_model(name):
-    if name == "model11" or name == "GSF" or name == "UnrestrictedMatches_VariableLengthActivities_GapsAllowed":
+    if (
+        name == "model11"
+        or name == "GSF"
+        or name == "UnrestrictedMatches_VariableLengthActivities_GapsAllowed"
+    ):
         return GSF_TotalMatchScore(gaps_allowed=True)
 
     elif name == "UnrestrictedMatches_VariableLengthActivities":
         return GSF_TotalMatchScore(gaps_allowed=False)
 
-    elif name == "GSF-compact" or name == "GSFC" or name == "CompactMatches_VariableLengthActivities":
+    elif (
+        name == "GSF-compact"
+        or name == "GSFC"
+        or name == "CompactMatches_VariableLengthActivities"
+    ):
         return GSF_TotalMatchScore_Compact()
 
     elif name == "model13" or name == "GSF-ED":
@@ -1550,9 +1593,12 @@ def create_model(name):
     elif name == "XSF" or name == "UnrestrictedMatches_FixedLengthActivities":
         return XSF_TotalMatchScore()
 
-    elif name == "XSF-compact" or name == "XSFC" or name == "CompactMatches_FixedLengthActivities":
+    elif (
+        name == "XSF-compact"
+        or name == "XSFC"
+        or name == "CompactMatches_FixedLengthActivities"
+    ):
         return XSF_TotalMatchScore_Compact()
 
     elif name == "model12" or name == "model14" or name == "UPM":
         return UPM_TotalMatchScore()
-

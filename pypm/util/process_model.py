@@ -61,8 +61,8 @@ class ProcessModel(object):
         self.resources.load(data["resources"])
         for activity in data["activities"]:
             self._add_activity(activity)
-        self.hours_per_timestep = data.get('hours_per_timestep',1)
-        self.timesteps_per_day = data.get('timesteps_per_day',24)
+        self.hours_per_timestep = data.get("hours_per_timestep", 1)
+        self.timesteps_per_day = data.get("timesteps_per_day", 24)
         self._initialize()
 
     def __len__(self):
@@ -93,7 +93,9 @@ class ProcessModel(object):
         activity["id"] = i
         self._names[activity["name"]] = i
 
-        assert activity.get("max_delay",None) is None, "Use of 'max_delay' is disallowed.  Use 'delay_after_hours'."
+        assert (
+            activity.get("max_delay", None) is None
+        ), "Use of 'max_delay' is disallowed.  Use 'delay_after_hours'."
         if activity.get("delay_after_hours", None) is not None:
             activity["delay_after_timesteps"] = activity["delay_after_hours"]
             del activity["delay_after_hours"]
@@ -136,5 +138,9 @@ class ProcessModel(object):
             ans["resources"] = self[name]["resources"]
             ans["duration"] = self[name]["duration"]
             activities.append(ans)
-        #return dict(resources=resources, activities=activities, hours_per_timestep=self.hours_per_timestep, timesteps_per_day=self.timesteps_per_day)
-        return dict(resources=resources, activities=activities, hours_per_timestep=self.hours_per_timestep)
+        # return dict(resources=resources, activities=activities, hours_per_timestep=self.hours_per_timestep, timesteps_per_day=self.timesteps_per_day)
+        return dict(
+            resources=resources,
+            activities=activities,
+            hours_per_timestep=self.hours_per_timestep,
+        )
