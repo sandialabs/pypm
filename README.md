@@ -47,3 +47,8 @@ data characteristics.
 * cd pypm
 * pytest
 * pytest --cov=pypm --cov-report term-missing
+
+## Acknowledgements
+
+The initial release of pypm was developed by Dylan Anderson, William Hart and Vitus Leung.
+

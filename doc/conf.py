@@ -8,7 +8,7 @@
 
 project = 'pypm'
 copyright = '2023, Sandia National Laboratories'
-author = 'Dylan Anderson, William Hart, Vitus Leung'
+author = 'pypm developers'
 release = '1.0'
 
 # -- General configuration ---------------------------------------------------
