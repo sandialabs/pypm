@@ -15,6 +15,7 @@ hide-toc: true
 :hidden:
 :maxdepth: 2
 
+getting_started
 process
 api_labeled
 api_unlabeled

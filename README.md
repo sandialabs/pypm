@@ -8,13 +8,12 @@ Process-informed detection of patterns in time series.
 <!-- start overview -->
 
 Pypm supports the analysis of time series data to identify patterns that
-reflect the execution of a known process.  Pypm uses a **process model** to identify patterns,
-where the execution of a process is decomposed into a sequence
-of related activities.
-A process model describes the activities used in the
-process, dependencies between activities that constrain their execution,
-resources needed to execute each activity and information about the
-activities that are observable.
+reflect the execution of a known process.  Pypm uses a **process model**
+to identify patterns, where the execution of a process is decomposed
+into a sequence of related activities.  A process model describes the
+activities used in the process, dependencies between activities that
+constrain their execution, resources needed to execute each activity
+and information about the activities that are observable.
 
 Pypm implements *process matching* algorithms that infer a schedule
 of the activities in a process model to maximize the alignement of the
@@ -25,18 +24,18 @@ methods are used to find an optimal match.  For unlabeled data, tabu
 search methods are used to predict data labels, which can then be used
 by integer programming methods.
 
-Pypm solvers address a variety of complicating concerns,
-including variable-duration process activities, gaps in activity
-execution, preferences for compact matches, and tailored methods that
-depend on data characteristics.
+Pypm solvers address a variety of complicating concerns, including
+variable-duration process activities, gaps in activity execution,
+preferences for compact matches, and tailored methods that depend on
+data characteristics.
 
 <!-- end overview -->
 
-## Installation
+## Installation For Development
 
 * git clone git@cee-gitlab.sandia.gov:adapd/pypm.git
 * cd pypm
-* python setup.py develop
+* pip install -e .
 
 ## Example
 

@@ -10,8 +10,8 @@ we might know that:
 * A specific activity was executed after a specified date, or
 * A specific activity was started at a specified date.
 
-This type of information can either the search performed by pypm,
-or constrain the solutions to include required scheduling values
+This type of information can either constrain the search performed by
+pypm, or constrain the solutions to include required scheduling values
 (e.g. activity start times).  Clearly, this information is directly
 relevant when analyzing labeled data.  But this information can also be
 integrated into our analysis of unlabeled data.  The mappings generated
@@ -21,7 +21,9 @@ which can again integrate this type of information.
 Thus, the pypm API includes a variety of methods that tailor the
 analysis to exploit application-specific information.  Although these
 functions are documented in the API Reference, we summarize them here
-for convenience.  Suppose that the **api** object is created using the **PYPM.supervised_mip()** or **PYPM.tabu_labeling()** functions.  Then the following methods can be executed:
+for convenience.  Suppose that the **api** object is created using
+the **PYPM.supervised_mip()** or **PYPM.tabu_labeling()** functions.
+Then the following methods can be executed:
 
 * **api.include(activity)** - Include the specified activity in the schedule.
 
@@ -41,4 +43,14 @@ for convenience.  Suppose that the **api** object is created using the **PYPM.su
 
 * **api.relax_all()** - Relax (unfix) the schedule of all activities.
 
+* **api.relax_start_date(activity)** - Relax (unfix) the start date of the specified activity.
 
+* **api.relax_start_dates()** - Relax (unfix) the start dates of all activities.
+
+* **api.set_activity_duration(activity, minval, maxval)** - Set the minimum and maximum duration of the specified activity.
+
+These methods can be called in any order before performing optimization,
+but the order of execution is meaningful.  In particular, relaxing
+the constraints will eliminate information about prior constraints.
+The **remove_constraints()** method can be used to remove *all*
+constraints in the API.

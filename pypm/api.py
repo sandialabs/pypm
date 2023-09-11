@@ -11,8 +11,6 @@ from .unsup.run_labeling import run_tabu_labeling
 class MatchingResults(object):
     """
     This class contains results generated from the :any:`SupervisedMIP` optimizer.
-
-    TODO: More detail about the nature of these results?
     """
 
     def __init__(self, results):
@@ -121,7 +119,11 @@ class SupervisedMIP(object):
 
     def generate_schedule(self):
         """
-        Generate a schedule (TODO)
+        Generate a schedule.
+
+        This method calls an integer programming optimizer to select
+        the starting time of activities in the process to best align
+        the process with observation data.
 
         Returns
         -------
@@ -476,17 +478,11 @@ class UnsupervisedMIP(SupervisedMIP):
 class LabelingResults(MatchingResults):
     """
     This class contains results generated from the :any:`TabuLabeling` optimizer.
-
-    TODO: More detail about the nature of these results?
     """
 
     def write_labels(self, csvfile):
         """
         Write a CSV file containing results from labeling optimization.
-
-        TODO: document the columns
-
-        TODO: document feature_label and resource_feature_list options.
 
         Arguments
         ---------
@@ -617,7 +613,10 @@ class TabuLabeling(object):
 
     def generate_labeling_and_schedule(self, nworkers=None, debug=None, setup_ray=True):
         """
-        Generate a labeling and optimal schedule (TODO)
+        Generate a labeling and optimal schedule.
+
+        This method uses a tabu search optimizer to identify a mapping
+        of resources to features that maximizes a separation score.
 
         Returns
         -------
