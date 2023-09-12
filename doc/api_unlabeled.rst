@@ -127,7 +127,7 @@ configuration file specifies a YAML file that defines these constraints:
 .. literalinclude:: ../pypm/tests/t102/config.yaml
 
 This YAML specification in ``mapping_constraints.yaml`` defines a list,
-where each list element is a dictionary taht specifies how which features
+where each list element is a dictionary that specifies how which features
 can be mapped to a resource.  For example:
 
 .. literalinclude:: ../pypm/tests/t102/mapping_constraints.yaml
