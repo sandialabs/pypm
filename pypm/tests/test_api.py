@@ -103,3 +103,6 @@ def test_e1():
 
 def test_t101():
     run("t101")
+
+def test_t102():
+    run("t102")
