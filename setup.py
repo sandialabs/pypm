@@ -36,6 +36,7 @@ requires = [
     #'parameterized',
     #'scipy',
     "pandas",
+    "plotly",
     "pyyaml",
     "simpy",
     "ray",
