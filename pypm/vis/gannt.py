@@ -43,6 +43,7 @@ def create_gannt_chart(
         "UPM",
         "GSF",
         "UnrestrictedMatches_VariableLengthActivities",
+        "UnrestrictedMatches_FixedLengthActivities",
         "GSF-compact",
         "XSF-compact",
         "GSF-ED",
@@ -147,6 +148,7 @@ def create_gannt_chart(
             color="Match Score",
             width=width,
             height=height,
+            utc=True
         )
         fig.layout.xaxis.type = "linear"
         df["delta"] = df["Stop"] - df["Start"]
@@ -214,7 +216,7 @@ def create_gannt_chart_with_separation_metric(
         "UPM",
         "GSF",
         "UnrestrictedMatches_VariableLengthActivities",
-        "UnrestrictedMatches_VariableLengthActivities",
+        "UnrestrictedMatches_FixedLengthActivities",
         "GSF-compact",
         "CompactMatches_VariableLengthActivities",
         "XSF-compact",
