@@ -43,9 +43,11 @@ def create_gannt_chart(
         "UPM",
         "GSF",
         "UnrestrictedMatches_VariableLengthActivities",
+        "XSF",
         "UnrestrictedMatches_FixedLengthActivities",
         "GSF-compact",
         "XSF-compact",
+        "CompactMatches_FixedLengthActivities",
         "GSF-ED",
     ], "Cannot visualize results in {}.  Expects results generated for model3-model8,model10-model14.".format(
         results_fname
