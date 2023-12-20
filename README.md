@@ -33,7 +33,7 @@ data characteristics.
 
 ## Installation For Development
 
-* git clone git@cee-gitlab.sandia.gov:adapd/pypm.git
+* git clone git@github.com:sandialabs/pypm.git
 * cd pypm
 * pip install -e .
 
