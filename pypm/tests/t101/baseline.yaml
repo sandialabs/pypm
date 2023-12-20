@@ -1,0 +1,85 @@
+results:
+- datetime_schedule:
+    Activity1:
+      first: '2021-01-02 08:00:00'
+      last: '2021-01-02 16:00:00'
+      stop: '2021-01-02 17:00:00'
+    Activity2:
+      first: '2021-01-08 07:00:00'
+      last: '2021-01-09 22:00:00'
+      stop: '2021-01-09 23:00:00'
+    Activity3:
+      first: '2021-01-19 22:00:00'
+      last: '2021-01-20 07:00:00'
+      stop: '2021-01-20 08:00:00'
+    Activity4:
+      first: '2021-01-28 16:00:00'
+      last: '2021-01-30 17:00:00'
+      stop: '2021-01-30 18:00:00'
+    Activity5:
+      first: '2021-02-06 07:00:00'
+      last: '2021-02-06 16:00:00'
+      stop: '2021-02-06 17:00:00'
+    Activity6:
+      post: '2021-02-11 23:00:00'
+  goals:
+    match:
+      Activity1: 27.0
+      Activity2: 57.5
+      Activity4: 62.2
+      Activity5: 30.0
+    separation:
+      A: 0.7023326572008111
+      B: 0.7741967871485944
+      C: 0.20243829018663467
+      D: 0.2712044198895024
+      E: 0.22448066298342545
+    total_match: 176.7
+    total_separation: 2.1746528174089677
+  resource_feature_list:
+    A:
+    - BD
+    - BE
+    - CD
+    B:
+    - AC
+    - BD
+    C:
+    - AB
+    - AE
+    - BD
+    - CD
+    - CE
+    D:
+    - AC
+    - AE
+    - BE
+    E:
+    - DE
+  schedule:
+    Activity1:
+      first: 29
+      last: 37
+    Activity2:
+      first: 172
+      last: 211
+    Activity3:
+      first: 451
+      last: 460
+    Activity4:
+      first: 661
+      last: 710
+    Activity5:
+      first: 868
+      last: 877
+    Activity6:
+      post: true
+  solver_statistics:
+    evaluations: 54
+    iterations: 25
+    stall count: 0
+    unique solutions: 55
+solver:
+  model:
+    name: UnrestrictedMatches_VariableLengthActivities
+  search_strategy: tabu

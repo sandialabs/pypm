@@ -1,0 +1,71 @@
+activities:
+- delay_after_timesteps: null
+  dependencies: []
+  duration:
+    max_timesteps: 1
+    min_timesteps: 1
+  name: Activity1
+  resources:
+    A: 1
+    B: 1
+    C: 1
+- delay_after_timesteps: 20.0
+  dependencies:
+  - Activity1
+  duration:
+    max_timesteps: 4
+    min_timesteps: 4
+  name: Activity2
+  resources:
+    C: 1
+    D: 1
+    E: 1
+- delay_after_timesteps: 20.0
+  dependencies:
+  - Activity2
+  duration:
+    max_timesteps: 1
+    min_timesteps: 1
+  name: Activity3
+  resources: {}
+- delay_after_timesteps: null
+  dependencies:
+  - Activity3
+  duration:
+    max_timesteps: 5
+    min_timesteps: 5
+  name: Activity4
+  resources:
+    C: 1
+    D: 1
+    E: 1
+- delay_after_timesteps: 31.2
+  dependencies:
+  - Activity4
+  - Activity3
+  duration:
+    max_timesteps: 1
+    min_timesteps: 1
+  name: Activity5
+  resources:
+    A: 1
+    D: 1
+    E: 1
+- delay_after_timesteps: 16.8
+  dependencies:
+  - Activity5
+  duration:
+    max_timesteps: 1
+    min_timesteps: 1
+  name: Activity6
+  resources:
+    C: 1
+    D: 1
+    E: 1
+hours_per_timestep: 10
+resources:
+  A: null
+  B: null
+  C: null
+  D: null
+  E: null

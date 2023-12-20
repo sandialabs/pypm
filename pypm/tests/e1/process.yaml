@@ -1,0 +1,76 @@
+resources:
+  A:
+  B:
+  C:
+  D:
+  E:
+
+activities:
+
+- name: Activity1
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+    A:
+    B:
+    C:
+
+- name: Activity2
+  delay_after_hours: 200
+  dependencies: 
+  - Activity1
+  duration:
+    max_hours: 40
+    min_hours: 40
+  resources:
+    D:
+    E:
+    C:
+
+- name: Activity3
+  delay_after_hours: 200
+  dependencies: 
+  - Activity2
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+
+- name: Activity4
+  dependencies:
+  - Activity3
+  duration:
+    max_hours: 50
+    min_hours: 50
+  resources:
+    D:
+    C:
+    E:
+
+- name: Activity5
+  delay_after_hours: 312
+  dependencies:
+  - Activity4
+  - Activity3
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+    A:
+    D:
+    E:
+
+- name: Activity6
+  delay_after_hours: 168
+  dependencies:
+  - Activity5
+  duration:
+    max_hours: 70
+    min_hours: 10
+  resources:
+    D:
+    C:
+    E:
+

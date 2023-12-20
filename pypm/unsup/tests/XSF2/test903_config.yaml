@@ -1,0 +1,49 @@
+_options:
+  comments: 
+    - confirming that first activity is not included if it's short enough, but the delay causes a conflict
+  search_strategy: tabu
+  process: test903_config.yaml
+  solver: glpk
+  model: XSF
+  local_search: best_improving
+  label_representation: resource_feature_list
+  tee: false
+  timesteps: 30
+  combine_features: true
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  delay_after_hours: 1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a1: {pre: True}
+    a2: {start: 6, stop: 10}
+  observations:
+    ra: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rb: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0

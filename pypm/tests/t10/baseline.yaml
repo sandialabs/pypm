@@ -1,0 +1,60 @@
+results:
+- datetime_schedule:
+    Activity1:
+      first: '2021-01-01 04:00:00'
+      last: '2021-01-01 12:00:00'
+      stop: '2021-01-01 13:00:00'
+    Activity2:
+      first: '2021-01-01 13:00:00'
+      last: '2021-01-03 04:00:00'
+      stop: '2021-01-03 05:00:00'
+    Activity3:
+      first: '2021-01-20 13:00:00'
+      last: '2021-01-20 22:00:00'
+      stop: '2021-01-20 23:00:00'
+    Activity4:
+      first: '2021-01-29 07:00:00'
+      last: '2021-01-31 08:00:00'
+      stop: '2021-01-31 09:00:00'
+    Activity5:
+      first: '2021-02-06 07:00:00'
+      last: '2021-02-06 16:00:00'
+      stop: '2021-02-06 17:00:00'
+    Activity6:
+      post: '2021-02-11 23:00:00'
+  goals:
+    match:
+      Activity1: 12.0
+      Activity2: 18.0
+      Activity4: 10.0
+      Activity5: 20.0
+    separation:
+      A: 0.7974805167075905
+      B: 0
+      C: 0.10101010101010101
+      D: 0.033370165745856356
+      E: 0.27790055248618784
+    total_match: 60.0
+    total_separation: 1.2097613359497357
+  schedule:
+    Activity1:
+      first: 1
+      last: 9
+    Activity2:
+      first: 10
+      last: 49
+    Activity3:
+      first: 466
+      last: 475
+    Activity4:
+      first: 676
+      last: 725
+    Activity5:
+      first: 868
+      last: 877
+    Activity6:
+      post: true
+solver:
+  model:
+    name: UnrestrictedMatches_VariableLengthActivities
+  search_strategy: mip

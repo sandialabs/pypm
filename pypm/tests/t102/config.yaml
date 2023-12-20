@@ -1,0 +1,9 @@
+_options:
+  process: process.yaml
+  model: UnrestrictedMatches_FixedLengthActivities
+  label_representation: resource_feature_list
+  max_iterations: 200
+  max_stall_count: 10
+  labeling_restrictions: mapping_constraints.yaml
+data:
+  filename: unlabeled.csv

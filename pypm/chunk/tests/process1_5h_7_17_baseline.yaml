@@ -1,0 +1,23 @@
+activities:
+- delay_after_timesteps: null
+  dependencies: []
+  duration:
+    max_timesteps: 2
+    min_timesteps: 1
+  name: a1
+  resources:
+    rB: 1
+    rC: 1
+- delay_after_timesteps: 4.8
+  dependencies:
+  - a1
+  duration:
+    max_timesteps: 1
+    min_timesteps: 1
+  name: a2
+  resources: {}
+hours_per_timestep: 5
+resources:
+  rA: null
+  rB: null
+  rC: null

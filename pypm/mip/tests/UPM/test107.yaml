@@ -1,0 +1,53 @@
+_options:
+  comments: 
+    - confirming that last activity is not included if it doesn't fit
+  process: test107.yaml
+  solver: glpk
+  tee: true
+  timesteps: 30
+  Gamma: 0
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a0
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 10
+  resources:
+    rB:
+
+- name: a1
+  dependencies:
+  - a0
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a1: {start: 20, stop: 24}
+    a2: {post: True}
+  observations:
+    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0]
+    rB: [0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0]
+  seed: 0
+  trial: 0

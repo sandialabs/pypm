@@ -1,0 +1,45 @@
+results:
+- datetime_schedule:
+    a1:
+      first: '2020-01-01 10:00:00'
+      last: '2020-01-01 14:00:00'
+      stop: '2020-01-01 15:00:00'
+    a2:
+      first: '2020-01-01 15:00:00'
+      last: '2020-01-01 20:00:00'
+      stop: '2020-01-01 21:00:00'
+  goals:
+    match:
+      a1: 5.0
+      a2: 12.0
+    separation:
+      dummy a1: 0
+      dummy a2: 0
+      rA: 0.7916666666666666
+      rB: 0.7916666666666666
+      rC: 0.84
+    total_match: 17.0
+    total_separation: 2.4233333333333333
+  resource_feature_list:
+    rA:
+    - rc
+    rB:
+    - rc
+    rC:
+    - rb
+  schedule:
+    a1:
+      first: 10
+      last: 14
+    a2:
+      first: 15
+      last: 20
+  solver_statistics:
+    evaluations: 151
+    iterations: 64
+    stall count: 25
+    unique solutions: 122
+solver:
+  model:
+    name: UnrestrictedMatches_VariableLengthActivities
+  search_strategy: tabu

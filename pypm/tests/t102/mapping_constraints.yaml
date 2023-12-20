@@ -1,0 +1,28 @@
+- knownFeature: []
+  possibleFeature:
+  - AB
+  - AC
+  - AD
+  - AE
+  - BC
+  - BD
+  - BE
+  - CD
+  - CE
+  - DE
+  resourceName: A
+- like: A
+  resourceName: B
+- like: A
+  resourceName: C
+- knownFeature: []
+  possibleFeature:
+  - AD
+  - BD
+  - CD
+  - DE
+  resourceName: D
+- knownFeature: [CE, DE]
+  possibleFeature: []
+  resourceName: E
+

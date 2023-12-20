@@ -1,0 +1,177 @@
+data:
+  datafile: null
+  datetime: {0: '2020-01-01 00:00:00', 1: '2020-01-01 01:00:00', 2: '2020-01-01 02:00:00',
+    3: '2020-01-01 03:00:00', 4: '2020-01-01 04:00:00', 5: '2020-01-01 05:00:00',
+    6: '2020-01-01 06:00:00', 7: '2020-01-01 07:00:00', 8: '2020-01-01 08:00:00',
+    9: '2020-01-01 09:00:00', 10: '2020-01-01 10:00:00', 11: '2020-01-01 11:00:00',
+    12: '2020-01-01 12:00:00', 13: '2020-01-01 13:00:00', 14: '2020-01-01 14:00:00',
+    15: '2020-01-01 15:00:00', 16: '2020-01-01 16:00:00', 17: '2020-01-01 17:00:00',
+    18: '2020-01-01 18:00:00', 19: '2020-01-01 19:00:00', 20: '2020-01-01 20:00:00',
+    21: '2020-01-01 21:00:00', 22: '2020-01-01 22:00:00', 23: '2020-01-01 23:00:00',
+    24: '2020-01-02 00:00:00', 25: '2020-01-02 01:00:00', 26: '2020-01-02 02:00:00',
+    27: '2020-01-02 03:00:00', 28: '2020-01-02 04:00:00', 29: '2020-01-02 05:00:00'}
+  index: 0
+  indicators: []
+  timesteps: 30
+results:
+- datetime_schedule:
+    a1: {first: '2020-01-01 07:00:00', last: '2020-01-01 11:00:00', stop: '2020-01-01
+        12:00:00'}
+    a2: {first: '2020-01-01 12:00:00', last: '2020-01-01 17:00:00', stop: '2020-01-01
+        18:00:00'}
+    a3: {first: '2020-01-01 20:00:00', last: '2020-01-02 01:00:00', stop: '2020-01-02
+        02:00:00'}
+  goals:
+    match: {a1: 3.0, a3: 12.0}
+    separation: {rA: 1.0, rB: 1.0, rC: 0.52}
+    total_match: 15.0
+    total_separation: 2.52
+  objective: 15.0
+  schedule:
+    a1: {first: 7, last: 11}
+    a2: {first: 12, last: 17}
+    a3: {first: 20, last: 25}
+  variables:
+    a:
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a1, 10]
+      : 1.0
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a2, 12]
+      : 1.0
+      ? !!python/tuple [a2, 13]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+      ? !!python/tuple [a2, 16]
+      : 1.0
+      ? !!python/tuple [a2, 17]
+      : 1.0
+      ? !!python/tuple [a3, 20]
+      : 1.0
+      ? !!python/tuple [a3, 21]
+      : 1.0
+      ? !!python/tuple [a3, 22]
+      : 1.0
+      ? !!python/tuple [a3, 23]
+      : 1.0
+      ? !!python/tuple [a3, 24]
+      : 1.0
+      ? !!python/tuple [a3, 25]
+      : 1.0
+    o: {a1: 3.0, a3: 12.0}
+    z:
+      ? !!python/tuple [a1, 7]
+      : 1.0
+      ? !!python/tuple [a1, 8]
+      : 1.0
+      ? !!python/tuple [a1, 9]
+      : 1.0
+      ? !!python/tuple [a1, 10]
+      : 1.0
+      ? !!python/tuple [a1, 11]
+      : 1.0
+      ? !!python/tuple [a1, 12]
+      : 1.0
+      ? !!python/tuple [a1, 13]
+      : 1.0
+      ? !!python/tuple [a1, 14]
+      : 1.0
+      ? !!python/tuple [a1, 15]
+      : 1.0
+      ? !!python/tuple [a1, 16]
+      : 1.0
+      ? !!python/tuple [a1, 17]
+      : 1.0
+      ? !!python/tuple [a1, 18]
+      : 1.0
+      ? !!python/tuple [a1, 19]
+      : 1.0
+      ? !!python/tuple [a1, 20]
+      : 1.0
+      ? !!python/tuple [a1, 21]
+      : 1.0
+      ? !!python/tuple [a1, 22]
+      : 1.0
+      ? !!python/tuple [a1, 23]
+      : 1.0
+      ? !!python/tuple [a1, 24]
+      : 1.0
+      ? !!python/tuple [a1, 25]
+      : 1.0
+      ? !!python/tuple [a1, 26]
+      : 1.0
+      ? !!python/tuple [a1, 27]
+      : 1.0
+      ? !!python/tuple [a1, 28]
+      : 1.0
+      ? !!python/tuple [a1, 29]
+      : 1.0
+      ? !!python/tuple [a2, 12]
+      : 1.0
+      ? !!python/tuple [a2, 13]
+      : 1.0
+      ? !!python/tuple [a2, 14]
+      : 1.0
+      ? !!python/tuple [a2, 15]
+      : 1.0
+      ? !!python/tuple [a2, 16]
+      : 1.0
+      ? !!python/tuple [a2, 17]
+      : 1.0
+      ? !!python/tuple [a2, 18]
+      : 1.0
+      ? !!python/tuple [a2, 19]
+      : 1.0
+      ? !!python/tuple [a2, 20]
+      : 1.0
+      ? !!python/tuple [a2, 21]
+      : 1.0
+      ? !!python/tuple [a2, 22]
+      : 1.0
+      ? !!python/tuple [a2, 23]
+      : 1.0
+      ? !!python/tuple [a2, 24]
+      : 1.0
+      ? !!python/tuple [a2, 25]
+      : 1.0
+      ? !!python/tuple [a2, 26]
+      : 1.0
+      ? !!python/tuple [a2, 27]
+      : 1.0
+      ? !!python/tuple [a2, 28]
+      : 1.0
+      ? !!python/tuple [a2, 29]
+      : 1.0
+      ? !!python/tuple [a3, 20]
+      : 1.0
+      ? !!python/tuple [a3, 21]
+      : 1.0
+      ? !!python/tuple [a3, 22]
+      : 1.0
+      ? !!python/tuple [a3, 23]
+      : 1.0
+      ? !!python/tuple [a3, 24]
+      : 1.0
+      ? !!python/tuple [a3, 25]
+      : 1.0
+      ? !!python/tuple [a3, 26]
+      : 1.0
+      ? !!python/tuple [a3, 27]
+      : 1.0
+      ? !!python/tuple [a3, 28]
+      : 1.0
+      ? !!python/tuple [a3, 29]
+      : 1.0
+    z_pre: {}
+solver:
+  model: {name: CompactMatches_VariableLengthActivities}
+  search_strategy: mip

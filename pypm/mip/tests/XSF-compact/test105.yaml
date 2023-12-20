@@ -1,0 +1,44 @@
+_options:
+  comments: 
+    - confirming that last activity is included if it's short enough
+  process: test105.yaml
+  solver: glpk
+  tee: true
+  timesteps: 30
+  model: CompactMatches_FixedLengthActivities
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a1: {start: 19, stop: 23}
+    a2: {start: 24, stop: 29}
+  observations:
+    rA: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1]
+    rB: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,1,1,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0

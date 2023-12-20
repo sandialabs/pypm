@@ -1,0 +1,65 @@
+_options:
+  comments: 
+    - Complex example
+  process: test300.yaml
+  solver: glpk
+  tee: true
+  timesteps: 30
+  model: CompactMatches_VariableLengthActivities
+
+resources:
+  rA:
+  rB:
+  rC:
+  rD:
+  rE:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 10
+    min_hours: 5
+  resources:
+    rC:
+    rE:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 4
+    min_hours: 2
+  delay_after_hours: 3
+  resources:
+    rA:
+
+- name: a3
+  dependencies:
+  - a1
+  duration:
+    max_hours: 5
+    min_hours: 2
+  resources:
+    rB:
+
+- name: a4
+  dependencies:
+  - a2
+  - a3
+  duration:
+    max_hours: 5
+    min_hours: 2
+  resources:
+    rD:
+
+data:
+- observations:
+    rA: [0,0,0,0,0, 0,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 0,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [0,1,1,1,1, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rD: [0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rE: [0,1,1,1,1, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+  seed: 0
+  trial: 0

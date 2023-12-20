@@ -1,0 +1,47 @@
+_options:
+  comments: 
+    - confirming that last activity is not included if it doesn't fit
+  search_strategy: tabu
+  process: test108_config.yaml
+  solver: glpk
+  label_representation: feature_label
+  tee: false
+  timesteps: 30
+  combine_features: true
+  stall_threshold: 0.1
+
+resources:
+  rA:
+  rB:
+  rC:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rC:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 6
+    min_hours: 6
+  resources:
+    rA:
+    rB:
+
+data:
+- ground_truth:
+    a1: {start: 20, stop: 24}
+    a2: {post: True}
+  observations:
+    ra: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0]
+    rb: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rc: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0]
+  seed: 0
+  trial: 0
