@@ -19,7 +19,7 @@ results:
         12:00:00'}
     a2: {first: '2020-01-01 15:00:00', last: '2020-01-01 19:00:00', stop: '2020-01-01
         20:00:00'}
-  feature_label: {rA: rA, rB: rC}
+  feature_label: {rA: rA, rB: rB}
   goals:
     match: {a1: 7.0, a2: 5.0}
     separation: {rA: 1.0, rB: 1.0}
@@ -58,23 +58,23 @@ results:
     m:
       ? !!python/tuple [rA, rA]
       : 1.0
-      ? !!python/tuple [rC, rB]
+      ? !!python/tuple [rB, rB]
       : 1.0
     o: {a1: 7.0, a2: 5.0}
     r:
-      ? !!python/tuple [a1, rC, 5]
+      ? !!python/tuple [a1, rB, 5]
       : 1.0
-      ? !!python/tuple [a1, rC, 6]
+      ? !!python/tuple [a1, rB, 6]
       : 1.0
-      ? !!python/tuple [a1, rC, 7]
+      ? !!python/tuple [a1, rB, 7]
       : 1.0
-      ? !!python/tuple [a1, rC, 8]
+      ? !!python/tuple [a1, rB, 8]
       : 1.0
-      ? !!python/tuple [a1, rC, 9]
+      ? !!python/tuple [a1, rB, 9]
       : 1.0
-      ? !!python/tuple [a1, rC, 10]
+      ? !!python/tuple [a1, rB, 10]
       : 1.0
-      ? !!python/tuple [a1, rC, 11]
+      ? !!python/tuple [a1, rB, 11]
       : 1.0
       ? !!python/tuple [a2, rA, 15]
       : 1.0

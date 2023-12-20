@@ -10,7 +10,6 @@ _options:
 resources:
   rA:
   rB:
-  rC:
 
 activities:
 
@@ -21,7 +20,6 @@ activities:
     min_hours: 7
   resources:
     rB:
-    rC:
 
 - name: a2
   dependencies:
