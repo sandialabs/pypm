@@ -47,7 +47,7 @@ packages = _find_packages("pypm")
 
 setup(name='pypm',
       version='1.5.0',
-      url='https://cee-gitlab.sandia.gov/adapd/pypm',
+      url='https://github.com/sandialabs/pypm'
       platforms=["any"],
       description='A python library for process matching',
       #long_description=read('README.md'),
