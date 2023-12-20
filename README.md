@@ -1,6 +1,6 @@
 <h1 align="center">Pypm</h1>
 <p align="center">
-Process-informed detection of patterns in time series.
+Process-informed detection of patterns in time series data.
 </p>
 
 ## Overview
@@ -36,11 +36,6 @@ data characteristics.
 * git clone git@cee-gitlab.sandia.gov:adapd/pypm.git
 * cd pypm
 * pip install -e .
-
-## Example
-
-* cd examples/simple
-* python run.py
 
 ## Testing
 
