@@ -7,9 +7,9 @@ results:
     Activity3:
       pre: '2021-01-01 03:00:00'
     Activity4:
-      first: '2021-01-01 07:00:00'
-      last: '2021-01-03 08:00:00'
-      stop: '2021-01-03 09:00:00'
+      first: '2021-01-01 03:00:00'
+      last: '2021-01-03 04:00:00'
+      stop: '2021-01-03 05:00:00'
     Activity5:
       first: '2021-01-15 07:00:00'
       last: '2021-01-15 16:00:00'
@@ -39,8 +39,8 @@ results:
     Activity3:
       pre: true
     Activity4:
-      first: 4
-      last: 53
+      first: 0
+      last: 49
     Activity5:
       first: 340
       last: 349
