@@ -939,7 +939,6 @@ def XSF_CompactMatches_constraints(
     return M
 
 
-
 # ====================================================================================
 # Legacy models
 #

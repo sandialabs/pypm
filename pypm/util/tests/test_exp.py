@@ -47,9 +47,7 @@ timesteps: 30
 
     results = runsim(config=config, process=process)
     output = yaml.dump(results, default_flow_style=None)
-    assert (
-        output
-        == """_options:
+    assert output == """_options:
   comments: []
   config: null
   model: model3
@@ -71,7 +69,6 @@ data:
   seed: 0
   trial: 0
 """
-    )
 
 
 def test_ex1b():
@@ -82,12 +79,10 @@ def test_ex1b():
         configfile=os.path.join(currdir, "sim1.yaml"),
         processfile=os.path.join(currdir, "example2.yaml"),
     )
-    results['_options']['config'] = None
-    results['_options']['process'] = None
+    results["_options"]["config"] = None
+    results["_options"]["process"] = None
     output = yaml.dump(results, default_flow_style=None)
-    assert (
-        output
-        == """_options:
+    assert output == """_options:
   comments: []
   config: null
   model: model3
@@ -109,7 +104,6 @@ data:
   seed: 0
   trial: 0
 """
-    )
 
 
 def test_ex1c():
@@ -123,12 +117,10 @@ def test_ex1c():
         supervised=False,
         outputfile=outputfile,
     )
-    results['_options']['config'] = None
-    results['_options']['process'] = None
+    results["_options"]["config"] = None
+    results["_options"]["process"] = None
     output = yaml.dump(results, default_flow_style=None)
-    assert (
-        output
-        == """_options:
+    assert output == """_options:
   comments: []
   config: null
   model: model4
@@ -151,6 +143,5 @@ data:
   seed: 0
   trial: 0
 """
-    )
     assert os.path.exists(outputfile)
     os.remove(outputfile)

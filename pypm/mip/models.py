@@ -1,8 +1,8 @@
 from .matching_models import (
     GSF_TotalMatchScore,
-    #GSF_TotalMatchScore_Compact,
+    # GSF_TotalMatchScore_Compact,
     XSF_TotalMatchScore,
-    #XSF_TotalMatchScore_Compact,
+    # XSF_TotalMatchScore_Compact,
     GSFED_TotalMatchScore,
     GSF_Makespan,
     UPM_TotalMatchScore,
