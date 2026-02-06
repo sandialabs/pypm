@@ -1,10 +1,10 @@
 from .matching_models import (
     GSF_TotalMatchScore,
-    GSF_TotalMatchScore_Compact,
+    #GSF_TotalMatchScore_Compact,
+    XSF_TotalMatchScore,
+    #XSF_TotalMatchScore_Compact,
     GSFED_TotalMatchScore,
     GSF_Makespan,
-    XSF_TotalMatchScore,
-    XSF_TotalMatchScore_Compact,
     UPM_TotalMatchScore,
 )
 
@@ -27,20 +27,14 @@ def create_model(*, name, config, constraints):
         M = GSF_TotalMatchScore(gaps_allowed=True)
 
     elif name == "UnrestrictedMatches_VariableLengthActivities":
-        M = GSF_TotalMatchScore(gaps_allowed=False)
+        M = GSF_TotalMatchScore()
 
     elif (
         name == "GSF-compact"
         or name == "GSFC"
         or name == "CompactMatches_VariableLengthActivities"
     ):
-        M = GSF_TotalMatchScore_Compact()
-
-    elif name == "model13" or name == "GSF-ED":
-        M = GSFED_TotalMatchScore()
-
-    elif name == "GSF-makespan":
-        M = GSF_Makespan()
+        M = GSF_TotalMatchScore(compact=True)
 
     elif name == "XSF" or name == "UnrestrictedMatches_FixedLengthActivities":
         M = XSF_TotalMatchScore()
@@ -50,7 +44,13 @@ def create_model(*, name, config, constraints):
         or name == "XSFC"
         or name == "CompactMatches_FixedLengthActivities"
     ):
-        M = XSF_TotalMatchScore_Compact()
+        M = XSF_TotalMatchScore(compact=True)
+
+    elif name == "model13" or name == "GSF-ED":
+        M = GSFED_TotalMatchScore()
+
+    elif name == "GSF-makespan":
+        M = GSF_Makespan()
 
     elif name == "model12" or name == "model14" or name == "UPM":
         M = UPM_TotalMatchScore()
