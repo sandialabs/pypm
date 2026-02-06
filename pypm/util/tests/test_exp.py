@@ -74,7 +74,6 @@ data:
     )
 
 
-# TODO - Weaken equality test to ignore the config and process full pathname
 def test_ex1b():
     """
     a1 -> a2
@@ -83,14 +82,16 @@ def test_ex1b():
         configfile=os.path.join(currdir, "sim1.yaml"),
         processfile=os.path.join(currdir, "example2.yaml"),
     )
+    results['_options']['config'] = None
+    results['_options']['process'] = None
     output = yaml.dump(results, default_flow_style=None)
     assert (
         output
         == """_options:
   comments: []
-  config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim1.yaml
+  config: null
   model: model3
-  process: /home/wehart/dev/adapd/pypm/pypm/util/tests/example2.yaml
+  process: null
   solver: glpk
   tee: false
   timesteps: 30
@@ -111,7 +112,6 @@ data:
     )
 
 
-# TODO - Weaken equality test to ignore the config and process full pathname
 def test_ex1c():
     """
     a1 -> a2
@@ -123,14 +123,16 @@ def test_ex1c():
         supervised=False,
         outputfile=outputfile,
     )
+    results['_options']['config'] = None
+    results['_options']['process'] = None
     output = yaml.dump(results, default_flow_style=None)
     assert (
         output
         == """_options:
   comments: []
-  config: /home/wehart/dev/adapd/pypm/pypm/util/tests/sim2.yaml
+  config: null
   model: model4
-  process: /home/wehart/dev/adapd/pypm/pypm/util/tests/example2.yaml
+  process: null
   sigma: 1
   solver: glpk
   tee: false

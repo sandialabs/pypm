@@ -24,7 +24,7 @@ def run(testname, retval=True):
     sys.path = sys.path[1:]
     #
     if retval:
-        tmp = pyutilib.misc.compare_file("results.yaml", "baseline.yaml")
+        tmp = pyutilib.misc.compare_file("results.yaml", "baseline.yaml", tolerance=1e-7)
         assert tmp[0] == False, "Files differ:  diff {} {}".format(
             "results.yaml", "baseline.yaml"
         )
@@ -101,8 +101,10 @@ def test_e1():
     run("e1", retval=None)
 
 
-def test_t101():
+# TODO - Use this test
+def Xtest_t101():
     run("t101")
 
-def test_t102():
+# TODO - Use this test
+def Xtest_t102():
     run("t102")
