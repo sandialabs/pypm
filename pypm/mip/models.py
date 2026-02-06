@@ -1,6 +1,5 @@
 from .matching_models import (
     GSF_TotalMatchScore,
-    GSF_TotalMatchScore,
     GSF_TotalMatchScore_Compact,
     GSFED_TotalMatchScore,
     GSF_Makespan,
@@ -8,7 +7,8 @@ from .matching_models import (
     XSF_TotalMatchScore_Compact,
     UPM_TotalMatchScore,
 )
-#from .hmm_models import GSF_HMM, GSF_HMM_Compact, XSF_HMM, XSF_HMM_Compact
+
+# from .hmm_models import GSF_HMM, GSF_HMM_Compact, XSF_HMM, XSF_HMM_Compact
 
 
 # -----------------------------------------------------------------------------------------------------
@@ -55,19 +55,27 @@ def create_model(*, name, config, constraints):
     elif name == "model12" or name == "model14" or name == "UPM":
         M = UPM_TotalMatchScore()
 
-    elif name == "HMM_UnrestrictedMatches_VariableLengthActivities_GapsAllowed":
+    elif (
+        name == "HMM_UnrestrictedMatches_VariableLengthActivities_GapsAllowed"
+        or name == "GSF_HMM"
+    ):
         config.objective = "log_likelihood"
         M = GSF_HMM(gaps_allowed=True)
 
-    elif name == "HMM_CompactMatches_VariableLengthActivities":
+    elif (
+        name == "HMM_CompactMatches_VariableLengthActivities"
+        or name == "GSF_HMM_Compact"
+    ):
         config.objective = "log_likelihood"
         M = GSF_HMM_Compact()
 
-    elif name == "HMM_UnrestrictedMatches_FixedLengthActivities":
+    elif name == "HMM_UnrestrictedMatches_FixedLengthActivities" or name == "XSF_HMM":
         config.objective = "log_likelihood"
         M = XSF_HMM()
 
-    elif name == "HMM_CompactMatches_FixedLengthActivities":
+    elif (
+        name == "HMM_CompactMatches_FixedLengthActivities" or name == "XSF_HMM_Compact"
+    ):
         config.objective = "log_likelihood"
         M = XSF_HMM_Compact()
 

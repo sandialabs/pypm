@@ -454,7 +454,7 @@ class GSF_TotalMatchScore(Z_Repn_Model):
 
         M.odef = pe.Constraint(J, rule=odef_)
 
-        return self._add_constraints(
+        return GSF_UnrestrictedMatches_VariableLengthActivities_constraints(
             M=M,
             objective=objective,
             J=J,
@@ -473,105 +473,105 @@ class GSF_TotalMatchScore(Z_Repn_Model):
             debug=debug,
         )
 
-    def _add_constraints(
-        self,
-        *,
-        M,
-        objective,
-        T,
-        J,
-        K,
-        S,
-        O,
-        P,
-        Q,
-        E,
-        Gamma,
-        Tmax,
-        Upsilon,
-        tprev,
-        verbose,
-        debug
-    ):
 
-        M.z = pe.Var(J, [-1] + T, within=pe.Binary)
+def GSF_UnrestrictedMatches_VariableLengthActivities_constraints(
+    *,
+    M,
+    objective,
+    T,
+    J,
+    K,
+    S,
+    O,
+    P,
+    Q,
+    E,
+    Gamma,
+    Tmax,
+    Upsilon,
+    tprev,
+    verbose,
+    debug
+):
 
-        # Simultenaity constraints
+    M.z = pe.Var(J, [-1] + T, within=pe.Binary)
 
-        if not Upsilon is None:
+    # Simultenaity constraints
 
-            def activity_limit_(m, t):
-                return sum(m.a[j, t] for j in J) <= Upsilon
+    if not Upsilon is None:
 
-            M.activity_limit = pe.Constraint(T, rule=activity_limit_)
+        def activity_limit_(m, t):
+            return sum(m.a[j, t] for j in J) <= Upsilon
 
-        # Z constraints
+        M.activity_limit = pe.Constraint(T, rule=activity_limit_)
 
-        def zstep_(m, j, t):
-            return m.z[j, t] - m.z[j, t - 1] >= 0
+    # Z constraints
 
-        M.zstep = pe.Constraint(J, T, rule=zstep_)
+    def zstep_(m, j, t):
+        return m.z[j, t] - m.z[j, t - 1] >= 0
 
-        def precedence_lb_(m, i, j, t):
-            tau = tprev.get((i, t), -1)
-            return m.z[i, tau] - m.z[j, t] >= 0
+    M.zstep = pe.Constraint(J, T, rule=zstep_)
 
-        M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
+    def precedence_lb_(m, i, j, t):
+        tau = tprev.get((i, t), -1)
+        return m.z[i, tau] - m.z[j, t] >= 0
 
-        def activity_stop_(m, i, j, t):
-            return 1 - m.z[j, t] >= m.a[i, t]
+    M.precedence_lb = pe.Constraint(E, T, rule=precedence_lb_)
 
-        M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
+    def activity_stop_(m, i, j, t):
+        return 1 - m.z[j, t] >= m.a[i, t]
 
-        def firsta_(m, j, t):
-            return m.z[j, t] - m.z[j, t - 1] <= m.a[j, t]
+    M.activity_stop = pe.Constraint(E, T, rule=activity_stop_)
 
-        M.firsta = pe.Constraint(J, T, rule=firsta_)
+    def firsta_(m, j, t):
+        return m.z[j, t] - m.z[j, t - 1] <= m.a[j, t]
 
-        def length_lower_(m, j):
-            return sum(m.a[j, t] for t in T) >= P[j] * (m.z[j, Tmax - 1] - M.z[j, -1])
+    M.firsta = pe.Constraint(J, T, rule=firsta_)
 
-        M.length_lower = pe.Constraint(J, rule=length_lower_)
+    def length_lower_(m, j):
+        return sum(m.a[j, t] for t in T) >= P[j] * (m.z[j, Tmax - 1] - M.z[j, -1])
 
-        def length_upper_(m, j):
-            return sum(m.a[j, t] for t in T) <= Q[j] * (m.z[j, Tmax - 1] - M.z[j, -1])
+    M.length_lower = pe.Constraint(J, rule=length_lower_)
 
-        M.length_upper = pe.Constraint(J, rule=length_upper_)
+    def length_upper_(m, j):
+        return sum(m.a[j, t] for t in T) <= Q[j] * (m.z[j, Tmax - 1] - M.z[j, -1])
 
-        def activity_start_(m, j, t):
-            if Gamma[j] is None:
-                tau = -1
-            else:
-                tau = max(t - (Q[j] + Gamma[j]), -1)
-            return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
+    M.length_upper = pe.Constraint(J, rule=length_upper_)
 
-        M.activity_start = pe.Constraint(J, T, rule=activity_start_)
+    def activity_start_(m, j, t):
+        if Gamma[j] is None:
+            tau = -1
+        else:
+            tau = max(t - (Q[j] + Gamma[j]), -1)
+        return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
-        # Auxilliary computed values
+    M.activity_start = pe.Constraint(J, T, rule=activity_start_)
 
-        def activity_length_(m, j):
-            return sum(m.a[j, t] for t in T)
+    # Auxilliary computed values
 
-        M.activity_length = pe.Expression(J, rule=activity_length_)
+    def activity_length_(m, j):
+        return sum(m.a[j, t] for t in T)
 
-        def weighted_activity_length_(m, j):
-            return sum(O[k][t] * m.a[j, t] for k in K[j] for t in T)
+    M.activity_length = pe.Expression(J, rule=activity_length_)
 
-        M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+    def weighted_activity_length_(m, j):
+        return sum(O[k][t] * m.a[j, t] for k in K[j] for t in T)
 
-        def nonactivity_length_(m, j):
-            return sum((1 - m.a[j, t]) for t in T)
+    M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
 
-        M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+    def nonactivity_length_(m, j):
+        return sum((1 - m.a[j, t]) for t in T)
 
-        def weighted_nonactivity_length_(m, j):
-            return sum(O[k][t] * (1 - m.a[j, t]) for k in K[j] for t in T)
+    M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
 
-        M.weighted_nonactivity_length = pe.Expression(
-            J, rule=weighted_nonactivity_length_
-        )
+    def weighted_nonactivity_length_(m, j):
+        return sum(O[k][t] * (1 - m.a[j, t]) for k in K[j] for t in T)
 
-        return M
+    M.weighted_nonactivity_length = pe.Expression(
+        J, rule=weighted_nonactivity_length_
+    )
+
+    return M
 
 
 #
