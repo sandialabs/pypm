@@ -2,6 +2,7 @@
 
 from . import process_model
 from . import fileutils
+from . import context_manager
 from pypm.util.load import load_process
 from pypm.util.sim import Simulator
 from pypm.util.exp import runsim

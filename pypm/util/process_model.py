@@ -1,5 +1,7 @@
 # pypm.util.process_model
 
+import itertools
+
 
 class Resources(object):
     def __init__(self):
@@ -144,3 +146,53 @@ class ProcessModel(object):
             activities=activities,
             hours_per_timestep=self.hours_per_timestep,
         )
+
+
+#
+# See https://stackoverflow.com/questions/1482308/how-to-get-all-subsets-of-a-set-powerset
+#
+def powerset(l):
+    for sl in itertools.product(*[[[], [i]] for i in l]):
+        yield {j for i in sl for j in i}
+
+
+def potentially_simultaneous_activities(pm):
+    # Setup the dependency graph
+    G = {}
+    for i in pm:
+        G[i] = set(pm[i]["dependencies"])
+
+    # Setup the precedecessor graph
+    P = {}
+    for i in G:
+        P[i] = set()
+    for i in G:
+        for j in G[i]:
+            P[j].add(i)
+
+    ans = set()
+    ans.add(tuple())
+
+    parents = set(i for i in P if len(P[i]) == 0)
+    frontier = []
+    frontier.append([set(), parents])
+    i = 0
+    while len(frontier) > 0:
+        curr = frontier.pop()
+        for s in powerset(curr[1]):
+            if len(s) == 0:
+                continue
+            fs = tuple(sorted(s))
+            ans.add(fs)
+            e = set.union(curr[0], s)
+            f = curr[1].difference(s)
+            for i in s:
+                for j in G[i]:
+                    if all(k in e for k in P[j]):
+                        f.add(j)
+            if len(f) > 0:
+                frontier.append([e, f])
+                # print(f"HERE {e} {f}")
+            # print(f"HERE {len(frontier)}")
+
+    return list(sorted(ans))

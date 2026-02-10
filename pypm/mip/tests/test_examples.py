@@ -14,6 +14,9 @@ def run(testname, dirname, debug=False, verify=False):
     dirname = join(currdir, dirname)
     if unsupervised:
         driver = PYPM.unsupervised_mip()
+    elif "HMM" in dirname:
+        driver = PYPM.statistical_model()
+        driver.initialize_statistical_model()
     else:
         driver = PYPM.supervised_mip()
 
