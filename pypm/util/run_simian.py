@@ -1,3 +1,4 @@
+import os
 import munch
 import random
 
@@ -224,6 +225,8 @@ def run_simian(
             print(f"{simianEngine.entities['Main'][0].output}")
         unformatted_simulations.append(simianEngine.entities["Main"][0].output)
         simianEngine.exit()
+    if os.path.exists(f"{simName}.0.out"):
+        os.remove(f"{simName}.0.out")
 
     #
     # Collect tuples at each time step that show the activities being executed
