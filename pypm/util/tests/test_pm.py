@@ -41,7 +41,8 @@ activities:
     pm = load_process(data=data)
 
     assert len(pm) == 2
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',)]
+    assert potentially_simultaneous_activities(pm) == [(), ("a1",), ("a2",)]
+
 
 def test_ex2():
     """
@@ -86,7 +87,13 @@ activities:
     pm = load_process(data=data)
 
     assert len(pm) == 3
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',), ('a2', 'a3'), ('a3',)]
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a2",),
+        ("a2", "a3"),
+        ("a3",),
+    ]
 
 
 def test_ex3():
@@ -132,7 +139,13 @@ activities:
     pm = load_process(data=data)
 
     assert len(pm) == 3
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a1', 'a3'), ('a2',), ('a3',)]
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a1", "a3"),
+        ("a2",),
+        ("a3",),
+    ]
 
 
 def test_ex4():
@@ -188,7 +201,14 @@ activities:
     pm = load_process(data=data)
 
     assert len(pm) == 4
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',), ('a2', 'a4'), ('a3',), ('a4',)]
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a2",),
+        ("a2", "a4"),
+        ("a3",),
+        ("a4",),
+    ]
 
 
 def test_ex5():
@@ -247,7 +267,14 @@ activities:
     pm = load_process(data=data)
 
     assert len(pm) == 4
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',), ('a2', 'a4'), ('a3',), ('a4',)]
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a2",),
+        ("a2", "a4"),
+        ("a3",),
+        ("a4",),
+    ]
 
 
 def test_ex6():
@@ -307,30 +334,53 @@ activities:
     pm = load_process(data=data)
 
     assert len(pm) == 4
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',), ('a2', 'a4'), ('a3',), ('a4',)]
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a2",),
+        ("a2", "a4"),
+        ("a3",),
+        ("a4",),
+    ]
 
 
 def test_example1():
     pm = load_process(filename=os.path.join(currdir, "example1.yaml"))
 
     assert len(pm) == 2
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',)]
+    assert potentially_simultaneous_activities(pm) == [(), ("a1",), ("a2",)]
+
 
 def test_example2():
     pm = load_process(filename=os.path.join(currdir, "example2.yaml"))
 
     assert len(pm) == 2
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',)]
+    assert potentially_simultaneous_activities(pm) == [(), ("a1",), ("a2",)]
+
 
 def test_example3():
     pm = load_process(filename=os.path.join(currdir, "example3.yaml"))
 
     assert len(pm) == 4
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',), ('a2', 'a3'), ('a3',), ('a4',)]
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a2",),
+        ("a2", "a3"),
+        ("a3",),
+        ("a4",),
+    ]
+
 
 def test_example4():
     pm = load_process(filename=os.path.join(currdir, "example4.yaml"))
 
     assert len(pm) == 4
-    assert potentially_simultaneous_activities(pm) == [(), ('a1',), ('a2',), ('a2', 'a3'), ('a3',), ('a4',)]
-
+    assert potentially_simultaneous_activities(pm) == [
+        (),
+        ("a1",),
+        ("a2",),
+        ("a2", "a3"),
+        ("a3",),
+        ("a4",),
+    ]
