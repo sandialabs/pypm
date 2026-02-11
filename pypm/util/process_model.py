@@ -156,6 +156,10 @@ def powerset(l):
         yield {j for i in sl for j in i}
 
 
+#
+# This function returns a sorted list of sorted tuples.  This ensures that
+# the list is well-ordered.
+#
 def potentially_simultaneous_activities(pm):
     # Setup the dependency graph
     G = {}
