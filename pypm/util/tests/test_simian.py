@@ -56,6 +56,29 @@ activities:
         (8, ("a2",)),
         (9, ()),
     ]
+    data = run_simian(pm=pm, num_time_steps=9, seed=123456789, quiet=quiet)
+    assert data[0] == [
+        (0, ("a1",)),
+        (1, ("a1",)),
+        (2, ("a1",)),
+        (3, ("a1",)),
+        (4, ("a2",)),
+        (5, ("a2",)),
+        (6, ("a2",)),
+        (7, ("a2",)),
+        (8, ("a2",)),
+    ]
+    data = run_simian(pm=pm, num_time_steps=8, seed=123456789, quiet=quiet)
+    assert data[0] == [
+        (0, ("a1",)),
+        (1, ("a1",)),
+        (2, ("a1",)),
+        (3, ("a1",)),
+        (4, ("a2",)),
+        (5, ("a2",)),
+        (6, ("a2",)),
+        (7, ("a2",)),
+    ]
 
     data = run_simian(
         pm=pm, num_time_steps=20, max_delay_before=5, seed=123456789, quiet=quiet

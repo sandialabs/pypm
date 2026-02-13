@@ -236,6 +236,8 @@ def run_simian(
         simulation = [set() for _ in range(data_wrapper.num_time_steps)]
         for process in unformatted_simulations[i]:
             for t in range(process["start"], process["end"] + 1):
+                if t == data_wrapper.num_time_steps:
+                    break
                 simulation[t].add(process["name"])
         simulations.append(
             list(enumerate(tuple(sorted(state)) for state in simulation))
