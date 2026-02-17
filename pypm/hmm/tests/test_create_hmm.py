@@ -55,6 +55,20 @@ def ex1_simulations():
     )
 
 
+@pytest.fixture
+def ex1_nodelay_simulations():
+    """Generate simulations for ex1"""
+    pm = load_process(data=ex1)
+
+    return run_simian(
+        pm=pm,
+        num_simulations=num_simulations,
+        num_time_steps=20,
+        seed=123456789,
+        quiet=quiet,
+    )
+
+
 ex2 = """
 resources:
   rA:
@@ -357,6 +371,26 @@ def test_ex1_hidden_state_params(ex1_simulations):
         (("a1",), ()): 0.175,
         (("a1",), ("a1",)): 0.75,
         (("a1",), ("a2",)): 0.075,
+        (("a2",), ()): 0.2,
+        (("a2",), ("a1",)): 0.0,
+        (("a2",), ("a2",)): 0.8,
+    }
+
+
+def test_ex1_nodelay_hidden_state_params(ex1_nodelay_simulations):
+    params = estimate_hidden_state_parameters(simulations=ex1_nodelay_simulations)
+    assert params.start_probs == {
+        (): 0.0009990009990009992,
+        ("a1",): 0.9990009990009991,
+        ("a2",): 0.0,
+    }
+    assert params.transition_probs == {
+        ((), ()): 1.0,
+        ((), ("a1",)): 0.0,
+        ((), ("a2",)): 0.0,
+        (("a1",), ()): 0.0,
+        (("a1",), ("a1",)): 0.75,
+        (("a1",), ("a2",)): 0.25,
         (("a2",), ()): 0.2,
         (("a2",), ("a1",)): 0.0,
         (("a2",), ("a2",)): 0.8,
