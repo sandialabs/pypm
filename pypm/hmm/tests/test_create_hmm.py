@@ -1,9 +1,9 @@
 import pytest
 
 from pypm.util.load import load_process
-from pypm.util.run_simian import run_simian
-
-from pypm.hmm.create_hmm import estimate_hidden_state_parameters
+from pypm.util.run_simian import run_simian, create_data_wrapper
+from pypm.hmm import estimate_hidden_state_parameters, create_hmm
+from pypm.hmm.estimate_emissions import initial_emission_parameters
 
 # from pypm.util.fileutils import this_file_dir
 # currdir = this_file_dir()
@@ -11,6 +11,10 @@ from pypm.hmm.create_hmm import estimate_hidden_state_parameters
 quiet = True
 num_simulations = 10
 
+
+# ---------------------------------------------------------------------------
+# ex1
+# ---------------------------------------------------------------------------
 
 ex1 = """
 resources:
@@ -41,12 +45,16 @@ activities:
 
 
 @pytest.fixture
-def ex1_simulations():
-    """Generate simulations for ex1"""
-    pm = load_process(data=ex1)
+def ex1_pm():
+    """Load process model for ex1"""
+    return load_process(data=ex1)
 
+
+@pytest.fixture
+def ex1_simulations(ex1_pm):
+    """Generate simulations for ex1"""
     return run_simian(
-        pm=pm,
+        pm=ex1_pm,
         num_simulations=num_simulations,
         num_time_steps=20,
         max_delay_before=5,
@@ -56,18 +64,20 @@ def ex1_simulations():
 
 
 @pytest.fixture
-def ex1_nodelay_simulations():
-    """Generate simulations for ex1"""
-    pm = load_process(data=ex1)
-
+def ex1_nodelay_simulations(ex1_pm):
+    """Generate simulations for ex1 with no delay"""
     return run_simian(
-        pm=pm,
+        pm=ex1_pm,
         num_simulations=num_simulations,
         num_time_steps=20,
         seed=123456789,
         quiet=quiet,
     )
 
+
+# ---------------------------------------------------------------------------
+# ex2
+# ---------------------------------------------------------------------------
 
 ex2 = """
 resources:
@@ -107,12 +117,16 @@ activities:
 
 
 @pytest.fixture
-def ex2_simulations():
-    """Generate simulations for ex2"""
-    pm = load_process(data=ex2)
+def ex2_pm():
+    """Load process model for ex2"""
+    return load_process(data=ex2)
 
+
+@pytest.fixture
+def ex2_simulations(ex2_pm):
+    """Generate simulations for ex2"""
     return run_simian(
-        pm=pm,
+        pm=ex2_pm,
         num_simulations=num_simulations,
         num_time_steps=20,
         max_delay_before=5,
@@ -120,6 +134,10 @@ def ex2_simulations():
         quiet=quiet,
     )
 
+
+# ---------------------------------------------------------------------------
+# ex3
+# ---------------------------------------------------------------------------
 
 ex3 = """
 resources:
@@ -159,11 +177,16 @@ activities:
 
 
 @pytest.fixture
-def ex3_simulations():
+def ex3_pm():
+    """Load process model for ex3"""
+    return load_process(data=ex3)
+
+
+@pytest.fixture
+def ex3_simulations(ex3_pm):
     """Generate simulations for ex3"""
-    pm = load_process(data=ex3)
     return run_simian(
-        pm=pm,
+        pm=ex3_pm,
         num_simulations=num_simulations,
         num_time_steps=20,
         max_delay_before=5,
@@ -171,6 +194,10 @@ def ex3_simulations():
         quiet=quiet,
     )
 
+
+# ---------------------------------------------------------------------------
+# ex4
+# ---------------------------------------------------------------------------
 
 ex4 = """
 resources:
@@ -220,12 +247,16 @@ activities:
 
 
 @pytest.fixture
-def ex4_simulations():
-    """Generate simulations for ex4"""
-    pm = load_process(data=ex4)
+def ex4_pm():
+    """Load process model for ex4"""
+    return load_process(data=ex4)
 
+
+@pytest.fixture
+def ex4_simulations(ex4_pm):
+    """Generate simulations for ex4"""
     return run_simian(
-        pm=pm,
+        pm=ex4_pm,
         num_simulations=num_simulations,
         num_time_steps=20,
         max_delay_before=5,
@@ -233,6 +264,10 @@ def ex4_simulations():
         quiet=quiet,
     )
 
+
+# ---------------------------------------------------------------------------
+# ex5
+# ---------------------------------------------------------------------------
 
 ex5 = """
 resources:
@@ -283,12 +318,16 @@ activities:
 
 
 @pytest.fixture
-def ex5_simulations():
-    """Generate simulations for ex5"""
-    pm = load_process(data=ex5)
+def ex5_pm():
+    """Load process model for ex5"""
+    return load_process(data=ex5)
 
+
+@pytest.fixture
+def ex5_simulations(ex5_pm):
+    """Generate simulations for ex5"""
     return run_simian(
-        pm=pm,
+        pm=ex5_pm,
         num_simulations=num_simulations,
         num_time_steps=30,
         max_delay_before=5,
@@ -296,6 +335,10 @@ def ex5_simulations():
         quiet=quiet,
     )
 
+
+# ---------------------------------------------------------------------------
+# ex6
+# ---------------------------------------------------------------------------
 
 ex6 = """
 resources:
@@ -347,18 +390,27 @@ activities:
 
 
 @pytest.fixture
-def ex6_simulations():
-    """Generate simulations for ex6"""
-    pm = load_process(data=ex6)
+def ex6_pm():
+    """Load process model for ex6"""
+    return load_process(data=ex6)
 
+
+@pytest.fixture
+def ex6_simulations(ex6_pm):
+    """Generate simulations for ex6"""
     return run_simian(
-        pm=pm,
+        pm=ex6_pm,
         num_simulations=num_simulations,
         num_time_steps=30,
         max_delay_before=5,
         seed=123456789,
         quiet=quiet,
     )
+
+
+# ---------------------------------------------------------------------------
+# TESTS - Hidden State Parameters
+# ---------------------------------------------------------------------------
 
 
 def test_ex1_hidden_state_params(ex1_simulations):
@@ -621,3 +673,187 @@ def test_ex6_hidden_state_params(ex6_simulations):
         (("a4",), ("a3",)): 0.0,
         (("a4",), ("a4",)): 0.5,
     }
+
+
+# ---------------------------------------------------------------------------
+# TESTS - Emission Parameters
+# ---------------------------------------------------------------------------
+
+
+def test_ex1_initial_emission_params(ex1_pm):
+    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex1_pm))
+    assert params.true_positive == {
+        ("a1", "rB"): 0.9,
+        ("a1", "rC"): 0.9,
+        ("a2", "rA"): 0.9,
+    }
+    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+
+
+def test_ex1_initial_emission_params_alt_values(ex1_pm):
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex1_pm),
+        known_positive=0.5,
+        false_emission=0.1,
+    )
+    assert params.true_positive == {
+        ("a1", "rB"): 0.5,
+        ("a1", "rC"): 0.5,
+        ("a2", "rA"): 0.5,
+    }
+    assert params.false_emission == {"rA": 0.1, "rB": 0.1, "rC": 0.1}
+
+
+def test_ex2_initial_emission_params(ex2_pm):
+    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex2_pm))
+    assert params.true_positive == {
+        ("a1", "rB"): 0.9,
+        ("a1", "rC"): 0.9,
+        ("a2", "rA"): 0.9,
+        ("a3", "rA"): 0.9,
+    }
+    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+
+
+def test_ex3_initial_emission_params(ex3_pm):
+    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex3_pm))
+    assert params.true_positive == {
+        ("a1", "rB"): 0.9,
+        ("a1", "rC"): 0.9,
+        ("a2", "rA"): 0.9,
+        ("a3", "rA"): 0.9,
+    }
+    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+
+
+def test_ex4_initial_emission_params(ex4_pm):
+    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex4_pm))
+    assert params.true_positive == {
+        ("a1", "rB"): 0.9,
+        ("a1", "rC"): 0.9,
+        ("a2", "rA"): 0.9,
+        ("a3", "rA"): 0.9,
+        ("a4", "rA"): 0.9,
+    }
+    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+
+
+def test_ex5_initial_emission_params(ex5_pm):
+    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex5_pm))
+    assert params.true_positive == {
+        ("a1", "rB"): 0.9,
+        ("a1", "rC"): 0.9,
+        ("a2", "rA"): 0.9,
+        ("a3", "rA"): 0.9,
+        ("a4", "rA"): 0.9,
+    }
+    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+
+
+def test_ex6_initial_emission_params(ex6_pm):
+    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex6_pm))
+    assert params.true_positive == {
+        ("a1", "rB"): 0.9,
+        ("a1", "rC"): 0.9,
+        ("a2", "rA"): 0.9,
+        ("a3", "rA"): 0.9,
+        ("a4", "rA"): 0.9,
+    }
+    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+
+
+# ---------------------------------------------------------------------------
+# TESTS - HMM Parameters
+# ---------------------------------------------------------------------------
+
+
+def test_ex1_create_hmm(ex1_pm, ex1_simulations):
+    hidden_state_params = estimate_hidden_state_parameters(simulations=ex1_simulations)
+    emission_params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex1_pm)
+    )
+    hmm = create_hmm(
+        observed=[(), ("rA",), ("rB",), ("rC",)],
+        hidden_state_params=hidden_state_params,
+        emission_params=emission_params,
+    )
+    assert hmm.hidden_states == [(), ("a1",), ("a2",)]
+    assert hmm.transition_mat == [
+        [0.84, 0.09, 0.07],
+        [0.175, 0.75, 0.075],
+        [0.2, 0.0, 0.8],
+    ]
+    assert hmm.start_vec == [0.9, 0.1, 0.0]
+    assert hmm.observed_states == [(), ("rA",), ("rB",), ("rC",)]
+    tmp = [
+        [
+            0.9705882352941174,
+            0.00980392156862746,
+            0.00980392156862746,
+            0.009803921568627458,
+        ],
+        [
+            0.052050473186119856,
+            0.0005257623554153526,
+            0.47371188222923244,
+            0.4737118822292324,
+        ],
+        [
+            0.0988023952095808,
+            0.8992015968063871,
+            0.0009980039920159686,
+            0.0009980039920159686,
+        ],
+    ]
+    for i in range(len(tmp)):
+        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+
+
+def test_ex2_create_hmm(ex2_pm, ex2_simulations):
+    hidden_state_params = estimate_hidden_state_parameters(simulations=ex2_simulations)
+    emission_params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex2_pm)
+    )
+    hmm = create_hmm(
+        observed=[(), ("rA",), ("rB",), ("rC",)],
+        hidden_state_params=hidden_state_params,
+        emission_params=emission_params,
+    )
+    assert hmm.hidden_states == [(), ("a1",), ("a2",), ("a2", "a3"), ("a3",)]
+    assert hmm.transition_mat == [
+        [0.775, 0.1, 0.05, 0.0125, 0.0625],
+        [0.175, 0.75, 0.025, 0.0, 0.05],
+        [0.225, 0.0, 0.725, 0.05, 0.0],
+        [0.0, 0.0, 0.4, 0.5, 0.1],
+        [0.2, 0.0, 0.1, 0.1, 0.6],
+    ]
+    assert hmm.start_vec == [0.8, 0.2, 0.0, 0.0, 0.0]
+    assert hmm.observed_states == [(), ("rA",), ("rB",), ("rC",)]
+    tmp = [
+        [
+            0.9705882352941175,
+            0.009803921568627461,
+            0.009803921568627461,
+            0.00980392156862746,
+        ],
+        [
+            0.052050473186119856,
+            0.0005257623554153526,
+            0.47371188222923244,
+            0.4737118822292324,
+        ],
+        [
+            0.0988023952095808,
+            0.8992015968063871,
+            0.0009980039920159686,
+            0.0009980039920159686,
+        ],
+        [
+            0.009898020395920812,
+            0.9899020195960808,
+            9.998000399920022e-05,
+            9.998000399920022e-05,
+        ],
+    ]
+    for i in range(len(tmp)):
+        assert hmm.emission_mat[i] == pytest.approx(tmp[i])

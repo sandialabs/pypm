@@ -88,6 +88,8 @@ def create_data_wrapper(**kwds):
                         if val:
                             self.observation[t].add(resource)
                 self.observation = [frozenset(val) for val in self.observation]
+            else:
+                self.resources = list(pm.resources)
 
             if num_time_steps is not None:
                 self.num_time_steps = num_time_steps
