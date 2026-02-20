@@ -1,4 +1,5 @@
 import pytest
+import munch
 
 from pypm.util.load import load_process
 from pypm.util.run_simian import run_simian, create_data_wrapper
@@ -10,6 +11,10 @@ from pypm.hmm.estimate_emissions import initial_emission_parameters
 
 quiet = True
 num_simulations = 10
+
+
+def config(**kwds):
+    return munch.DefaultMunch(None, **kwds)
 
 
 # ---------------------------------------------------------------------------
@@ -681,85 +686,208 @@ def test_ex6_hidden_state_params(ex6_simulations):
 
 
 def test_ex1_initial_emission_params(ex1_pm):
-    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex1_pm))
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex1_pm, features={"oA", "oB", "oC"})
+    )
     assert params.true_positive == {
-        ("a1", "rB"): 0.9,
-        ("a1", "rC"): 0.9,
-        ("a2", "rA"): 0.9,
+        ("a1", "oA"): 0.9,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.9,
+        ("a2", "oC"): 0.9,
     }
-    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
+
+    # Restrict process features to those related to resources
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(
+            config=config(pm=ex1_pm, known_process_features=known_process_features),
+            pm=ex1_pm,
+            features={"oA", "oB", "oC"},
+        )
+    )
+    assert params.true_positive == {
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+    }
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
+
+    # Restrict process features to those related to resources
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
+    possible_process_features = dict(a1={"oA"}, a2={"oB", "oC"})
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(
+            config=config(
+                pm=ex1_pm,
+                known_process_features=known_process_features,
+                possible_process_features=possible_process_features,
+            ),
+            pm=ex1_pm,
+            features={"oA", "oB", "oC"},
+        )
+    )
+    assert params.true_positive == {
+        ("a1", "oA"): 0.5,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.5,
+        ("a2", "oC"): 0.5,
+    }
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
 
 
 def test_ex1_initial_emission_params_alt_values(ex1_pm):
     params = initial_emission_parameters(
-        data_wrapper=create_data_wrapper(pm=ex1_pm),
+        data_wrapper=create_data_wrapper(pm=ex1_pm, features={"oA", "oB", "oC"}),
         known_positive=0.5,
         false_emission=0.1,
     )
     assert params.true_positive == {
-        ("a1", "rB"): 0.5,
-        ("a1", "rC"): 0.5,
-        ("a2", "rA"): 0.5,
+        ("a1", "oA"): 0.5,
+        ("a1", "oB"): 0.5,
+        ("a1", "oC"): 0.5,
+        ("a2", "oA"): 0.5,
+        ("a2", "oB"): 0.5,
+        ("a2", "oC"): 0.5,
     }
-    assert params.false_emission == {"rA": 0.1, "rB": 0.1, "rC": 0.1}
+    assert params.false_emission == {"oA": 0.1, "oB": 0.1, "oC": 0.1}
 
 
 def test_ex2_initial_emission_params(ex2_pm):
-    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex2_pm))
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex2_pm, features={"oA", "oB", "oC"})
+    )
     assert params.true_positive == {
-        ("a1", "rB"): 0.9,
-        ("a1", "rC"): 0.9,
-        ("a2", "rA"): 0.9,
-        ("a3", "rA"): 0.9,
+        ("a1", "oA"): 0.9,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.9,
+        ("a2", "oC"): 0.9,
+        ("a3", "oA"): 0.9,
+        ("a3", "oB"): 0.9,
+        ("a3", "oC"): 0.9,
     }
-    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
+
+    # Restrict process features to those related to resources
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"}, a3={"oA"})
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(
+            config=config(pm=ex2_pm, known_process_features=known_process_features),
+            pm=ex2_pm,
+            features={"oA", "oB", "oC"},
+        )
+    )
+    assert params.true_positive == {
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a3", "oA"): 0.9,
+    }
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
 
 
 def test_ex3_initial_emission_params(ex3_pm):
-    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex3_pm))
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex3_pm, features={"oA", "oB", "oC"})
+    )
     assert params.true_positive == {
-        ("a1", "rB"): 0.9,
-        ("a1", "rC"): 0.9,
-        ("a2", "rA"): 0.9,
-        ("a3", "rA"): 0.9,
+        ("a1", "oA"): 0.9,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.9,
+        ("a2", "oC"): 0.9,
+        ("a3", "oA"): 0.9,
+        ("a3", "oB"): 0.9,
+        ("a3", "oC"): 0.9,
     }
-    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
+
+    # Restrict process features to those related to resources
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"}, a3={"oA"})
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(
+            config=config(pm=ex3_pm, known_process_features=known_process_features),
+            pm=ex3_pm,
+            features={"oA", "oB", "oC"},
+        )
+    )
+    assert params.true_positive == {
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a3", "oA"): 0.9,
+    }
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
 
 
 def test_ex4_initial_emission_params(ex4_pm):
-    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex4_pm))
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex4_pm, features={"oA", "oB", "oC"})
+    )
     assert params.true_positive == {
-        ("a1", "rB"): 0.9,
-        ("a1", "rC"): 0.9,
-        ("a2", "rA"): 0.9,
-        ("a3", "rA"): 0.9,
-        ("a4", "rA"): 0.9,
+        ("a1", "oA"): 0.9,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.9,
+        ("a2", "oC"): 0.9,
+        ("a3", "oA"): 0.9,
+        ("a3", "oB"): 0.9,
+        ("a3", "oC"): 0.9,
+        ("a4", "oA"): 0.9,
+        ("a4", "oB"): 0.9,
+        ("a4", "oC"): 0.9,
     }
-    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
 
 
 def test_ex5_initial_emission_params(ex5_pm):
-    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex5_pm))
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex5_pm, features={"oA", "oB", "oC"})
+    )
     assert params.true_positive == {
-        ("a1", "rB"): 0.9,
-        ("a1", "rC"): 0.9,
-        ("a2", "rA"): 0.9,
-        ("a3", "rA"): 0.9,
-        ("a4", "rA"): 0.9,
+        ("a1", "oA"): 0.9,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.9,
+        ("a2", "oC"): 0.9,
+        ("a3", "oA"): 0.9,
+        ("a3", "oB"): 0.9,
+        ("a3", "oC"): 0.9,
+        ("a4", "oA"): 0.9,
+        ("a4", "oB"): 0.9,
+        ("a4", "oC"): 0.9,
     }
-    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
 
 
 def test_ex6_initial_emission_params(ex6_pm):
-    params = initial_emission_parameters(data_wrapper=create_data_wrapper(pm=ex6_pm))
+    params = initial_emission_parameters(
+        data_wrapper=create_data_wrapper(pm=ex6_pm, features={"oA", "oB", "oC"})
+    )
     assert params.true_positive == {
-        ("a1", "rB"): 0.9,
-        ("a1", "rC"): 0.9,
-        ("a2", "rA"): 0.9,
-        ("a3", "rA"): 0.9,
-        ("a4", "rA"): 0.9,
+        ("a1", "oA"): 0.9,
+        ("a1", "oB"): 0.9,
+        ("a1", "oC"): 0.9,
+        ("a2", "oA"): 0.9,
+        ("a2", "oB"): 0.9,
+        ("a2", "oC"): 0.9,
+        ("a3", "oA"): 0.9,
+        ("a3", "oB"): 0.9,
+        ("a3", "oC"): 0.9,
+        ("a4", "oA"): 0.9,
+        ("a4", "oB"): 0.9,
+        ("a4", "oC"): 0.9,
     }
-    assert params.false_emission == {"rA": 0.01, "rB": 0.01, "rC": 0.01}
+    assert params.false_emission == {"oA": 0.01, "oB": 0.01, "oC": 0.01}
 
 
 # ---------------------------------------------------------------------------
@@ -769,11 +897,16 @@ def test_ex6_initial_emission_params(ex6_pm):
 
 def test_ex1_create_hmm(ex1_pm, ex1_simulations):
     hidden_state_params = estimate_hidden_state_parameters(simulations=ex1_simulations)
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
     emission_params = initial_emission_parameters(
-        data_wrapper=create_data_wrapper(pm=ex1_pm)
+        data_wrapper=create_data_wrapper(
+            config=config(pm=ex1_pm, known_process_features=known_process_features),
+            pm=ex1_pm,
+            features=["oA", "oB", "oC"],
+        )
     )
     hmm = create_hmm(
-        observed=[(), ("rA",), ("rB",), ("rC",)],
+        observed_states=[(), ("oA",), ("oB",), ("oC",)],
         hidden_state_params=hidden_state_params,
         emission_params=emission_params,
     )
@@ -784,7 +917,7 @@ def test_ex1_create_hmm(ex1_pm, ex1_simulations):
         [0.2, 0.0, 0.8],
     ]
     assert hmm.start_vec == [0.9, 0.1, 0.0]
-    assert hmm.observed_states == [(), ("rA",), ("rB",), ("rC",)]
+    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
     tmp = [
         [
             0.9705882352941174,
@@ -811,11 +944,16 @@ def test_ex1_create_hmm(ex1_pm, ex1_simulations):
 
 def test_ex2_create_hmm(ex2_pm, ex2_simulations):
     hidden_state_params = estimate_hidden_state_parameters(simulations=ex2_simulations)
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"}, a3={"oA"})
     emission_params = initial_emission_parameters(
-        data_wrapper=create_data_wrapper(pm=ex2_pm)
+        data_wrapper=create_data_wrapper(
+            config=config(pm=ex2_pm, known_process_features=known_process_features),
+            pm=ex2_pm,
+            features=["oA", "oB", "oC"],
+        )
     )
     hmm = create_hmm(
-        observed=[(), ("rA",), ("rB",), ("rC",)],
+        observed_states=[(), ("oA",), ("oB",), ("oC",)],
         hidden_state_params=hidden_state_params,
         emission_params=emission_params,
     )
@@ -828,7 +966,7 @@ def test_ex2_create_hmm(ex2_pm, ex2_simulations):
         [0.2, 0.0, 0.1, 0.1, 0.6],
     ]
     assert hmm.start_vec == [0.8, 0.2, 0.0, 0.0, 0.0]
-    assert hmm.observed_states == [(), ("rA",), ("rB",), ("rC",)]
+    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
     tmp = [
         [
             0.9705882352941175,
