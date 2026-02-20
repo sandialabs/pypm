@@ -87,7 +87,7 @@ def estimate_hidden_state_parameters(*, simulations):
 
 
 def create_hmm(
-    *, observed, hidden_state_params, emission_params, no_zeros=False, no_zeros_tol=1e-6
+    *, hidden_state_params, emission_params, observed_states=None, observed=None, no_zeros=False, no_zeros_tol=1e-6
 ):
     """
     The observations are only the observations we observe and the observation
@@ -96,7 +96,11 @@ def create_hmm(
 
     no_zeros: If true we run hmm.make_non_zero
     """
-    observed_states = {x for x in observed}
+    if observed:
+        observed_states = {x for x in observed}
+    else:
+        observed_states = set(observed_states)
+
     sparse_emission_probs = Sparse_Emissions_Matrix(
         true_positive=emission_params.true_positive,
         false_emission=emission_params.false_emission,
