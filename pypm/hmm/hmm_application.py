@@ -3,25 +3,25 @@ import conin
 from pypm.util.process_model import potentially_simultaneous_activities
 from pypm.util.run_simian import create_data_wrapper
 
-#import pyomo.environ as pe
-#from .matching_models import ProcessModelData, GSF_TotalMatchScore
-#from munch import Munch
-#from pypm.simian import Simian
-#import random
-#import contextlib
-#import sys
-#import copy
-#import numpy as np
-#from dataclasses import dataclass, field
-#from typing import Any
-#import time
-#import math
-#import heapq
-#import pandas as pd
-#import matplotlib.pyplot as plt
-#from conin.util import Util
+# import pyomo.environ as pe
+# from .matching_models import ProcessModelData, GSF_TotalMatchScore
+# from munch import Munch
+# from pypm.simian import Simian
+# import random
+# import contextlib
+# import sys
+# import copy
+# import numpy as np
+# from dataclasses import dataclass, field
+# from typing import Any
+# import time
+# import math
+# import heapq
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from conin.util import Util
 ##import ast
-#import json
+# import json
 
 
 # TODO the naming conventions are ALL over the place right now
@@ -123,8 +123,12 @@ class BaseHMMApplication(conin.hmm.HMMApplication):
         else:
             return potentially_simultaneous_activities(self._config.pm)
 
-    def run_simulations(self, *, num=1, debug=False, with_observations=False, seed=None):
-        return run_simian(num=num, debug=debug, with_observations=with_observations, seed=seed)
+    def run_simulations(
+        self, *, num=1, debug=False, with_observations=False, seed=None
+    ):
+        return run_simian(
+            num=num, debug=debug, with_observations=with_observations, seed=seed
+        )
 
 
 def GSF_oracle_constraints(data_wrapper, hidden_states):
@@ -223,9 +227,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
     constraints = []
 
     constraints.append(
-        conin.Constraint(
-            func=lambda seq: cont(seq), same_partial_as_func=True
-        )
+        conin.Constraint(func=lambda seq: cont(seq), same_partial_as_func=True)
     )
 
     for i, name in enumerate(data_wrapper.process_names):
@@ -249,9 +251,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         )
 
     for i, name in enumerate(data_wrapper.process_names):
-        for j, parent_name in enumerate(
-            data_wrapper.process_parents[i]
-        ):
+        for j, parent_name in enumerate(data_wrapper.process_parents[i]):
             constraints.append(
                 conin.Constraint(
                     func=lambda seq, parent_name=parent_name, name=name: always_appears_before_set(
@@ -278,7 +278,7 @@ def GSF_pyomo_constraints(data_wrapper, hidden_states):
 
     @pyomo_constraint_fn
     def constraints(data):
-        #TODO HERE
+        # TODO HERE
         pass
 
     return [constraints]
@@ -297,7 +297,7 @@ class GSF_HMMApplication(BaseHMMApplication):
         self.initialize(data, simulations)
         self._oracle_constraint_fn = GSF_oracle_constraints
         self._pyomo_constraint_fn = GSF_pyomo_constraints
-        
+
     def get_oracle_constraints(self):
         return self._oracle_constraint_fn(self.data_wrapper, self._hidden_states)
 
@@ -314,9 +314,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
         """
         if "hmm_read_in_file" in self.data_wrapper.hmm_options.keys():
             self.hmm = conin.HMM()
-            self.read_hmm_from_file(
-                self.data_wrapper.hmm_options["hmm_read_in_file"]
-            )
+            self.read_hmm_from_file(self.data_wrapper.hmm_options["hmm_read_in_file"])
         else:
             self.learned_with_constraints = with_constraints
 
@@ -383,17 +381,13 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
             Process used by Simian
             """
             entity = this.entity
-            process_time = random.randrange(
-                main.lower_times[id], main.upper_times[id]
-            )
+            process_time = random.randrange(main.lower_times[id], main.upper_times[id])
             start_time = str(entity.engine.now)
             main.unfinished_processes.remove(id)
             this.sleep(process_time)
             main.finished_processes.add(id)
             end_time = str(entity.engine.now - 1)
-            main.output.append(
-                [main.process_names[id], str(start_time), str(end_time)]
-            )
+            main.output.append([main.process_names[id], str(start_time), str(end_time)])
             this.sleep(main.delay_times[id])
             main.run()
 
@@ -407,8 +401,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
                 data_wrapper = args[0]
                 self.process_names = data_wrapper.process_names
                 self._name_to_index = {
-                    self.process_names[i]: i
-                    for i in range(len(self.process_names))
+                    self.process_names[i]: i for i in range(len(self.process_names))
                 }
                 self.process_parents = [
                     {self._name_to_index[name] for name in name_set}
@@ -424,18 +417,14 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
                 self.output = []
 
                 self.finished_processes = set()
-                self.unfinished_processes = {
-                    i for i in range(len(self.process_names))
-                }
+                self.unfinished_processes = {i for i in range(len(self.process_names))}
                 # Running processes are implicity those not in either set
                 # CLM: I don't think we have a reason to access them with the current setup
 
             def run(self, *args):
                 to_run = set()
                 for id in self.unfinished_processes:
-                    if self.process_parents[id].issubset(
-                        self.finished_processes
-                    ):
+                    if self.process_parents[id].issubset(self.finished_processes):
                         to_run.add(id)
 
                 # TODO make sure this is randomizing the order we run in, otherwise we could underrepresent certain transitions
@@ -450,9 +439,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
             simianEngine.schedService(start_delay_time, "run", None, "Main", 0)
             with suppress_stdout():  # Don't want all the Simian prints
                 simianEngine.run()
-            unformatted_simulations.append(
-                simianEngine.entities["Main"][0].output
-            )
+            unformatted_simulations.append(simianEngine.entities["Main"][0].output)
             simianEngine.exit()
             simianEngine = Simian(simName, startTime, endTime, minDelay)
 
@@ -499,18 +486,10 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
                     true_positive[(name, resource)] = 0.8
 
                 else:
-                    if (
-                        resource
-                        in self.data_wrapper.known_process_features[name]
-                    ):
+                    if resource in self.data_wrapper.known_process_features[name]:
                         true_positive[(name, resource)] = known_positive_guess
-                    elif (
-                        resource
-                        in self.data_wrapper.possible_process_features[name]
-                    ):
-                        true_positive[(name, resource)] = (
-                            possible_positive_guess
-                        )
+                    elif resource in self.data_wrapper.possible_process_features[name]:
+                        true_positive[(name, resource)] = possible_positive_guess
                     # else:
                     #    true_positive[(name, resource)] = other_positive_guess
 
@@ -546,9 +525,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
             for o in self.data_wrapper.resources:
                 error = max(
                     error,
-                    abs(
-                        old_false_emission[o] - self.hmm_app._false_emission[o]
-                    ),
+                    abs(old_false_emission[o] - self.hmm_app._false_emission[o]),
                 )
                 # if abs(old_false_emission[o] - self.hmm_app._false_emission[o]) > (1 - 1E-3)/num_it:
                 #    print(o)
@@ -602,9 +579,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
                 raise ValueError("The simulations are too long")
 
             observations = ["dummy observation"] * len(simulation)
-            conin_simulation = Munch(
-                hidden=simulation, observed=observations, index=i
-            )
+            conin_simulation = Munch(hidden=simulation, observed=observations, index=i)
             self.conin_simulations.append(conin_simulation)
         temp_hmm = conin.supervised_learning(
             simulations=self.conin_simulations,
@@ -674,9 +649,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
                 if process not in processes_started:
                     process_dict[process] = len(processes_started)
                     processes_started.add(process)
-                    process_data.append(
-                        {"Process": process, "Start": i, "End": -1}
-                    )
+                    process_data.append({"Process": process, "Start": i, "End": -1})
 
         for t in range(len(data) - 1, -1, -1):
             for process in data[t]:
@@ -729,9 +702,7 @@ class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
         # Convert tuples to strings for JSON serialization
         # This gets a bit weird b/c hidden states can be strings or not strings whereas the keys for the other two
         # are always pairs
-        start_probs_serializable = {
-            str(list(k)): v for k, v in start_probs.items()
-        }
+        start_probs_serializable = {str(list(k)): v for k, v in start_probs.items()}
         transition_probs_serializable = {}
         for k, v in transition_probs.items():
             a, b = k
@@ -842,9 +813,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 if self._transition_probs[(h2, h1)] > 0:
                     self._reverse_allowed_transitions[h1].add(h2)
 
-    def update_statistical_models(
-        self, *, true_positive=None, false_emission=None
-    ):
+    def update_statistical_models(self, *, true_positive=None, false_emission=None):
         """
         Recalculates the emissions matrix based on a new true positive and false emission rates
         Also updates the hmm and oracle_chmm
@@ -955,17 +924,13 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         # Initialize the heap with the starting states
         for h in self._hidden_states:
             tempGScore = np.inf
-            if (self._start_probs[h] > 0) and (
-                emission_mat[(h, observation[0])] > 0
-            ):
+            if (self._start_probs[h] > 0) and (emission_mat[(h, observation[0])] > 0):
                 tempGScore = -np.log(self._start_probs[h]) - np.log(
                     emission_mat[h, observation[0]]
                 )
                 # Use tuple here b/c Python doesn't hash a list
                 gScore[(h,)] = tempGScore
-                openSet.append(
-                    HeapItem(priority=tempGScore + V[0][h], seq=(h,))
-                )
+                openSet.append(HeapItem(priority=tempGScore + V[0][h], seq=(h,)))
         heapq.heapify(openSet)
 
         iteration = 0
@@ -992,9 +957,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 for h2 in self._allowed_transitions[h1]:
                     if emission_mat[(h2, obs)] == 0.0:
                         continue
-                    if self._fake_oracle.partial_is_feasible(
-                        T=time_steps, seq=seq
-                    ):
+                    if self._fake_oracle.partial_is_feasible(T=time_steps, seq=seq):
                         tempGScore = (
                             currentGScore
                             - np.log(transition_mat[(h1, h2)])
@@ -1004,21 +967,13 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         gScore[newSeq] = tempGScore
                         heapq.heappush(
                             openSet,
-                            HeapItem(
-                                priority=tempGScore + V[t][h2], seq=newSeq
-                            ),
+                            HeapItem(priority=tempGScore + V[t][h2], seq=newSeq),
                         )
 
             iteration += 1
 
-            if (
-                beam_search
-                and iteration % beam_size == 0
-                and len(openSet) > beam_size
-            ):
-                max_heap = [
-                    HeapItem(-item.priority, item.seq) for item in openSet
-                ]
+            if beam_search and iteration % beam_size == 0 and len(openSet) > beam_size:
+                max_heap = [HeapItem(-item.priority, item.seq) for item in openSet]
                 heapq.heapify(max_heap)
 
                 # Remove the largest elements if the heap exceeds the max_size
@@ -1026,9 +981,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                     heapq.heappop(max_heap)
 
                 # Convert the max-heap back to a min-heap
-                openSet[:] = [
-                    HeapItem(-item.priority, item.seq) for item in max_heap
-                ]
+                openSet[:] = [HeapItem(-item.priority, item.seq) for item in max_heap]
                 heapq.heapify(openSet)
 
             if (max_iterations is not None) and (iteration >= max_iterations):
@@ -1036,9 +989,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 break
 
             curr_time = time.time()
-            if (max_time is not None) and (
-                (curr_time - start_time) > max_time
-            ):
+            if (max_time is not None) and ((curr_time - start_time) > max_time):
                 termination_condition = f"max_time: {curr_time-start_time}"
                 break
 
@@ -1142,9 +1093,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                     if pe.value(model.p[(h, o)]) < lb:
                         new_true_positive[(h, o)] = lb
                     else:
-                        new_true_positive[(h, o)] = min(
-                            pe.value(model.p[h, o]), ub
-                        )
+                        new_true_positive[(h, o)] = min(pe.value(model.p[h, o]), ub)
 
         # Underweight as we go. This makes everything more numerically stable
         for o in self._observable_states:
@@ -1156,9 +1105,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 if (h, o) in new_true_positive.keys():
                     new_true_positive[(h, o)] = (
                         new_true_positive[(h, o)] / iteration
-                        + self._true_positive[(h, o)]
-                        * (iteration - 1)
-                        / iteration
+                        + self._true_positive[(h, o)] * (iteration - 1) / iteration
                     )
 
         self.update_statistical_models(

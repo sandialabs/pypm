@@ -78,7 +78,9 @@ class Sparse_Emissions_Matrix:
 
         for activity in hidden_state:
             if activity not in self._activities:
-                raise ValueError(f"Unexpected activity {activity} in hidden state {hidden_state}")
+                raise ValueError(
+                    f"Unexpected activity {activity} in hidden state {hidden_state}"
+                )
         for o in observed_state:
             if o not in self._false_emission:
                 raise ValueError(f"Unexpected observed_state state {o}")

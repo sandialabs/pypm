@@ -87,7 +87,13 @@ def estimate_hidden_state_parameters(*, simulations):
 
 
 def create_hmm(
-    *, hidden_state_params, emission_params, observed_states=None, observed=None, no_zeros=False, no_zeros_tol=1e-6
+    *,
+    hidden_state_params,
+    emission_params,
+    observed_states=None,
+    observed=None,
+    no_zeros=False,
+    no_zeros_tol=1e-6
 ):
     """
     The observations are only the observations we observe and the observation

@@ -39,16 +39,18 @@ def initial_emission_parameters(
 
     true_positive = {}
     false_emission = {}
-    assert len(data_wrapper.features) > 0, f"Missing 'features' attribute in config data"
+    assert (
+        len(data_wrapper.features) > 0
+    ), f"Missing 'features' attribute in config data"
     for feature in data_wrapper.features:
         false_emission[feature] = false_emission_guess
 
     if len(data_wrapper.known_process_features) > 0:
         for name in data_wrapper.process_names:
             for feature in data_wrapper.features:
-                if feature in data_wrapper.known_process_features.get(name,{}):
+                if feature in data_wrapper.known_process_features.get(name, {}):
                     true_positive[name, feature] = known_positive_guess
-                elif feature in data_wrapper.possible_process_features.get(name,{}):
+                elif feature in data_wrapper.possible_process_features.get(name, {}):
                     true_positive[name, feature] = possible_positive_guess
     else:
         for name in data_wrapper.process_names:
