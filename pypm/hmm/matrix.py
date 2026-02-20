@@ -76,22 +76,22 @@ class Sparse_Emissions_Matrix:
             raise KeyError("Key must be a tuple of two elements (i, j).")
         hidden_state, observed_state = key
 
-        for h in hidden_state:
-            if h not in self._activities:
-                raise ValueError(f"Unexpected hidden state {h}")
+        for activity in hidden_state:
+            if activity not in self._activities:
+                raise ValueError(f"Unexpected activity {activity} in hidden state {hidden_state}")
         for o in observed_state:
             if o not in self._false_emission:
                 raise ValueError(f"Unexpected observed_state state {o}")
 
         val = 1
         for o, fe in self._false_emission.items():
-            temp = 1 - fe
-            for h in hidden_state:
-                temp *= 1 - self._true_positive.get((h, o), 0)
+            rho_o = 1 - fe
+            for activity in hidden_state:
+                rho_o *= 1 - self._true_positive.get((activity, o), 0)
             if o in observed_state:
-                val *= 1 - temp
+                val *= 1 - rho_o
             else:
-                val *= temp
+                val *= rho_o
         return val
 
     def X__iter__(self):
