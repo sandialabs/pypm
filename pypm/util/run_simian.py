@@ -36,15 +36,17 @@ def create_data_wrapper(**kwds):
         process_names: maps from array index to a process name
         process_parents: array of process dependencies
         index_to_process_names: inverse of process_names
-        resources: list of all resources
-        observation: a list of frozensets of resources for each time step
+        features: list of all features
+        observation: a list of frozensets of features for each time step
         known_process_features: used to help start emission probs
 
         Also sets random's seed
         """
 
-        def __init__(self, *, num_time_steps=None, config=None, pm=None, seed=None):
-            if pm is not None:
+        def __init__(
+            self, *, num_time_steps=None, config=None, pm=None, seed=None, features=None
+        ):
+            if config is None:
                 config = munch.DefaultMunch(None, pm=pm)
             self.data = config
 
@@ -79,17 +81,18 @@ def create_data_wrapper(**kwds):
                 for val in config["obs"]["observations"].keys():
                     self.num_time_steps = len(config["obs"]["observations"][val])
 
-                self.resources = list(config["obs"]["observations"].keys())
+                self.features = list(config["obs"]["observations"].keys())
 
                 unformatted_observation = config["obs"]["observations"]
                 self.observation = [set() for t in range(self.num_time_steps)]
-                for resource, resource_list in unformatted_observation.items():
-                    for t, val in enumerate(resource_list):
+                for feature, feature_list in unformatted_observation.items():
+                    for t, val in enumerate(feature_list):
                         if val:
-                            self.observation[t].add(resource)
+                            self.observation[t].add(feature)
                 self.observation = [frozenset(val) for val in self.observation]
             else:
-                self.resources = list(pm.resources)
+                features = [] if features is None else features
+                self.features = list(sorted(features))
 
             if num_time_steps is not None:
                 self.num_time_steps = num_time_steps
@@ -97,11 +100,11 @@ def create_data_wrapper(**kwds):
             if config.known_process_features is not None:
                 self.known_process_features = config.known_process_features
             else:
-                self.known_process_features = None
+                self.known_process_features = {}
             if config.possible_process_features is not None:
-                self.possible_process_features = config.known_process_features
+                self.possible_process_features = config.possible_process_features
             else:
-                self.possible_process_features = None
+                self.possible_process_features = {}
 
             self.hmm_options = config.hmm_options
 
