@@ -36,28 +36,24 @@ def initial_emission_parameters(
     false_emission_guess = false_emission
     known_positive_guess = known_positive
     possible_positive_guess = possible_positive
-    # other_positive_guess = 1e-6
 
-    true_positive = {}  # These will uniquely define the emission matrices
+    true_positive = {}
     false_emission = {}
-    for resource in data_wrapper.resources:
-        false_emission[resource] = false_emission_guess
+    assert len(data_wrapper.features) > 0, f"Missing 'features' attribute in config data"
+    for feature in data_wrapper.features:
+        false_emission[feature] = false_emission_guess
 
-    if data_wrapper.known_process_features is None:
+    if len(data_wrapper.known_process_features) > 0:
         for name in data_wrapper.process_names:
-            for resource in data_wrapper.resources:
-                if resource in data_wrapper.data.pm[name]["resources"]:
-                    true_positive[(name, resource)] = known_positive_guess
-
+            for feature in data_wrapper.features:
+                if feature in data_wrapper.known_process_features.get(name,{}):
+                    true_positive[name, feature] = known_positive_guess
+                elif feature in data_wrapper.possible_process_features.get(name,{}):
+                    true_positive[name, feature] = possible_positive_guess
     else:
         for name in data_wrapper.process_names:
-            for resource in data_wrapper.resources:
-                if resource in data_wrapper.known_process_features[name]:
-                    true_positive[(name, resource)] = known_positive_guess
-                elif resource in data_wrapper.possible_process_features[name]:
-                    true_positive[(name, resource)] = possible_positive_guess
-                # else:
-                #    true_positive[(name, resource)] = other_positive_guess
+            for feature in data_wrapper.features:
+                true_positive[name, feature] = known_positive
 
     return Munch(true_positive=true_positive, false_emission=false_emission)
 
