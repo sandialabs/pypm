@@ -29,7 +29,7 @@ from conin.util import Util
 # import ast
 # import json
 
-from pypm.hmm import initial_emission_parameters
+from pypm.hmm.estimate_emissions import initial_emission_parameters
 from pypm.hmm.matrix import Sparse_Emissions_Matrix
 
 
@@ -90,23 +90,10 @@ def create_hmm(
     *,
     hidden_state_params,
     emission_params,
-    observed_states=None,
-    observed=None,
+    observed_states,
     no_zeros=False,
     no_zeros_tol=1e-6
 ):
-    """
-    The observations are only the observations we observe and the observation
-    matrix is generated from false emission and true positive. However
-    by having an actual observation matrix, we can use it in other things
-
-    no_zeros: If true we run hmm.make_non_zero
-    """
-    if observed:
-        observed_states = {x for x in observed}
-    else:
-        observed_states = set(observed_states)
-
     sparse_emission_probs = Sparse_Emissions_Matrix(
         true_positive=emission_params.true_positive,
         false_emission=emission_params.false_emission,
@@ -136,85 +123,6 @@ def create_hmm(
         hmm.make_non_zero(no_zeros_tol)
 
     return hmm
-
-
-def write_hmm_to_file(self, file_name):
-    """
-    Writes the hmm to a file
-
-    Note that here we have to convert frozensets to tuples b/c
-    in read_hmm_from_file we use ast.literal_eval which doesn't like
-    frozenset(). So, this is copied almost directly from hmm.
-    """
-    start_probs = self.hmm.get_start_probs()
-    transition_probs = self.hmm.get_transition_probs()
-    emission_probs = self.hmm.get_emission_probs()
-
-    # Convert tuples to strings for JSON serialization
-    # This gets a bit weird b/c hidden states can be strings or not strings whereas the keys for the other two
-    # are always pairs
-    start_probs_serializable = {str(list(k)): v for k, v in start_probs.items()}
-    transition_probs_serializable = {}
-    for k, v in transition_probs.items():
-        a, b = k
-        transition_probs_serializable[str((list(a), list(b)))] = v
-    emission_probs_serializable = {}
-    for k, v in emission_probs.items():
-        a, b = k
-        emission_probs_serializable[str((list(a), list(b)))] = v
-
-    # Create a dictionary to hold all the data
-    file_data = {
-        "start_probs": start_probs_serializable,
-        "transition_probs": transition_probs_serializable,
-        "emission_probs": emission_probs_serializable,
-    }
-
-    with open(file_name, "w") as json_file:
-        json.dump(file_data, json_file, indent=4)
-
-
-def read_hmm_from_file(self, file_name):
-    """
-    Reads the hmm from a file and returns the dictionaries.
-
-    Note: This does not work if the states are frozensets b/c
-    we would need to do a function call. Not sure how to fix that.
-
-    Parameters:
-        file_name: Name of the file we are reading from
-    """
-
-    # Read the data from the JSON file
-    with open(file_name, "r") as json_file:
-        file_data = json.load(json_file)
-
-    # Convert string keys back to tuples
-    start_probs = {
-        frozenset(ast.literal_eval(k)): v for k, v in file_data["start_probs"].items()
-    }
-
-    transition_probs = {}
-    for k, v in file_data["transition_probs"].items():
-        a, b = ast.literal_eval(k)
-        transition_probs[(frozenset(a), frozenset(b))] = v
-
-    emission_probs = {}
-    for k, v in file_data["emission_probs"].items():
-        a, b = ast.literal_eval(k)
-        emission_probs[(frozenset(a), frozenset(b))] = v
-
-    self.hmm.load_model(
-        start_probs=start_probs,
-        transition_probs=transition_probs,
-        emission_probs=emission_probs,
-    )
-
-
-def initialize_hmm_application(data, simulations=None):
-    hmm_app = Pypm_HMMApplication(data=data, simulations=simulations)
-    hmm_app.learn_hmm()
-    return hmm_app
 
 
 def learn_hmm(self, *, with_constraints=False, noisy=True):
