@@ -110,8 +110,6 @@ def create_data_wrapper(**kwds):
 
             if seed is not None:
                 config.seed = seed
-            if config.seed is not None:
-                random.seed(config.seed)
 
     return Data_Wrapper(**kwds)
 
@@ -148,6 +146,13 @@ def run_simian(
         data_wrapper = create_data_wrapper(
             pm=pm, num_time_steps=num_time_steps, seed=seed
         )
+    else:
+        data_wrapper.num_time_steps = num_time_steps
+
+    if seed is not None:
+        data_wrapper.data.seed = seed
+    if data_wrapper.data.seed is not None:
+        random.seed(data_wrapper.data.seed)
 
     def base_process(this, main, id):
         """
