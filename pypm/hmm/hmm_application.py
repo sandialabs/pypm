@@ -3,7 +3,10 @@ import munch
 import conin.hmm
 
 from pypm.hmm.create_hmm import estimate_transition_parameters, create_hmm
-from pypm.hmm.estimate_emissions import initial_emission_parameters
+from pypm.hmm.estimate_emissions import (
+    initial_emission_parameters,
+    estimate_emission_parameters,
+)
 from pypm.util.run_simian import create_data_wrapper, run_simian
 
 
@@ -54,16 +57,34 @@ class PypmHMMApplication:
             max_delay_before=max_delay_before,
         )
 
-    def learn_emission_parameters(self, **kwds):
-        # self.data.options_learn_emission_parameters = kwds
-        pass
+    def learn_emission_parameters(
+        self,
+        *,
+        observed,
+        constrained=True,
+        max_iterations=None,
+        num_solutions_per_step=None
+    ):
+        constraints = [] if not constrained else self.oracle_constraints()
+
+        self.emission_params = estimate_emission_parameters(
+            observed=observed,
+            data_wrapper=self.data_wrapper,
+            emission_params=self.emission_params,
+            transition_params=self.transition_params,
+            constraints=constraints,
+            max_iterations=max_iterations,
+            num_solutions_per_step=num_solutions_per_step,
+        )
 
     def create_hmm(self, observed_states=None, no_zeros=False, no_zeros_tol=1e-6):
         assert (
             self.transition_params is not None
         ), "ERROR: must learn transition parameters before creating the HMM"
         if observed_states is None:
-            assert hasattr(self.data_wrapper, "observed_states"), "If observed_states is not specified, then data observations must be included in the config object"
+            assert hasattr(
+                self.data_wrapper, "observed_states"
+            ), "If observed_states is not specified, then data observations must be included in the config object"
             observed_states = self.data_wrapper.observed_states
 
         if self.emission_params is None:
@@ -292,4 +313,3 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
     )
 
     return constraints
-
