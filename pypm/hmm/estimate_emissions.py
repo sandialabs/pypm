@@ -1,8 +1,11 @@
+import time
 from dataclasses import dataclass, field
 from typing import Any
+import numpy as np
+import heapq
 from munch import Munch
+import pyomo.environ as pe
 import conin.hmm
-#from conin.util import Util
 
 
 def initial_emission_parameters(
@@ -36,7 +39,7 @@ def initial_emission_parameters(
 
 
 def estimate_emission_parameters(
-    *, observed, data_wrapper, transition_params, constraints=[]
+    *, observed, data_wrapper, transition_params, emission_params=None, constraints=[], max_iterations=None, num_solutions_per_step=None
 ):
     """
     Creates an vector of emissions matrices indexed by resources
@@ -45,12 +48,15 @@ def estimate_emission_parameters(
     """
     # TODO figure out a better way to deal with these
     eps = 0.01
-    num_solutions = 1
-    max_iterations = 100
+    if max_iterations is None:
+        max_iterations=100
+    if num_solutions_per_step is None:
+        num_solutions_per_step = 1
 
-    initial_params = initial_emission_parameters()
-    true_positive = initial_params.true_positive
-    false_emission = initial_params.false_emission
+    if emission_params is None:
+        emission_params = initial_emission_parameters(data_wrapper=data_wrapper)
+    true_positive = emission_params.true_positive
+    false_emission = emission_params.false_emission
 
     hmm_app = Process_Matching_HMM()
     hmm_app.initialize(
@@ -70,14 +76,14 @@ def estimate_emission_parameters(
         old_true_positive = {key: val for key, val in hmm_app._true_positive.items()}
         hmm_app.SAEM_step(
             observation=observed,  # data_wrapper.observation
-            num_solutions=num_solutions,
+            num_solutions=num_solutions_per_step,
             iteration=num_it,
         )
 
         # l1 error
         # TODO: l2?
         error = 0
-        for o in data_wrapper.resources:
+        for o in data_wrapper.features:
             error = max(
                 error,
                 abs(old_false_emission[o] - hmm_app._false_emission[o]),
@@ -102,7 +108,7 @@ def estimate_emission_parameters(
             _false_emission = hmm_app._false_emission
             break
 
-    return Munch(true_positive=_true_positive, false_positive=_false_positive)
+    return Munch(true_positive=_true_positive, false_emission=_false_emission)
 
 
 class Process_Matching_HMM(conin.hmm.HMMApplication):
@@ -177,14 +183,14 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         self._fake_emission_probs = {
             (h, "YOU SHOULD NOT SEE THIS"): 1 for h in self._hidden_states
         }
-        self._fake_hmm = conin.HMM()
+        self._fake_hmm = conin.hmm.HiddenMarkovModel()
         self._fake_hmm.load_model(
             start_probs=self._start_probs,
             transition_probs=self._transition_probs,
             emission_probs=self._fake_emission_probs,
         )
-        self._fake_oracle = conin.Oracle_CHMM(
-            hmm=self._hmm, constraints=self._constraints
+        self._fake_oracle = conin.hmm.chmm_oracle.Oracle_CHMM(
+            hmm=self._fake_hmm.repn, constraints=self._constraints
         )
 
     def update_constraints(self, constraints):
@@ -233,13 +239,14 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         time_steps = len(observation)
         transition_mat = self._transition_probs
         emission_mat = self._emission_probs
+        hidden_states = list(sorted(self._hidden_states))
 
         # Precompute V[t][h] - The log-probability of the shortest path starting at time
         #       t in hidden state h
-        V = [{h: 0 for h in self._hidden_states} for t in range(time_steps)]
+        V = [{h: 0 for h in hidden_states} for t in range(time_steps)]
 
         # CLM: This is a nice hacky way to enforce that the sequence is finished at the end
-        for h in self._hidden_states:
+        for h in hidden_states:
             V[time_steps - 1][h] = np.inf
         V[time_steps - 1][frozenset()] = 0
 
@@ -248,7 +255,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             if (time_steps - 2 - t) % 50 == 0:
                 print(f"Iteration {time_steps-2-t} out of {time_steps-2}")
             obs = observation[t + 1]
-            for h1 in self._hidden_states:
+            for h1 in hidden_states:
                 temp = np.inf
                 for h2 in self._allowed_transitions[h1]:
                     if emission_mat[(h2, obs)] != 0:
@@ -267,14 +274,15 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         openSet = []
 
         # Initialize the heap with the starting states
-        for h in self._hidden_states:
+        for h in hidden_states:
             tempGScore = np.inf
-            if (self._start_probs[h] > 0) and (emission_mat[(h, observation[0])] > 0):
+            if (self._start_probs[h] > 0) and (emission_mat[h, observation[0]] > 0):
                 tempGScore = -np.log(self._start_probs[h]) - np.log(
                     emission_mat[h, observation[0]]
                 )
                 # Use tuple here b/c Python doesn't hash a list
                 gScore[(h,)] = tempGScore
+                print(f"PUSH {tempGScore + V[0][h]} {(h,)}")
                 openSet.append(HeapItem(priority=tempGScore + V[0][h], seq=(h,)))
         heapq.heapify(openSet)
 
@@ -284,6 +292,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         output = []
         while True:
             val, seq = heapq.heappop(openSet)
+            print(f"POP {val=} {seq=}")
             t = len(seq)
 
             if t == time_steps:
@@ -310,6 +319,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         )
                         newSeq = seq + (h2,)
                         gScore[newSeq] = tempGScore
+                        print(f"PUSH {tempGScore + V[t][h2]} {newSeq=}")
                         heapq.heappush(
                             openSet,
                             HeapItem(priority=tempGScore + V[t][h2], seq=newSeq),
@@ -365,6 +375,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         )
 
         print(termination_condition)
+        print(f"HERE {output[0].hidden=} {output[0].log_likelihood=}")
         return [output[i].hidden for i in range(len(output))]
 
     def _M_step(self, *, observation, hidden_vec, iteration):
@@ -389,16 +400,24 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         # lb = 1.0 / num_time_steps
         ub = 1 - lb  # This also seems to matter for some reason?
 
+        import pprint
+        pprint.pprint(self._true_positive)
+        pprint.pprint(self._false_emission)
+        pprint.pprint(self._observable_states)
+        print(num_time_steps)
+        print(hidden_vec)
+
         model = pe.ConcreteModel()
 
-        model.p = pe.Var(
-            set(self._true_positive.keys()),
+        A = list(sorted(self._true_positive.keys()))
+        model.p = pe.Var(A,
             initialize=self._true_positive,
             within=pe.NonNegativeReals,
             bounds=(lb, ub),
         )
+        B = list(sorted(self._observable_states))
         model.f = pe.Var(
-            self._observable_states,
+            B,
             initialize=self._false_emission,
             within=pe.NonNegativeReals,
             bounds=(lb, ub),
@@ -407,26 +426,29 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         def log_prob(m):
             val = 0
             for hidden in hidden_vec:
-                for o in self._observable_states:
+                for o in B:
                     for t in range(num_time_steps):
                         temp = 1 - m.f[o]
                         for h in hidden[t]:
-                            if (h, o) in self._true_positive.keys():
-                                temp *= 1 - m.p[(h, o)]
+                            if (h, o) in self._true_positive:
+                                temp *= 1 - m.p[h, o]
 
                         if o in observation[t]:
                             temp = 1 - temp
 
                         val += pe.log(temp)
             return val
-
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
+        model.pprint()
+        model.display()
+
         solver = pe.SolverFactory("ipopt")
         solver.solve(model, tee=True)
+        model.pprint()
 
         # Could also probably just use
-        new_false_emission = {key: -1 for key in self._false_emission.keys()}
-        new_true_positive = {key: -1 for key in self._true_positive.keys()}
+        new_false_emission = {key: -1 for key in self._false_emission}
+        new_true_positive = {key: -1 for key in self._true_positive}
 
         for o in self._observable_states:
             if pe.value(model.f[o]) < lb:
@@ -434,7 +456,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             else:
                 new_false_emission[o] = min(pe.value(model.f[o]), ub)
             for h in self._processes:
-                if (h, o) in new_true_positive.keys():
+                if (h, o) in new_true_positive:
                     if pe.value(model.p[(h, o)]) < lb:
                         new_true_positive[(h, o)] = lb
                     else:
@@ -453,6 +475,9 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         + self._true_positive[(h, o)] * (iteration - 1) / iteration
                     )
 
+        import pprint
+        pprint.pprint(new_false_emission)
+        pprint.pprint(new_true_positive)
         self.update_statistical_models(
             false_emission=new_false_emission, true_positive=new_true_positive
         )
