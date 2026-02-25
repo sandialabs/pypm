@@ -137,8 +137,8 @@ class GSF_HMM(Z_Repn_Model):
         assert (
             objective == "log_likelihood"
         ), "GSF_HMM can not optimize the goal {}".format(objective)
-
         assert hasattr(self.config.hmm_app, "hmm"), f"You need to create an HMM before generating a schedule with GSF_HMM."
+
         chmm = ConstrainedHiddenMarkovModel(hmm=self.config.hmm_app.hmm)
         chmm.initialize_chmm("pyomo")
         M = chmm.chmm.generate_unconstrained_model(observed=self.config.hmm_app.data_wrapper.observation)

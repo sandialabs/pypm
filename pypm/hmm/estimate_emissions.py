@@ -36,7 +36,7 @@ def initial_emission_parameters(
 
 
 def estimate_emission_parameters(
-    *, observed, data_wrapper, hidden_state_params, constraints=[]
+    *, observed, data_wrapper, transition_params, constraints=[]
 ):
     """
     Creates an vector of emissions matrices indexed by resources
@@ -54,8 +54,8 @@ def estimate_emission_parameters(
 
     hmm_app = Process_Matching_HMM()
     hmm_app.initialize(
-        start_probs=hidden_state_params.start_probs,
-        transition_probs=hidden_state_params.transition_probs,
+        start_probs=transition_params.start_probs,
+        transition_probs=transition_params.transition_probs,
         constraints=constraints,
         true_positive=true_positive,
         false_emission=false_emission,

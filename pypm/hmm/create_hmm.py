@@ -1,33 +1,9 @@
 import conin.hmm
 
-# import pprint
-# from pypm.util.process_model import (
-#    potentially_simultaneous_activities,
-#    powerset,
-# )
-# import pyomo.environ as pe
-# import conin
-# from .matching_models import ProcessModelData, GSF_TotalMatchScore
 from munch import Munch
-
-# from pypm.simian import Simian
-# import random
-# import contextlib
-# import sys
-# import copy
-# import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
-
-# import time
-# import math
-# import heapq
-# import pandas as pd
-# import matplotlib.pyplot as plt
 from conin.util import Util
-
-# import ast
-# import json
 
 from pypm.hmm.estimate_emissions import initial_emission_parameters
 from pypm.hmm.matrix import Sparse_Emissions_Matrix
@@ -61,7 +37,7 @@ def _esimate_transition_and_start_probabilities(hidden_states, simulations):
     return start_probs, hmm.get_transition_probs()
 
 
-def estimate_hidden_state_parameters(*, simulations):
+def estimate_transition_parameters(*, simulations):
     #
     # Normalize simian simulations to only contain the states
     #
@@ -88,7 +64,7 @@ def estimate_hidden_state_parameters(*, simulations):
 
 def create_hmm(
     *,
-    hidden_state_params,
+    transition_params,
     emission_params,
     observed_states,
     no_zeros=False,
@@ -97,7 +73,7 @@ def create_hmm(
     sparse_emission_probs = Sparse_Emissions_Matrix(
         true_positive=emission_params.true_positive,
         false_emission=emission_params.false_emission,
-        hidden_states=hidden_state_params.hidden_states,
+        hidden_states=transition_params.hidden_states,
     )
     #
     # Create a dense emission matrix
@@ -105,7 +81,7 @@ def create_hmm(
     # We have to renormalize since the observed sequence may not include all possible observed states
     #
     emission_probs = {}
-    for h in hidden_state_params.hidden_states:
+    for h in transition_params.hidden_states:
         total = 0
         for o in observed_states:
             tmp = emission_probs[h, o] = sparse_emission_probs[h, o]
@@ -115,8 +91,8 @@ def create_hmm(
 
     hmm = conin.hmm.HiddenMarkovModel()
     hmm.load_model(
-        start_probs=hidden_state_params.start_probs,
-        transition_probs=hidden_state_params.transition_probs,
+        start_probs=transition_params.start_probs,
+        transition_probs=transition_params.transition_probs,
         emission_probs=emission_probs,
     )
     if no_zeros:

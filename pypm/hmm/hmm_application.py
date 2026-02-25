@@ -2,7 +2,7 @@ import json
 import munch
 import conin.hmm
 
-from pypm.hmm.create_hmm import estimate_hidden_state_parameters, create_hmm
+from pypm.hmm.create_hmm import estimate_transition_parameters, create_hmm
 from pypm.hmm.estimate_emissions import initial_emission_parameters
 from pypm.util.run_simian import create_data_wrapper, run_simian
 
@@ -19,7 +19,7 @@ class PypmHMMApplication:
         self.data_wrapper = create_data_wrapper(config=config)
         if hasattr(config, "features"):
             self.data_wrapper.features = getattr(config, "features", {})
-        self.hidden_state_params = None
+        self.transition_params = None
         self.emission_params = None
         self.simulations = None
         self.data = munch.Munch()
@@ -45,10 +45,10 @@ class PypmHMMApplication:
             max_delay_before=max_delay_before,
             quiet=quiet,
         )
-        self.hidden_state_params = estimate_hidden_state_parameters(
+        self.transition_params = estimate_transition_parameters(
             simulations=self.simulations
         )
-        self.data.options_learn_hidden_state_parameters = dict(
+        self.data.options_learn_transition_parameters = dict(
             num_simulations=num_simulations,
             num_time_steps=num_time_steps,
             max_delay_before=max_delay_before,
@@ -60,8 +60,8 @@ class PypmHMMApplication:
 
     def create_hmm(self, observed_states=None, no_zeros=False, no_zeros_tol=1e-6):
         assert (
-            self.hidden_state_params is not None
-        ), "ERROR: must learn hidden state parameters before creating the HMM"
+            self.transition_params is not None
+        ), "ERROR: must learn transition parameters before creating the HMM"
         if observed_states is None:
             assert hasattr(self.data_wrapper, "observed_states"), "If observed_states is not specified, then data observations must be included in the config object"
             observed_states = self.data_wrapper.observed_states
@@ -72,7 +72,7 @@ class PypmHMMApplication:
             )
 
         self.hmm = create_hmm(
-            hidden_state_params=self.hidden_state_params,
+            transition_params=self.transition_params,
             emission_params=self.emission_params,
             observed_states=observed_states,
             no_zeros=no_zeros,
@@ -85,11 +85,11 @@ class PypmHMMApplication:
 
     def write(self, filename):
         tmp = munch.Munch(
-            hidden_state_params=dict(
-                hidden_states=self.hidden_state_params.hidden_states,
-                start_probs=list(sorted(self.hidden_state_params.start_probs.items())),
+            transition_params=dict(
+                hidden_states=self.transition_params.hidden_states,
+                start_probs=list(sorted(self.transition_params.start_probs.items())),
                 transition_probs=list(
-                    sorted(self.hidden_state_params.transition_probs.items())
+                    sorted(self.transition_params.transition_probs.items())
                 ),
             ),
             emission_params=dict(
@@ -116,14 +116,14 @@ class PypmHMMApplication:
                 [(t, tuple(val)) for t, val in sim] for sim in tmp.simulations
             ]
 
-            # hidden state parameters
-            self.hidden_state_params = munch.Munch()
-            self.hidden_state_params.start_probs = {
-                tuple(k): v for k, v in tmp.hidden_state_params.start_probs
+            # transition parameters
+            self.transition_params = munch.Munch()
+            self.transition_params.start_probs = {
+                tuple(k): v for k, v in tmp.transition_params.start_probs
             }
-            self.hidden_state_params.transition_probs = {
+            self.transition_params.transition_probs = {
                 (tuple(k[0]), tuple(k[1])): v
-                for k, v in tmp.hidden_state_params.transition_probs
+                for k, v in tmp.transition_params.transition_probs
             }
 
             # emission parameters
