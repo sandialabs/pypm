@@ -8,7 +8,8 @@ from pypm.util.run_simian import create_data_wrapper, run_simian
 
 
 def initialize_hmm_application(name):
-    return PypmHMMApplication(config)
+    # TODO - Customize this for XSF?
+    return PypmHMMApplication()
 
 
 class PypmHMMApplication:
@@ -16,22 +17,26 @@ class PypmHMMApplication:
     def initialize(self, config):
         self._config = config
         self.data_wrapper = create_data_wrapper(config=config)
-        self.data_wrapper.features = config.features
+        if hasattr(config, "features"):
+            self.data_wrapper.features = getattr(config, "features", {})
         self.hidden_state_params = None
         self.emission_params = None
         self.simulations = None
         self.data = munch.Munch()
 
-    def learn_hidden_state_parameters(
+    def learn_transition_parameters(
         self,
         *,
         num_simulations,
-        num_time_steps,
         seed,
+        num_time_steps=None,
         max_delay_before=0,
         quiet=False,
         debug=False
     ):
+        if num_time_steps is None:
+            num_time_steps = self.data_wrapper.num_time_steps
+
         self.simulations = run_simian(
             data_wrapper=self.data_wrapper,
             num_simulations=num_simulations,
@@ -53,10 +58,14 @@ class PypmHMMApplication:
         # self.data.options_learn_emission_parameters = kwds
         pass
 
-    def create_hmm(self, observed_states, no_zeros=False, no_zeros_tol=1e-6):
+    def create_hmm(self, observed_states=None, no_zeros=False, no_zeros_tol=1e-6):
         assert (
             self.hidden_state_params is not None
         ), "ERROR: must learn hidden state parameters before creating the HMM"
+        if observed_states is None:
+            assert hasattr(self.data_wrapper, "observed_states"), "If observed_states is not specified, then data observations must be included in the config object"
+            observed_states = self.data_wrapper.observed_states
+
         if self.emission_params is None:
             self.emission_params = initial_emission_parameters(
                 data_wrapper=self.data_wrapper
@@ -137,6 +146,9 @@ class PypmHMMApplication:
                     (tuple(k[0]), tuple(k[1])): v for k, v in tmp.hmm.emission_probs
                 },
             )
+
+    def oracle_constraints(self):
+        return GSF_oracle_constraints(self.data_wrapper, self.hidden_states)
 
 
 def GSF_oracle_constraints(data_wrapper, hidden_states):
@@ -281,46 +293,3 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
 
     return constraints
 
-
-class XPypm_BaseHMMApplication(conin.hmm.HMMApplication):
-
-    def learn_hmm(self, *, with_constraints=False, noisy=True):
-        """
-        Outputs the learned hmm
-        Also updates hmm in the class
-        """
-        if "hmm_read_in_file" in self.data_wrapper.hmm_options.keys():
-            self.hmm = conin.HMM()
-            self.read_hmm_from_file(self.data_wrapper.hmm_options["hmm_read_in_file"])
-        else:
-            self.learned_with_constraints = with_constraints
-
-            if self.simulations is None:
-                self._set_simulations()
-
-            self._set_hidden_states()
-            print("Finding transition probabilities.")
-            if with_constraints:
-                self._set_constraints()
-            self._set_transition_probs_and_start_probs()
-            print("Finding Emission probabilities")
-            self._set_emission_probs_dict()
-
-            self._set_hmm(no_zeros=False, no_zeros_tol=1e-6)
-            self.write_hmm_to_file("../data/hmm.json")
-
-        # self.print_inference_figs()
-
-    def print_inference_figs(self):
-        """
-        Prints a Gantt chart which describes the inferred solutions
-        If learn_hmm is run without constraints, we do inference both
-        with and without constraints.
-
-        TODO add a clear constraints option
-        """
-        if not self.learned_with_constraints:
-            self.save_inferred_solutions_fig("inferred_unconstrained")
-            self._set_constraints()
-            self.hmm_app.update_constraints(self.constraints)
-        self.save_inferred_solutions_fig("inferred_constrained")

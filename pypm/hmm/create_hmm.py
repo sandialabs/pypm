@@ -123,31 +123,3 @@ def create_hmm(
         hmm.make_non_zero(no_zeros_tol)
 
     return hmm
-
-
-def learn_hmm(self, *, with_constraints=False, noisy=True):
-    """
-    Outputs the learned hmm
-    Also updates hmm in the class
-    """
-    if "hmm_read_in_file" in self.data_wrapper.hmm_options.keys():
-        self.hmm = conin.HMM()
-        self.read_hmm_from_file(self.data_wrapper.hmm_options["hmm_read_in_file"])
-    else:
-        self.learned_with_constraints = with_constraints
-
-        if self.simulations is None:
-            self._set_simulations()
-
-        self._set_hidden_states()
-        print("Finding transition probabilities.")
-        if with_constraints:
-            self._set_constraints()
-        self._set_transition_probs_and_start_probs()
-        print("Finding Emission probabilities")
-        self._set_emission_probs_dict()
-
-        self._set_hmm(no_zeros=False, no_zeros_tol=1e-6)
-        self.write_hmm_to_file("../data/hmm.json")
-
-    # self.print_inference_figs()

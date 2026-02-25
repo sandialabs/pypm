@@ -1020,7 +1020,7 @@ def ex1_application(ex1_pm):
         )
     )
 
-    app.learn_hidden_state_parameters(
+    app.learn_transition_parameters(
         num_simulations=num_simulations,
         num_time_steps=20,
         max_delay_before=5,
@@ -1082,7 +1082,7 @@ def ex2_application(ex2_pm):
         )
     )
 
-    app.learn_hidden_state_parameters(
+    app.learn_transition_parameters(
         num_simulations=num_simulations,
         num_time_steps=20,
         max_delay_before=5,

@@ -5,6 +5,7 @@ import os.path
 from munch import Munch
 import pprint
 from .mip.runmip import load_config, runmip
+from .hmm import initialize_hmm_application
 from .unsup.run_labeling import run_tabu_labeling
 
 
@@ -79,11 +80,11 @@ class SupervisedMIP(object):
     find a feasible schedule of process activities that best aligns with data observations.
     """
 
-    def __init__(self, model=None):
+    def __init__(self, model=None, objective="total_match_score"):
         self.model = model
         self.config = Munch()
         self.constraints = []
-        self.objective = Munch(goal="total_match_score")
+        self.objective = Munch(goal=objective)
         self.solver_options = Munch(name=None, show_solver_output=None)
 
     def activities(self):
@@ -129,23 +130,27 @@ class SupervisedMIP(object):
         -------
         :any:`pypm.api.MatchingResults`
         """
-        #
-        # Setup the self.config data using class data
-        #
-        if self.model is None:
-            if self.config.model is None:
-                if self.objective.goal == "total_match_score":
-                    if len(self.config.count_data) > 0:
-                        self.config.model = "GSF-ED"  # model13
-                    else:
-                        self.config.model = "UnrestrictedMatches_VariableLengthActivities"  # model11 OR GSF
-                elif self.objective.goal == "minimize_makespan":
-                    self.config.model = "GSF-makespan"
-                else:
-                    print("Unknown objecive: {}".format(self.objective.goal))
-                    return None
-        else:
+        # Use the specified model type
+        if self.model is not None:
             self.config.model = self.model
+
+        elif self.config.model is None:
+            # Infer the model type from the objective goal
+            if self.objective.goal == "total_match_score":
+                if len(self.config.count_data) > 0:
+                    self.config.model = "GSF-ED"  # model13
+                else:
+                    self.config.model = (
+                        "UnrestrictedMatches_VariableLengthActivities"  # model11 OR GSF
+                    )
+            elif self.objective.goal == "minimize_makespan":
+                self.config.model = "GSF-makespan"
+            elif self.objective.goal == "log_likelihood":
+                self.config.model = "HMM_UnrestrictedMatches_VariableLengthActivities"
+            else:
+                print("Unknown objective: {}".format(self.objective.goal))
+                return None
+
         if self.solver_options.name is not None:
             self.config.solver = self.solver_options.name
         if self.solver_options.show_solver_output is not None:
@@ -406,6 +411,7 @@ class SupervisedMIP(object):
     #
     # total_match_score
     # total_separation_score
+    # log_likelihood
     #
 
     def maximize_total_match_score(self):
@@ -425,6 +431,87 @@ class SupervisedMIP(object):
         Set the scheduling objective to minimize the start time of the latest activity
         """
         self.objective = Munch(goal="minimize_makespan")
+
+    def maximize_log_likelihood(self):
+        """
+        Set the scheduling objective to maximize log-likelihood for all activities
+        """
+        self.objective = Munch(goal="log_likelihood")
+
+
+class StatisticalModel(SupervisedMIP):
+    """
+    This class contains coordinates the execution of an integer programming optimizer to
+    infer the most likely feasible schedule of process activities given a hidden Markov model of the process.
+    """
+
+    def __init__(self, model=None):
+        super().__init__(model, "log_likelihood")
+
+    def load_config(self, yamlfile):
+        """
+        Load a YAML configuration file.
+
+        Arguments
+        ---------
+        yamlfile: `str`
+            The filename of the YAML configuration file.
+        """
+        self.config = load_config(
+            datafile=yamlfile,
+            verbose=PYPM.options.verbose,
+            quiet=PYPM.options.quiet,
+            index=0,
+        )
+
+        self.config.hmm_app = initialize_hmm_application(self.model)
+        self.config.hmm_app.initialize(self.config)
+        # TODO - use this
+        # if self.config.labeling_restrictions:
+        #    for activity in self.activities():
+        #        dummyname = "dummy " + activity
+        #        self.config.pm.resources.add(dummyname, 1)
+
+    def save_statistical_model(self, filename):
+        self.config.hmm_app.write(filename)
+
+    def load_statistical_model(self, filename):
+        self.config.hmm_app.read(filename)
+
+    def learn_transition_parameters(
+        self,
+        *,
+        num_simulations,
+        num_time_steps=None,
+        max_delay_before=0,
+        seed=None,
+        debug=None,
+        quiet=None
+    ):
+        if seed is None:
+            seed = self.config.seed
+        if debug is None:
+            debug = self.config.debug
+        if quiet is None:
+            quiet = self.config.quiet
+        self.config.hmm_app.learn_transition_parameters(
+            num_simulations=num_simulations,
+            seed=seed,
+            num_time_steps=num_time_steps,
+            max_delay_before=max_delay_before,
+            debug=debug,
+            quiet=quiet,
+        )
+
+    def learn_emission_parameters(
+        self, *, seed=None, debug=False
+    ):
+        self.config.hmm_app.learn_emission_parameters(
+            seed=seed, debug=debug
+        )
+
+    def create_hmm(self):
+        self.config.hmm_app.create_hmm()
 
 
 class UnsupervisedMIP(SupervisedMIP):
@@ -911,6 +998,15 @@ class PYPM_api(object):
         :any:`pypm.api.SupervisedMIP`
         """
         return SupervisedMIP()
+
+    def statistical_model(self):
+        """Initialize a solver interface for labeled inference using a hidden Markov model.
+
+        Returns
+        -------
+        :any:`pypm.api.StatisticalModel`
+        """
+        return StatisticalModel()
 
     def unsupervised_mip(self):
         return UnsupervisedMIP()
