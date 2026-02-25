@@ -5,12 +5,13 @@ import munch
 
 from pypm.util.fileutils import this_file_dir
 from pypm.util.load import load_process
-#from pypm.util.run_simian import run_simian, create_data_wrapper
-#from pypm.hmm.create_hmm import estimate_hidden_state_parameters, create_hmm
-#from pypm.hmm.estimate_emissions import initial_emission_parameters
+
+# from pypm.util.run_simian import run_simian, create_data_wrapper
+# from pypm.hmm.create_hmm import estimate_hidden_state_parameters, create_hmm
+# from pypm.hmm.estimate_emissions import initial_emission_parameters
 from pypm.hmm.hmm_application import PypmHMMApplication
 
-from . import examples
+from pypm.hmm.tests import examples
 
 currdir = this_file_dir()
 
@@ -26,50 +27,61 @@ def config(**kwds):
 # ex1
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def ex1_pm():
     """Load process model for ex1"""
     return load_process(data=examples.ex1)
 
+
 # ---------------------------------------------------------------------------
 # ex2
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def ex2_pm():
     """Load process model for ex2"""
     return load_process(data=examples.ex2)
 
+
 # ---------------------------------------------------------------------------
 # ex3
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def ex3_pm():
     """Load process model for ex3"""
     return load_process(data=examples.ex3)
 
+
 # ---------------------------------------------------------------------------
 # ex4
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def ex4_pm():
     """Load process model for ex4"""
     return load_process(data=examples.ex4)
 
+
 # ---------------------------------------------------------------------------
 # ex5
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def ex5_pm():
     """Load process model for ex5"""
     return load_process(data=examples.ex5)
 
+
 # ---------------------------------------------------------------------------
 # ex6
 # ---------------------------------------------------------------------------
+
 
 def ex6_pm():
     """Load process model for ex6"""
@@ -138,6 +150,68 @@ def test_ex1_application(ex1_application):
             0.0009980039920159686,
             0.0009980039920159686,
         ],
+    ]
+    for i in range(len(tmp)):
+        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+
+
+def test_ex1_application_learning_unconstrained(ex1_pm):
+    app = PypmHMMApplication()
+
+    features = {"oA", "oB", "oC"}
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
+    observed_states = {(), ("oA",), ("oC",), ("oB",)}
+
+    app.initialize(
+        config(
+            pm=ex1_pm, known_process_features=known_process_features, features=features
+        )
+    )
+
+    app.learn_transition_parameters(
+        num_simulations=num_simulations,
+        num_time_steps=20,
+        max_delay_before=5,
+        seed=123456789,
+        quiet=quiet,
+    )
+
+    observed = [
+        (),
+        (),
+        (),
+        ("oC",),
+        ("oB",),
+        ("oB",),
+        ("oB",),
+        (),
+        (),
+        ("oA",),
+        ("oA",),
+    ]
+    app.learn_emission_parameters(observed=observed, constrained=False)
+
+    app.create_hmm(observed_states=observed_states)
+
+    hmm = app.hmm
+
+    assert hmm.hidden_states == [(), ("a1",), ("a2",)]
+    assert hmm.transition_mat == [
+        [0.84, 0.09, 0.07],
+        [0.175, 0.75, 0.075],
+        [0.2, 0.0, 0.8],
+    ]
+    assert hmm.start_vec == [0.9, 0.1, 0.0]
+    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
+    tmp = [
+        [
+            0.6040268458172101,
+            0.13422818815045562,
+            0.20134228125161682,
+            0.06040268478071737,
+        ],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
     ]
     for i in range(len(tmp)):
         assert hmm.emission_mat[i] == pytest.approx(tmp[i])
