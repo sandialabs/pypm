@@ -16,7 +16,6 @@ def run(testname, dirname, debug=False, verify=False):
         driver = PYPM.unsupervised_mip()
     elif "HMM" in dirname:
         driver = PYPM.statistical_model()
-        driver.initialize_statistical_model()
     else:
         driver = PYPM.supervised_mip()
 
@@ -26,6 +25,10 @@ def run(testname, dirname, debug=False, verify=False):
     driver.config.tee = debug
     driver.config.datafile = None  # Ignore this for the test
     assert testname.startswith(driver.config.process[:-5])
+
+    if "HMM" in dirname:
+        driver.learn_transition_parameters(num_simulations=10, quiet=True)
+        driver.create_hmm()
 
     results = driver.generate_schedule()
     outputfile = join(dirname, "{}_results.yaml".format(testname))
@@ -192,6 +195,82 @@ def test301_GSF_compact():
 
 def test302_GSF_compact():
     run("test302", "GSF-compact")
+
+
+def test1_GSF_HMM():
+    run("test1", "GSF-HMM")
+
+
+def test2_GSF_HMM():
+    run("test2", "GSF-HMM")
+
+
+def test3_GSF_HMM():
+    run("test3", "GSF-HMM")
+
+
+def test4_GSF_HMM():
+    run("test4", "GSF-HMM")
+
+
+def test5_GSF_HMM():
+    run("test5", "GSF-HMM")
+
+
+def test6_GSF_HMM():
+    run("test6", "GSF-HMM")
+
+
+def test7_GSF_HMM():
+    run("test7", "GSF-HMM")
+
+
+def test100_GSF_HMM():
+    run("test100", "GSF-HMM")
+
+
+def test101_GSF_HMM():
+    run("test101", "GSF-HMM")
+
+
+def test102_GSF_HMM():
+    run("test102", "GSF-HMM")
+
+
+def test103_GSF_HMM():
+    run("test103", "GSF-HMM")
+
+
+def test104_GSF_HMM():
+    run("test104", "GSF-HMM")
+
+
+def test105_GSF_HMM():
+    run("test105", "GSF-HMM")
+
+
+def test106_GSF_HMM():
+    run("test106", "GSF-HMM")
+
+
+def test107_GSF_HMM():
+    run("test107", "GSF-HMM")
+
+
+def test108_GSF_HMM():
+    run("test108", "GSF-HMM")
+
+
+def test300_GSF_HMM():
+    run("test300", "GSF-HMM")
+
+
+def test301_GSF_HMM():
+    run("test301", "GSF-HMM")
+
+
+def test302_GSF_HMM():
+    run("test302", "GSF-HMM")
 
 
 def test1_13():
