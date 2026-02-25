@@ -81,15 +81,16 @@ def create_data_wrapper(**kwds):
                 for val in config["obs"]["observations"].keys():
                     self.num_time_steps = len(config["obs"]["observations"][val])
 
-                self.features = list(config["obs"]["observations"].keys())
+                self.features = list(sorted(config["obs"]["observations"].keys()))
 
                 unformatted_observation = config["obs"]["observations"]
                 self.observation = [set() for t in range(self.num_time_steps)]
                 for feature, feature_list in unformatted_observation.items():
                     for t, val in enumerate(feature_list):
-                        if val:
+                        if val > 0.5:
                             self.observation[t].add(feature)
-                self.observation = [frozenset(val) for val in self.observation]
+                self.observation = [tuple(sorted(val)) for val in self.observation]
+                self.observed_states = {val for val in self.observation}
             else:
                 features = [] if features is None else features
                 self.features = list(sorted(features))
@@ -97,16 +98,14 @@ def create_data_wrapper(**kwds):
             if num_time_steps is not None:
                 self.num_time_steps = num_time_steps
 
-            if config.known_process_features is not None:
+            if hasattr(config, 'known_process_features') and config.known_process_features is not None:
                 self.known_process_features = config.known_process_features
             else:
                 self.known_process_features = {}
-            if config.possible_process_features is not None:
+            if hasattr(config, 'possible_process_features') and config.possible_process_features is not None:
                 self.possible_process_features = config.possible_process_features
             else:
                 self.possible_process_features = {}
-
-            self.hmm_options = config.hmm_options
 
             if seed is not None:
                 config.seed = seed
