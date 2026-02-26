@@ -35,7 +35,7 @@ class PypmHMMApplication:
         num_time_steps=None,
         max_delay_before=0,
         quiet=False,
-        debug=False
+        debug=False,
     ):
         if num_time_steps is None:
             num_time_steps = self.data_wrapper.num_time_steps
@@ -55,6 +55,7 @@ class PypmHMMApplication:
             num_simulations=num_simulations,
             num_time_steps=num_time_steps,
             max_delay_before=max_delay_before,
+            debug=debug,
         )
 
     def learn_emission_parameters(
@@ -63,7 +64,8 @@ class PypmHMMApplication:
         observed,
         constrained=True,
         max_iterations=None,
-        num_solutions_per_step=None
+        num_solutions_per_step=None,
+        debug=False,
     ):
         constraints = [] if not constrained else self.oracle_constraints()
 
@@ -75,6 +77,7 @@ class PypmHMMApplication:
             constraints=constraints,
             max_iterations=max_iterations,
             num_solutions_per_step=num_solutions_per_step,
+            debug=debug,
         )
 
     def create_hmm(self, observed_states=None, no_zeros=False, no_zeros_tol=1e-6):
@@ -169,13 +172,19 @@ class PypmHMMApplication:
             )
 
     def oracle_constraints(self):
-        return GSF_oracle_constraints(self.data_wrapper, self.hidden_states)
+        return GSF_oracle_constraints(
+            self.data_wrapper, self.transition_params.hidden_states
+        )
 
 
 def GSF_oracle_constraints(data_wrapper, hidden_states):
     """
-    Sets the constraints to be used in a constrained hmm
+    Returns a list of constraints that define a GSF HMM model
     """
+
+    #
+    # Define functions used to create oracle constraints
+    #
 
     def always_appears_before_set(seq, val1, val2):
         """
@@ -201,7 +210,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         finished = set()
         for index, X in enumerate(seq):
             if index < len(seq) - 1:
-                finishing = X - seq[index + 1]
+                finishing = set(X) - set(seq[index + 1])
                 if finishing & finished:
                     return False
                 else:
@@ -252,7 +261,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         Determines that we run at least one process
         """
         for X in seq:
-            if X != frozenset():
+            if X != ():
                 return True
         return False
 
@@ -265,16 +274,20 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
             processes = processes.union(X)
         return processes == set(process_names)
 
+    #
+    # Return a list of oracle constraints
+    #
+
     constraints = []
 
     constraints.append(
-        conin.Constraint(func=lambda seq: cont(seq), same_partial_as_func=True)
+        conin.OracleConstraint(func=lambda seq: cont(seq), same_partial_as_func=True)
     )
 
     for i, name in enumerate(data_wrapper.process_names):
 
         constraints.append(
-            conin.Constraint(
+            conin.OracleConstraint(
                 func=lambda seq, name=name, i=i: length_lb_cont(
                     seq, name, data_wrapper.lower_times[i]
                 ),
@@ -283,7 +296,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         )
 
         constraints.append(
-            conin.Constraint(
+            conin.OracleConstraint(
                 func=lambda seq, name=name, i=i: length_ub(
                     seq, name, data_wrapper.upper_times[i]
                 ),
@@ -294,7 +307,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
     for i, name in enumerate(data_wrapper.process_names):
         for j, parent_name in enumerate(data_wrapper.process_parents[i]):
             constraints.append(
-                conin.Constraint(
+                conin.OracleConstraint(
                     func=lambda seq, parent_name=parent_name, name=name: always_appears_before_set(
                         seq, parent_name, name
                     ),
@@ -302,10 +315,10 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
                 )
             )
 
-    # constraints.append(conin.Constraint(func=lambda seq: at_least_one(seq))
+    # constraints.append(conin.OracleConstraint(func=lambda seq: at_least_one(seq))
 
     constraints.append(
-        conin.Constraint(
+        conin.OracleConstraint(
             func=lambda seq, hidden_states=hidden_states: all_processes(
                 seq, data_wrapper.process_names
             )

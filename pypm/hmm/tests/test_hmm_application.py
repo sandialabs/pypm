@@ -204,14 +204,66 @@ def test_ex1_application_learning_unconstrained(ex1_pm):
     assert hmm.start_vec == [0.9, 0.1, 0.0]
     assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
     tmp = [
-        [
-            0.6040268458172101,
-            0.13422818815045562,
-            0.20134228125161682,
-            0.06040268478071737,
-        ],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
+        [1.0, 0.0, 0.0, 0.0],
+        [0.2307692282681309, 0.0, 0.692307692547364, 0.07692307918450504],
+        [0.0, 1.0, 0.0, 0.0],
+    ]
+    for i in range(len(tmp)):
+        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+
+
+def test_ex1_application_learning_constrained(ex1_pm):
+    app = PypmHMMApplication()
+
+    features = {"oA", "oB", "oC"}
+    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
+    observed_states = {(), ("oA",), ("oC",), ("oB",)}
+
+    app.initialize(
+        config(
+            pm=ex1_pm, known_process_features=known_process_features, features=features
+        )
+    )
+
+    app.learn_transition_parameters(
+        num_simulations=num_simulations,
+        num_time_steps=20,
+        max_delay_before=5,
+        seed=123456789,
+        quiet=quiet,
+    )
+
+    observed = [
+        (),
+        (),
+        (),
+        ("oC",),
+        ("oB",),
+        ("oB",),
+        ("oB",),
+        (),
+        (),
+        ("oA",),
+        ("oA",),
+    ]
+    app.learn_emission_parameters(observed=observed, constrained=True, debug=False)
+
+    app.create_hmm(observed_states=observed_states)
+
+    hmm = app.hmm
+
+    assert hmm.hidden_states == [(), ("a1",), ("a2",)]
+    assert hmm.transition_mat == [
+        [0.84, 0.09, 0.07],
+        [0.175, 0.75, 0.075],
+        [0.2, 0.0, 0.8],
+    ]
+    assert hmm.start_vec == [0.9, 0.1, 0.0]
+    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
+    tmp = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.2307692282681309, 0.0, 0.692307692547364, 0.07692307918450504],
+        [0.0, 1.0, 0.0, 0.0],
     ]
     for i in range(len(tmp)):
         assert hmm.emission_mat[i] == pytest.approx(tmp[i])

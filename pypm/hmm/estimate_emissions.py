@@ -1,3 +1,4 @@
+import pprint
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -39,7 +40,15 @@ def initial_emission_parameters(
 
 
 def estimate_emission_parameters(
-    *, observed, data_wrapper, transition_params, emission_params=None, constraints=[], max_iterations=None, num_solutions_per_step=None
+    *,
+    observed,
+    data_wrapper,
+    transition_params,
+    emission_params=None,
+    constraints=[],
+    max_iterations=None,
+    num_solutions_per_step=None,
+    debug=False,
 ):
     """
     Creates an vector of emissions matrices indexed by resources
@@ -49,7 +58,7 @@ def estimate_emission_parameters(
     # TODO figure out a better way to deal with these
     eps = 0.01
     if max_iterations is None:
-        max_iterations=100
+        max_iterations = 100
     if num_solutions_per_step is None:
         num_solutions_per_step = 1
 
@@ -74,11 +83,15 @@ def estimate_emission_parameters(
         # Calculate new true_positive, false_emission
         old_false_emission = {key: val for key, val in hmm_app._false_emission.items()}
         old_true_positive = {key: val for key, val in hmm_app._true_positive.items()}
-        hmm_app.SAEM_step(
+        status = hmm_app.SAEM_step(
             observation=observed,  # data_wrapper.observation
             num_solutions=num_solutions_per_step,
             iteration=num_it,
+            debug=debug,
         )
+        if not status:
+            print("Error running SAEM_step - no solutions generated")
+            return Munch(true_positive=None, false_emission=None)
 
         # l1 error
         # TODO: l2?
@@ -94,19 +107,22 @@ def estimate_emission_parameters(
                 if (h, o) in old_true_positive.keys() and (
                     h,
                     o,
-                ) in hmm_app._true_positive.keys():
+                ) in hmm_app._true_positive:
                     error = max(
                         error,
                         abs(old_true_positive[(h, o)] - hmm_app._true_positive[(h, o)]),
                     )
                     # if abs(old_true_positive[(h, o)] - hmm_app._true_positive[(h, o)]) > (1 - 1E-3)/num_it:
                     #    print(f"{h}, {o}")
-        print(f"Error {error}, iteration {num_it}")
+        if debug:
+            print(f"Error {error}, iteration {num_it}")
         if error < eps:
-            print("Number of iterations: ", num_it)
             _true_positive = hmm_app._true_positive
             _false_emission = hmm_app._false_emission
             break
+
+    if debug:
+        print("Number of iterations: ", num_it)
 
     return Munch(true_positive=_true_positive, false_emission=_false_emission)
 
@@ -190,7 +206,10 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             emission_probs=self._fake_emission_probs,
         )
         self._fake_oracle = conin.hmm.chmm_oracle.Oracle_CHMM(
-            hmm=self._fake_hmm.repn, constraints=self._constraints
+            hmm=self._fake_hmm.repn,
+            constraints=self._constraints,
+            hidden_to_external=self._fake_hmm.hidden_to_external,
+            make_internal_constraint=False,
         )
 
     def update_constraints(self, constraints):
@@ -200,7 +219,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         self._constraints = constraints
         self.update_statistical_models()
 
-    def SAEM_step(self, *, observation, iteration, num_solutions=1):
+    def SAEM_step(self, *, observation, iteration, num_solutions=1, debug=False):
         """
         A single step of the SAEM algorithm
         Runs inference on observations, and then updates the true_positive and false_emission from that
@@ -208,13 +227,29 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         This is because we assume they are already well-described by the Simian simulations
         """
         hidden_vec = self.oracle_inference(
-            observation=observation, num_solutions=num_solutions
+            observation=observation, num_solutions=num_solutions, debug=debug
         )
+        if len(hidden_vec) == 0:
+            return False
         self._M_step(
-            observation=observation, hidden_vec=hidden_vec, iteration=iteration
+            observation=observation,
+            hidden_vec=hidden_vec,
+            iteration=iteration,
+            debug=debug,
         )
+        return True
 
-    def oracle_inference(self, *, observation, num_solutions=1):
+    def oracle_inference(
+        self,
+        *,
+        observation,
+        num_solutions=1,
+        debug=False,
+        max_iterations=None,
+        max_time=None,
+        beam_search=False,
+        beam_size=1000,
+    ):
         """
         Runs the A* algorithm on self.oracle
         Doesn't necessarily need to be a member function, but I think it's helpful
@@ -227,12 +262,6 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         TODO: There has to be a better way to handle this without copying code...
         """
-        max_iterations = None
-        max_time = None
-        debug = True
-        beam_search = False
-        beam_size = 1000
-
         start_time = time.time()
 
         # Initalize variables
@@ -241,18 +270,15 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         emission_mat = self._emission_probs
         hidden_states = list(sorted(self._hidden_states))
 
+        if debug:
+            print("Running Viterbi step")
+        #
         # Precompute V[t][h] - The log-probability of the shortest path starting at time
         #       t in hidden state h
+        #
         V = [{h: 0 for h in hidden_states} for t in range(time_steps)]
-
-        # CLM: This is a nice hacky way to enforce that the sequence is finished at the end
-        for h in hidden_states:
-            V[time_steps - 1][h] = np.inf
-        V[time_steps - 1][frozenset()] = 0
-
-        print("Running Viterbi step")
         for t in range(time_steps - 2, -1, -1):
-            if (time_steps - 2 - t) % 50 == 0:
+            if debug and (time_steps - 2 - t) % 50 == 0:
                 print(f"Iteration {time_steps-2-t} out of {time_steps-2}")
             obs = observation[t + 1]
             for h1 in hidden_states:
@@ -272,27 +298,37 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         gScore = dict()
         # openSet - heap of [value, seq] pairs, where 'value' is the negative log-probability of sequence 'seq'
         openSet = []
+        iteration = 0
 
+        #
         # Initialize the heap with the starting states
+        #
         for h in hidden_states:
             tempGScore = np.inf
             if (self._start_probs[h] > 0) and (emission_mat[h, observation[0]] > 0):
-                tempGScore = -np.log(self._start_probs[h]) - np.log(
-                    emission_mat[h, observation[0]]
-                )
-                # Use tuple here b/c Python doesn't hash a list
-                gScore[(h,)] = tempGScore
-                print(f"PUSH {tempGScore + V[0][h]} {(h,)}")
-                openSet.append(HeapItem(priority=tempGScore + V[0][h], seq=(h,)))
-        heapq.heapify(openSet)
+                seq = (h,)
+                if debug:
+                    print(
+                        f"{iteration=} {time_steps=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=seq)}"
+                    )
+                    print(f"    {seq=}")
+                    print(f"    {h=}")
+                if self._fake_oracle.partial_is_feasible(T=time_steps, seq=seq):
+                    tempGScore = -np.log(self._start_probs[h]) - np.log(
+                        emission_mat[h, observation[0]]
+                    )
+                    gScore[seq] = tempGScore
+                    heapq.heappush(
+                        openSet, HeapItem(priority=tempGScore + V[0][h], seq=seq)
+                    )
 
-        iteration = 0
         n_infeasible = 0
         termination_condition = "unknown"
         output = []
-        while True:
+        while len(openSet) > 0:
+            iteration += 1
+
             val, seq = heapq.heappop(openSet)
-            print(f"POP {val=} {seq=}")
             t = len(seq)
 
             if t == time_steps:
@@ -309,23 +345,27 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 currentGScore = gScore[seq]
                 obs = observation[t]
                 for h2 in self._allowed_transitions[h1]:
-                    if emission_mat[(h2, obs)] == 0.0:
+                    if emission_mat[h2, obs] == 0.0:
                         continue
-                    if self._fake_oracle.partial_is_feasible(T=time_steps, seq=seq):
+                    newSeq = seq + (h2,)
+                    if debug:
+                        print(
+                            f"{iteration=} {time_steps=} {emission_mat[h2,obs]=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq)}"
+                        )
+                        print(f"    {newSeq=}")
+                        print(f"    {h2=}")
+                        print(f"    {obs=}")
+                    if self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq):
                         tempGScore = (
                             currentGScore
                             - np.log(transition_mat[(h1, h2)])
                             - np.log(emission_mat[(h2, obs)])
                         )
-                        newSeq = seq + (h2,)
                         gScore[newSeq] = tempGScore
-                        print(f"PUSH {tempGScore + V[t][h2]} {newSeq=}")
                         heapq.heappush(
                             openSet,
                             HeapItem(priority=tempGScore + V[t][h2], seq=newSeq),
                         )
-
-            iteration += 1
 
             if beam_search and iteration % beam_size == 0 and len(openSet) > beam_size:
                 max_heap = [HeapItem(-item.priority, item.seq) for item in openSet]
@@ -352,14 +392,13 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 break
 
             if debug:
-                if iteration % beam_size == 0:
+                if iteration == 0:
                     print(f"  Iteration: {iteration}")
                     print(f"  # Heap:    {len(openSet)}")
                     print(f"  t:         {t}")
                     print(f"  val:       {val}")
                     print(f"  ninfeas:   {n_infeasible}")
                     print(f"  time:      {curr_time-start_time}")
-                    # print(f"  sequence:  {seq}")
                     print()
 
         if len(output) < num_solutions:
@@ -367,18 +406,18 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 termination_condition = "error: no feasible solutions"
             else:
                 termination_condition = "ok"
+        if debug:
+            print(f"{termination_condition=}")
 
-        ans = Munch(
-            observations=observation,
-            solutions=output,
-            termination_condition=termination_condition,
-        )
+        # ans = Munch(
+        #    observations=observation,
+        #    solutions=output,
+        #    termination_condition=termination_condition,
+        # )
 
-        print(termination_condition)
-        print(f"HERE {output[0].hidden=} {output[0].log_likelihood=}")
         return [output[i].hidden for i in range(len(output))]
 
-    def _M_step(self, *, observation, hidden_vec, iteration):
+    def _M_step(self, *, observation, hidden_vec, iteration, debug=False):
         """
         Does the maximize step of the SAEM algorithm
 
@@ -400,17 +439,19 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         # lb = 1.0 / num_time_steps
         ub = 1 - lb  # This also seems to matter for some reason?
 
-        import pprint
-        pprint.pprint(self._true_positive)
-        pprint.pprint(self._false_emission)
-        pprint.pprint(self._observable_states)
-        print(num_time_steps)
-        print(hidden_vec)
+        if debug:
+            print("M_step data")
+            print(f"{self._true_positive=}")
+            print(f"{self._false_emission=}")
+            print(f"{self._observable_states=}")
+            print(f"{num_time_steps=}")
+            print(f"{hidden_vec=}")
 
         model = pe.ConcreteModel()
 
         A = list(sorted(self._true_positive.keys()))
-        model.p = pe.Var(A,
+        model.p = pe.Var(
+            A,
             initialize=self._true_positive,
             within=pe.NonNegativeReals,
             bounds=(lb, ub),
@@ -438,13 +479,15 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
                         val += pe.log(temp)
             return val
+
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
-        model.pprint()
-        model.display()
 
         solver = pe.SolverFactory("ipopt")
-        solver.solve(model, tee=True)
-        model.pprint()
+        solver.solve(model, tee=debug)
+        if debug:
+            print("Pyomo model information")
+            model.pprint()
+            model.display()
 
         # Could also probably just use
         new_false_emission = {key: -1 for key in self._false_emission}
@@ -475,9 +518,6 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         + self._true_positive[(h, o)] * (iteration - 1) / iteration
                     )
 
-        import pprint
-        pprint.pprint(new_false_emission)
-        pprint.pprint(new_true_positive)
         self.update_statistical_models(
             false_emission=new_false_emission, true_positive=new_true_positive
         )

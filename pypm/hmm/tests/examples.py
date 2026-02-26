@@ -270,4 +270,3 @@ activities:
   resources:
     rA:
 """
-
