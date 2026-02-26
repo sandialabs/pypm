@@ -86,8 +86,8 @@ def create_hmm(
         for o in observed_states:
             tmp = emission_probs[h, o] = sparse_emission_probs[h, o]
             total += tmp
-        for o in observed_states:
-            emission_probs[h, o] /= total
+        assert total <= 1.0, "Unexpected emission probabilities greater than 1.0"
+        emission_probs[h, ("_unknown_",)] = 1 - total
 
     hmm = conin.hmm.HiddenMarkovModel()
     hmm.load_model(
