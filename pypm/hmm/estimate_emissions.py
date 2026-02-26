@@ -7,6 +7,7 @@ import heapq
 from munch import Munch
 import pyomo.environ as pe
 import conin.hmm
+from pypm.hmm.matrix import Sparse_Emissions_Matrix
 
 
 def initial_emission_parameters(
@@ -521,60 +522,6 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         self.update_statistical_models(
             false_emission=new_false_emission, true_positive=new_true_positive
         )
-
-
-class Sparse_Emissions_Matrix:
-    """
-    This gets around the fact that otherwise the emissions matrix is exponentially large
-    Rather than storing the entire matrix, we just store the desired parameters, and then
-    compute on the fly
-    """
-
-    def __init__(
-        self, *, true_positive, false_emission, hidden_states, observed_states=None
-    ):
-        if observed_states is None:
-            self._true_positive = true_positive
-            self._false_emission = false_emission
-        else:
-            assert type(true_positive) is float
-            assert type(false_emission) is float
-            self._true_positive = {
-                (h, o): true_positive for h in hidden_states for o in observed_states
-            }
-            self._false_emission = {o: false_emission for o in observed_states}
-        self._hidden_states = hidden_states
-
-    def __getitem__(self, key):
-        """
-        Allows access to the matrix values using the syntax matrix[i, j].
-
-        :param key: A tuple (i, j) representing the indices of the matrix.
-        :return: The value at the specified indices.
-        """
-        if not isinstance(key, tuple) or len(key) != 2:
-            raise KeyError("Key must be a tuple of two elements (i, j).")
-        hidden_state, observed_state = key
-
-        val = 1
-        for o in self._false_emission:
-            temp = 1 - self._false_emission[o]
-            for h in hidden_state:
-                if (h, o) in self._true_positive:
-                    temp *= 1 - self._true_positive[h, o]
-            if o in observed_state:
-                val *= 1 - temp
-            else:
-                val *= temp
-        return val
-
-    def __iter__(self):
-        """
-        Allows iteration over the matrix, yielding pairs of indices.
-        """
-        for h in self._hidden_states:
-            for o in self._false_emission:
-                yield h, o
 
 
 # A data class that only allows comparisons w.r.t. the priority value
