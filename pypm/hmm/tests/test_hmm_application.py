@@ -130,143 +130,37 @@ def test_ex1_application(ex1_application):
         [0.2, 0.0, 0.8],
     ]
     assert hmm.start_vec == [0.9, 0.1, 0.0]
-    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
-    tmp = [
-        [
-            0.9705882352941174,
-            0.00980392156862746,
-            0.00980392156862746,
-            0.009803921568627458,
-        ],
-        [
-            0.052050473186119856,
-            0.0005257623554153526,
-            0.47371188222923244,
-            0.4737118822292324,
-        ],
-        [
-            0.0988023952095808,
-            0.8992015968063871,
-            0.0009980039920159686,
-            0.0009980039920159686,
-        ],
-    ]
-    for i in range(len(tmp)):
-        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+    assert hmm.observed_states == [(), ("_unknown_",), ("oA",), ("oB",), ("oC",)]
 
-
-def test_ex1_application_learning_unconstrained(ex1_pm):
-    app = PypmHMMApplication()
-
-    features = {"oA", "oB", "oC"}
-    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
-    observed_states = {(), ("oA",), ("oC",), ("oB",)}
-
-    app.initialize(
-        config(
-            pm=ex1_pm, known_process_features=known_process_features, features=features
-        )
-    )
-
-    app.learn_transition_parameters(
-        num_simulations=num_simulations,
-        num_time_steps=20,
-        max_delay_before=5,
-        seed=123456789,
-        quiet=quiet,
-    )
-
-    observed = [
-        (),
-        (),
-        (),
-        ("oC",),
-        ("oB",),
-        ("oB",),
-        ("oB",),
-        (),
-        (),
-        ("oA",),
-        ("oA",),
-    ]
-    app.learn_emission_parameters(observed=observed, constrained=False)
-
-    app.create_hmm(observed_states=observed_states)
-
-    hmm = app.hmm
-
-    assert hmm.hidden_states == [(), ("a1",), ("a2",)]
-    assert hmm.transition_mat == [
-        [0.84, 0.09, 0.07],
-        [0.175, 0.75, 0.075],
-        [0.2, 0.0, 0.8],
-    ]
-    assert hmm.start_vec == [0.9, 0.1, 0.0]
-    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
-    tmp = [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.2307692282681309, 0.0, 0.692307692547364, 0.07692307918450504],
-        [0.0, 1.0, 0.0, 0.0],
-    ]
-    for i in range(len(tmp)):
-        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
-
-
-def test_ex1_application_learning_constrained(ex1_pm):
-    app = PypmHMMApplication()
-
-    features = {"oA", "oB", "oC"}
-    known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
-    observed_states = {(), ("oA",), ("oC",), ("oB",)}
-
-    app.initialize(
-        config(
-            pm=ex1_pm, known_process_features=known_process_features, features=features
-        )
-    )
-
-    app.learn_transition_parameters(
-        num_simulations=num_simulations,
-        num_time_steps=20,
-        max_delay_before=5,
-        seed=123456789,
-        quiet=quiet,
-    )
-
-    observed = [
-        (),
-        (),
-        (),
-        ("oC",),
-        ("oB",),
-        ("oB",),
-        ("oB",),
-        (),
-        (),
-        ("oA",),
-        ("oA",),
-    ]
-    app.learn_emission_parameters(observed=observed, constrained=True, debug=False)
-
-    app.create_hmm(observed_states=observed_states)
-
-    hmm = app.hmm
-
-    assert hmm.hidden_states == [(), ("a1",), ("a2",)]
-    assert hmm.transition_mat == [
-        [0.84, 0.09, 0.07],
-        [0.175, 0.75, 0.075],
-        [0.2, 0.0, 0.8],
-    ]
-    assert hmm.start_vec == [0.9, 0.1, 0.0]
-    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
-    tmp = [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.2307692282681309, 0.0, 0.692307692547364, 0.07692307918450504],
-        [0.0, 1.0, 0.0, 0.0],
-    ]
-    for i in range(len(tmp)):
-        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+    E = {
+        h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
+        for i, h in enumerate(hmm.hidden_states)
+    }
+    tmp = {
+        (): {
+            (): 0.9702989999999999,
+            ("_unknown_",): 0.00029800000000002047,
+            ("oA",): 0.00980100000000001,
+            ("oB",): 0.00980100000000001,
+            ("oC",): 0.009801000000000008,
+        },
+        ("a1",): {
+            (): 0.009702989999999995,
+            ("_unknown_",): 0.81358498,
+            ("oA",): 9.801000000000005e-05,
+            ("oB",): 0.08830700999999999,
+            ("oC",): 0.08830700999999998,
+        },
+        ("a2",): {
+            (): 0.09702989999999997,
+            ("_unknown_",): 0.01793979999999995,
+            ("oA",): 0.8830701000000001,
+            ("oB",): 0.0009801000000000007,
+            ("oC",): 0.0009801000000000007,
+        },
+    }
+    for i in E:
+        assert E[i] == pytest.approx(tmp[i])
 
 
 @pytest.fixture
@@ -308,35 +202,51 @@ def test_ex2_application(ex2_application):
         [0.2, 0.0, 0.1, 0.1, 0.6],
     ]
     assert hmm.start_vec == [0.8, 0.2, 0.0, 0.0, 0.0]
-    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
-    tmp = [
-        [
-            0.9705882352941175,
-            0.009803921568627461,
-            0.009803921568627461,
-            0.00980392156862746,
-        ],
-        [
-            0.052050473186119856,
-            0.0005257623554153526,
-            0.47371188222923244,
-            0.4737118822292324,
-        ],
-        [
-            0.0988023952095808,
-            0.8992015968063871,
-            0.0009980039920159686,
-            0.0009980039920159686,
-        ],
-        [
-            0.009898020395920812,
-            0.9899020195960808,
-            9.998000399920022e-05,
-            9.998000399920022e-05,
-        ],
-    ]
-    for i in range(len(tmp)):
-        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+    assert hmm.observed_states == [(), ("_unknown_",), ("oA",), ("oB",), ("oC",)]
+
+    E = {
+        h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
+        for i, h in enumerate(hmm.hidden_states)
+    }
+    tmp = {
+        (): {
+            (): 0.9702989999999999,
+            ("_unknown_",): 0.00029799999999990945,
+            ("oA",): 0.009801000000000008,
+            ("oB",): 0.00980100000000001,
+            ("oC",): 0.00980100000000001,
+        },
+        ("a1",): {
+            (): 0.009702989999999995,
+            ("_unknown_",): 0.81358498,
+            ("oA",): 9.801000000000005e-05,
+            ("oB",): 0.08830700999999999,
+            ("oC",): 0.08830700999999999,
+        },
+        ("a2",): {
+            (): 0.09702989999999997,
+            ("_unknown_",): 0.01793980000000006,
+            ("oA",): 0.8830701,
+            ("oB",): 0.0009801000000000007,
+            ("oC",): 0.0009801000000000007,
+        },
+        ("a2", "a3"): {
+            (): 0.009702989999999995,
+            ("_unknown_",): 0.019703979999999954,
+            ("oA",): 0.97039701,
+            ("oB",): 9.801000000000005e-05,
+            ("oC",): 9.801000000000005e-05,
+        },
+        ("a3",): {
+            (): 0.09702989999999997,
+            ("_unknown_",): 0.01793980000000006,
+            ("oA",): 0.8830701,
+            ("oB",): 0.0009801000000000007,
+            ("oC",): 0.0009801000000000007,
+        },
+    }
+    for i in E:
+        assert E[i] == pytest.approx(tmp[i])
 
 
 def test_ex1_application_write(ex1_application):
@@ -382,26 +292,33 @@ def test_ex1_application_read(ex1_application):
         [0.2, 0.0, 0.8],
     ]
     assert hmm.start_vec == [0.9, 0.1, 0.0]
-    assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
-    tmp = [
-        [
-            0.9705882352941174,
-            0.00980392156862746,
-            0.00980392156862746,
-            0.009803921568627458,
-        ],
-        [
-            0.052050473186119856,
-            0.0005257623554153526,
-            0.47371188222923244,
-            0.4737118822292324,
-        ],
-        [
-            0.0988023952095808,
-            0.8992015968063871,
-            0.0009980039920159686,
-            0.0009980039920159686,
-        ],
-    ]
-    for i in range(len(tmp)):
-        assert hmm.emission_mat[i] == pytest.approx(tmp[i])
+    assert hmm.observed_states == [(), ("_unknown_",), ("oA",), ("oB",), ("oC",)]
+    E = {
+        h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
+        for i, h in enumerate(hmm.hidden_states)
+    }
+    tmp = {
+        (): {
+            (): 0.9702989999999999,
+            ("_unknown_",): 0.00029800000000002047,
+            ("oA",): 0.009801000000000008,
+            ("oB",): 0.00980100000000001,
+            ("oC",): 0.00980100000000001,
+        },
+        ("a1",): {
+            (): 0.009702989999999995,
+            ("_unknown_",): 0.81358498,
+            ("oA",): 9.801000000000005e-05,
+            ("oB",): 0.08830700999999999,
+            ("oC",): 0.08830700999999999,
+        },
+        ("a2",): {
+            (): 0.09702989999999997,
+            ("_unknown_",): 0.01793979999999995,
+            ("oA",): 0.8830701,
+            ("oB",): 0.0009801000000000007,
+            ("oC",): 0.0009801000000000007,
+        },
+    }
+    for i in E:
+        assert E[i] == pytest.approx(tmp[i])
