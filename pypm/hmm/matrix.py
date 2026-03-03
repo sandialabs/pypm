@@ -38,7 +38,12 @@ class Sparse_Emissions_Matrix:
     """
 
     def __init__(
-        self, *, true_positive, false_emission, hidden_states, observed_states=None
+        self,
+        *,
+        true_positive,
+        false_emission,
+        hidden_states,
+        observed_states=None,
     ):
         self._activities = set(a for h in hidden_states for a in h)
         # self._observed_states = observed_states
