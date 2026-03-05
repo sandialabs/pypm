@@ -472,6 +472,22 @@ class StatisticalModel(SupervisedMIP):
         #        dummyname = "dummy " + activity
         #        self.config.pm.resources.add(dummyname, 1)
 
+    def generate_schedule(self):
+        results = super().generate_schedule()
+
+        hmm = self.config.hmm_app.hmm
+        T = {
+            h: {h_: hmm.transition_mat[i][j] for j, h_ in enumerate(hmm.hidden_states)}
+            for i, h in enumerate(hmm.hidden_states)
+        }
+        E = {
+            h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
+            for i, h in enumerate(hmm.hidden_states)
+        }
+        results['hmm'] = dict(true_positive = self.config.hmm_app.emission_params.true_positive, false_emission = self.config.hmm_app.emission_params.false_emission, emission_mat=E, transition_mat=T)
+
+        return results
+
     def save_statistical_model(self, filename):
         self.config.hmm_app.write(filename)
 
@@ -483,7 +499,7 @@ class StatisticalModel(SupervisedMIP):
         *,
         num_simulations,
         num_time_steps=None,
-        max_delay_before=0,
+        max_delay_before=5,
         seed=None,
         debug=None,
         quiet=None
@@ -504,10 +520,10 @@ class StatisticalModel(SupervisedMIP):
         )
 
     def learn_emission_parameters(
-        self, *, seed=None, debug=False
+        self, *, max_false_emission_probability=None, debug=False
     ):
         self.config.hmm_app.learn_emission_parameters(
-            seed=seed, debug=debug
+            debug=debug, constrained=True, max_false_emission_probability=max_false_emission_probability,
         )
 
     def create_hmm(self):
