@@ -26,6 +26,7 @@ class PypmHMMApplication:
         self.emission_params = None
         self.simulations = None
         self.data = munch.Munch()
+        self.false_emission_probability = 1e-3
 
     def learn_transition_parameters(
         self,
@@ -33,7 +34,7 @@ class PypmHMMApplication:
         num_simulations,
         seed,
         num_time_steps=None,
-        max_delay_before=0,
+        max_delay_before=5,
         quiet=False,
         debug=False,
     ):
@@ -62,12 +63,19 @@ class PypmHMMApplication:
         self,
         *,
         observed,
+        false_emission_probability=1e-3,
         constrained=True,
         max_iterations=None,
         num_solutions_per_step=None,
         debug=False,
     ):
         constraints = [] if not constrained else self.oracle_constraints()
+
+        if self.emission_params is None:
+            self.emission_params = initial_emission_parameters(
+                data_wrapper=self.data_wrapper,
+                false_emission=self.false_emission_probability,
+            )
 
         self.emission_params = estimate_emission_parameters(
             observed=observed,
@@ -92,7 +100,8 @@ class PypmHMMApplication:
 
         if self.emission_params is None:
             self.emission_params = initial_emission_parameters(
-                data_wrapper=self.data_wrapper
+                data_wrapper=self.data_wrapper,
+                false_emission=self.false_emission_probability,
             )
 
         self.hmm = create_hmm(
