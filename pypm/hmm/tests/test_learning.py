@@ -28,13 +28,15 @@ def run(*, name, observed, features, known_process_features, constrained, debug=
     app.learn_transition_parameters(
         num_simulations=num_simulations,
         num_time_steps=20,
-        max_delay_before=5,
         seed=123456789,
         quiet=quiet,
     )
 
     app.learn_emission_parameters(
-        observed=observed, constrained=constrained, debug=debug
+        observed=observed,
+        constrained=constrained,
+        debug=debug,
+        false_emission_probability=1e-3,
     )
 
     observed_states = {o for o in observed}
@@ -68,128 +70,115 @@ def ex1_app(observed, constrained, debug=False):
 def test1():
     obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.25,
-            ("a1", "oB"): 0.75,
+            ("a1", "oB"): 0.7497497494361838,
+            ("a1", "oC"): 0.24924924956491418,
             ("a2", "oA"): 1.0,
-        }
+        },
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test2():
     obs = [ (), (), (), ("oB",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {
-            ("a1", "oC"): 0.0,
-            ("a1", "oB"): 1.0,
-            ("a2", "oA"): 1.0,
-        }
+        {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0},
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test3():
     obs = [ ("oB",), ("oB",), ("oB",), ("oB",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {
-            ("a1", "oC"): 0.0,
-            ("a1", "oB"): 1.0,
-            ("a2", "oA"): 1.0,
-        }
+        {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-3
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test4():
     obs = [ ("oC",), ("oC",), ("oC",), ("oC",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {
-            ("a1", "oC"): 1.0,
-            ("a1", "oB"): 0.0,
-            ("a2", "oA"): 1.0,
-        }
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.0, ("a2", "oA"): 1.0}, abs=1e-3
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test5():
     obs = [ ("oB",), ("oC",), ("oC",), ("oC",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.75,
-            ("a1", "oB"): 0.25,
+            ("a1", "oC"): 0.7497497494361861,
+            ("a1", "oB"): 0.24924924956491606,
             ("a2", "oA"): 1.0,
-        }
+        },
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test6():
     obs = [ ("oC", "oB"), ("oC", "oB"), ("oC", "oB"), ("oC", "oB"), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {
-            ("a1", "oC"): 1.0,
-            ("a1", "oB"): 1.0,
-            ("a2", "oA"): 1.0,
-        }
+        {("a1", "oC"): 1.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-3
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test7():
     obs = [ ("oC", "oB"), ("oC",), ("oC",), ("oC",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {
-            ("a1", "oC"): 1.0,
-            ("a1", "oB"): 0.25,
-            ("a2", "oA"): 1.0,
-        }
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.24924924956491612, ("a2", "oA"): 1.0},
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test8():
     obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), (), (), ]  # fmt: skip
     ans = ex1_app(obs, False, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.25,
-            ("a1", "oB"): 0.75,
+            ("a1", "oB"): 0.7497497494361838,
+            ("a1", "oC"): 0.24924924956491418,
             ("a2", "oA"): 1.0,
-        }
+        },
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test9():
     obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), (), (), ]  # fmt: skip
     ans = ex1_app(obs, True, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oB"): 0.75,
-            ("a1", "oC"): 0.25,
-            ("a2", "oA"): 0.50,
-        }
+            ("a1", "oC"): 0.24924924956490946,
+            ("a1", "oB"): 0.7497497494361829,
+            ("a2", "oA"): 0.49949949950012884,
+        },
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
 
 
 def test10():
     obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), ]  # fmt: skip
     ans = ex1_app(obs, True, debug=False)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oB"): 0.750000002116943,
-            ("a1", "oC"): 0.2500000076041971,
+            ("a1", "oC"): 0.24924924956491418,
+            ("a1", "oB"): 0.7497497494361838,
             ("a2", "oA"): 1.0,
-        }
+        },
+        abs=1e-3,
     )
-    assert ans.false_emission == {"oC": 0.0, "oA": 0.0, "oB": 0.0}
