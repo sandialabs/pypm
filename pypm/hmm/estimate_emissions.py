@@ -1,4 +1,3 @@
-import pprint
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -13,17 +12,20 @@ from pypm.hmm.matrix import Sparse_Emissions_Matrix
 def initial_emission_parameters(
     *, data_wrapper, false_emission=0.01, known_positive=0.9, possible_positive=0.5
 ):
-    false_emission_guess = false_emission
-    known_positive_guess = known_positive
-    possible_positive_guess = possible_positive
-
-    true_positive = {}
-    false_emission = {}
     assert (
         len(data_wrapper.features) > 0
     ), f"Missing 'features' attribute in config data"
-    for feature in data_wrapper.features:
-        false_emission[feature] = false_emission_guess
+
+    # Setup dictionary of false_emission parameters
+    if type(false_emission) is not dict:
+        false_emission_guess = false_emission
+        false_emission = {}
+        for feature in data_wrapper.features:
+            false_emission[feature] = false_emission_guess
+
+    known_positive_guess = known_positive
+    possible_positive_guess = possible_positive
+    true_positive = {}
 
     if len(data_wrapper.known_process_features) > 0:
         for name in data_wrapper.process_names:
@@ -63,8 +65,6 @@ def estimate_emission_parameters(
     if num_solutions_per_step is None:
         num_solutions_per_step = 1
 
-    if emission_params is None:
-        emission_params = initial_emission_parameters(data_wrapper=data_wrapper)
     true_positive = emission_params.true_positive
     false_emission = emission_params.false_emission
 
@@ -82,7 +82,6 @@ def estimate_emission_parameters(
         num_it += 1
 
         # Calculate new true_positive, false_emission
-        old_false_emission = {key: val for key, val in hmm_app._false_emission.items()}
         old_true_positive = {key: val for key, val in hmm_app._true_positive.items()}
         status = hmm_app.SAEM_step(
             observation=observed,  # data_wrapper.observation
@@ -92,18 +91,12 @@ def estimate_emission_parameters(
         )
         if not status:
             print("Error running SAEM_step - no solutions generated")
-            return Munch(true_positive=None, false_emission=None)
+            return Munch(true_positive=None, false_emission=false_emission)
 
         # l1 error
         # TODO: l2?
         error = 0
         for o in data_wrapper.features:
-            error = max(
-                error,
-                abs(old_false_emission[o] - hmm_app._false_emission[o]),
-            )
-            # if abs(old_false_emission[o] - hmm_app._false_emission[o]) > (1 - 1E-3)/num_it:
-            #    print(o)
             for h in data_wrapper.process_names:
                 if (h, o) in old_true_positive.keys() and (
                     h,
@@ -119,13 +112,12 @@ def estimate_emission_parameters(
             print(f"Error {error}, iteration {num_it}")
         if error < eps:
             _true_positive = hmm_app._true_positive
-            _false_emission = hmm_app._false_emission
             break
 
     if debug:
         print("Number of iterations: ", num_it)
 
-    return Munch(true_positive=_true_positive, false_emission=_false_emission)
+    return Munch(true_positive=_true_positive, false_emission=false_emission)
 
 
 class Process_Matching_HMM(conin.hmm.HMMApplication):
@@ -176,9 +168,9 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             self._allowed_transitions[h1] = set()
             self._reverse_allowed_transitions[h1] = set()
             for h2 in self._hidden_states:
-                if self._transition_probs[(h1, h2)] > 0:
+                if self._transition_probs[h1, h2] > 0:
                     self._allowed_transitions[h1].add(h2)
-                if self._transition_probs[(h2, h1)] > 0:
+                if self._transition_probs[h2, h1] > 0:
                     self._reverse_allowed_transitions[h1].add(h2)
 
     def update_statistical_models(self, *, true_positive=None, false_emission=None):
@@ -351,7 +343,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                     newSeq = seq + (h2,)
                     if debug:
                         print(
-                            f"{iteration=} {time_steps=} {emission_mat[h2,obs]=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq)}"
+                            f"{iteration=} {time_steps=} {emission_mat[h2,obs]=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq)} {len(openSet)}"
                         )
                         print(f"    {newSeq=}")
                         print(f"    {h2=}")
@@ -436,9 +428,9 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         TODO: Rounding?
         """
         num_time_steps = len(observation)
-        lb = 0
+        lb = 1e-6
         # lb = 1.0 / num_time_steps
-        ub = 1 - lb  # This also seems to matter for some reason?
+        ub = 1  # This also seems to matter for some reason?
 
         if debug:
             print("M_step data")
@@ -458,23 +450,23 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             bounds=(lb, ub),
         )
         B = list(sorted(self._observable_states))
-        model.f = pe.Var(
-            B,
-            initialize=self._false_emission,
-            within=pe.NonNegativeReals,
-            bounds=(lb, ub),
-        )
 
         def log_prob(m):
             val = 0
             for hidden in hidden_vec:
-                for o in B:
-                    for t in range(num_time_steps):
-                        temp = 1 - m.f[o]
-                        for h in hidden[t]:
-                            if (h, o) in self._true_positive:
-                                temp *= 1 - m.p[h, o]
+                for t in range(num_time_steps):
+                    for o in B:
+                        tp = [
+                            m.p[h, o]
+                            for h in hidden[t]
+                            if (h, o) in self._true_positive
+                        ]
+                        if len(tp) == 0:
+                            continue  # Empty list, so this term is constant
 
+                        temp = 1 - self._false_emission[o]
+                        for p in tp:
+                            temp *= 1 - p
                         if o in observation[t]:
                             temp = 1 - temp
 
@@ -491,14 +483,9 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             model.display()
 
         # Could also probably just use
-        new_false_emission = {key: -1 for key in self._false_emission}
-        new_true_positive = {key: -1 for key in self._true_positive}
+        new_true_positive = {key: lb for key in self._true_positive}
 
         for o in self._observable_states:
-            if pe.value(model.f[o]) < lb:
-                new_false_emission[o] = lb
-            else:
-                new_false_emission[o] = min(pe.value(model.f[o]), ub)
             for h in self._processes:
                 if (h, o) in new_true_positive:
                     if pe.value(model.p[(h, o)]) < lb:
@@ -508,10 +495,6 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         # Underweight as we go. This makes everything more numerically stable
         for o in self._observable_states:
-            new_false_emission[o] = (
-                new_false_emission[o] / iteration
-                + self._false_emission[o] * (iteration - 1) / iteration
-            )
             for h in self._processes:
                 if (h, o) in new_true_positive.keys():
                     new_true_positive[(h, o)] = (
@@ -520,7 +503,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                     )
 
         self.update_statistical_models(
-            false_emission=new_false_emission, true_positive=new_true_positive
+            false_emission=self._false_emission, true_positive=new_true_positive
         )
 
 
