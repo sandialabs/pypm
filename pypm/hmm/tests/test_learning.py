@@ -18,7 +18,7 @@ def config(**kwds):
 
 
 def run(
-    *, name, observed, features, known_process_features=None, constrained, debug=False
+    *, name, observed, features, known_process_features=None, constrained, debug=False, schedule_all_activities=True,
 ):
     pm = load_process(data=getattr(examples, name))
     app = PypmHMMApplication()
@@ -36,6 +36,7 @@ def run(
     app.learn_emission_parameters(
         observed=observed,
         constrained=constrained,
+        schedule_all_activities=schedule_all_activities,
         debug=debug,
         false_emission_probability=1e-3,
     )
@@ -68,7 +69,7 @@ def ex1_app(observed, constrained, debug=False):
     )
 
 
-def ex7_app(observed, constrained, debug=False):
+def ex7_app(observed, constrained, debug=False, schedule_all_activities=True):
     name = "ex7"
     features = {"oA"}
     return run(
@@ -76,6 +77,7 @@ def ex7_app(observed, constrained, debug=False):
         observed=observed,
         features=features,
         constrained=constrained,
+        schedule_all_activities=schedule_all_activities,
         debug=debug,
     )
 
@@ -194,4 +196,17 @@ def test10():
         ("a4", "oA"): 1.0,
         ("a5", "oA"): 1.0,
         ("a6", "oA"): 1.0,
+    }
+
+def test11():
+    obs = [("oA",)] * 20
+    ans = ex7_app(obs, True, debug=False, schedule_all_activities=False)
+    assert ans.false_emission == {"oA": 0.001}
+    assert ans.true_positive == {
+        ("a1", "oA"): 1.0,
+        ("a2", "oA"): 1.0,
+        ("a3", "oA"): 1.0,
+        ("a4", "oA"): 0.9,
+        ("a5", "oA"): 0.9,
+        ("a6", "oA"): 0.9,
     }
