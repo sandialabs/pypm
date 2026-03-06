@@ -320,12 +320,19 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         output = []
         while len(openSet) > 0:
             iteration += 1
+            if debug:
+                print()
 
             val, seq = heapq.heappop(openSet)
             t = len(seq)
 
             if t == time_steps:
                 if self._fake_oracle.is_feasible(seq):
+                    if debug:
+                        print("*" * 40)
+                        print(f"{iteration=} {time_steps=} {self._fake_oracle.is_feasible(seq)} {len(openSet)}")
+                        print(f"{seq=}")
+                        print("*" * 40)
                     output.append(Munch(hidden=seq, log_likelihood=-val))
                     if len(output) == num_solutions:
                         termination_condition = "ok"
@@ -345,6 +352,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         print(
                             f"{iteration=} {time_steps=} {emission_mat[h2,obs]=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq)} {len(openSet)}"
                         )
+                        print(f"    {seq=}")
+                        print(f"    {currentGScore=}")
                         print(f"    {newSeq=}")
                         print(f"    {h2=}")
                         print(f"    {obs=}")
