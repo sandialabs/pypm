@@ -18,7 +18,14 @@ def config(**kwds):
 
 
 def run(
-    *, name, observed, features, known_process_features=None, constrained, debug=False, schedule_all_activities=True,
+    *,
+    name,
+    observed,
+    features,
+    known_process_features=None,
+    constrained,
+    debug=False,
+    schedule_all_activities=True,
 ):
     pm = load_process(data=getattr(examples, name))
     app = PypmHMMApplication()
@@ -197,6 +204,7 @@ def test10():
         ("a5", "oA"): 1.0,
         ("a6", "oA"): 1.0,
     }
+
 
 def test11():
     obs = [("oA",)] * 20
