@@ -27,7 +27,6 @@ def run(*, name, observed, features, known_process_features, constrained, debug=
 
     app.learn_transition_parameters(
         num_simulations=num_simulations,
-        num_time_steps=20,
         seed=123456789,
         quiet=quiet,
     )

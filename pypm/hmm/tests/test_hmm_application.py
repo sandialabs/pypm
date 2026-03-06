@@ -109,7 +109,6 @@ def ex1_application(ex1_pm):
 
     app.learn_transition_parameters(
         num_simulations=num_simulations,
-        num_time_steps=20,
         max_delay_before=5,
         seed=123456789,
         quiet=quiet,
@@ -125,7 +124,7 @@ def test_ex1_application(ex1_application):
 
     assert hmm.hidden_states == [(), ("a1",), ("a2",)]
     assert hmm.transition_mat == [
-        [0.84, 0.09, 0.07],
+        [0.7288135593220338, 0.15254237288135594, 0.11864406779661017],
         [0.175, 0.75, 0.075],
         [0.2, 0.0, 0.8],
     ]
@@ -179,7 +178,6 @@ def ex2_application(ex2_pm):
 
     app.learn_transition_parameters(
         num_simulations=num_simulations,
-        num_time_steps=20,
         max_delay_before=5,
         seed=123456789,
         quiet=quiet,
@@ -195,7 +193,13 @@ def test_ex2_application(ex2_application):
 
     assert hmm.hidden_states == [(), ("a1",), ("a2",), ("a2", "a3"), ("a3",)]
     assert hmm.transition_mat == [
-        [0.775, 0.1, 0.05, 0.0125, 0.0625],
+        [
+            0.6326530612244898,
+            0.16326530612244897,
+            0.08163265306122448,
+            0.02040816326530612,
+            0.10204081632653061,
+        ],
         [0.175, 0.75, 0.025, 0.0, 0.05],
         [0.225, 0.0, 0.725, 0.05, 0.0],
         [0.0, 0.0, 0.4, 0.5, 0.1],
@@ -265,9 +269,9 @@ def test_ex1_application_read(ex1_application):
 
     assert app.transition_params.start_probs == {(): 0.9, ("a1",): 0.1, ("a2",): 0.0}
     assert app.transition_params.transition_probs == {
-        ((), ()): 0.84,
-        ((), ("a1",)): 0.09,
-        ((), ("a2",)): 0.07,
+        ((), ()): 0.7288135593220338,
+        ((), ("a1",)): 0.15254237288135594,
+        ((), ("a2",)): 0.11864406779661017,
         (("a1",), ()): 0.175,
         (("a1",), ("a1",)): 0.75,
         (("a1",), ("a2",)): 0.075,
@@ -287,9 +291,9 @@ def test_ex1_application_read(ex1_application):
 
     assert hmm.hidden_states == [(), ("a1",), ("a2",)]
     assert hmm.transition_mat == [
-        [0.84, 0.09, 0.07],
+        [0.7288135593220338, 0.15254237288135594, 0.11864406779661017],
         [0.175, 0.75, 0.075],
-        [0.2, 0.0, 0.8],
+        [0.2, 0, 0.8],
     ]
     assert hmm.start_vec == [0.9, 0.1, 0.0]
     assert hmm.observed_states == [(), ("_other_",), ("oA",), ("oB",), ("oC",)]
