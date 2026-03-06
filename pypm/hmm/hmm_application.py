@@ -33,18 +33,13 @@ class PypmHMMApplication:
         *,
         num_simulations,
         seed,
-        num_time_steps=None,
         max_delay_before=5,
         quiet=False,
         debug=False,
     ):
-        if num_time_steps is None:
-            num_time_steps = self.data_wrapper.num_time_steps
-
         self.simulations = run_simian(
             data_wrapper=self.data_wrapper,
             num_simulations=num_simulations,
-            num_time_steps=num_time_steps,
             seed=seed,
             max_delay_before=max_delay_before,
             quiet=quiet,
@@ -54,7 +49,6 @@ class PypmHMMApplication:
         )
         self.data.options_learn_transition_parameters = dict(
             num_simulations=num_simulations,
-            num_time_steps=num_time_steps,
             max_delay_before=max_delay_before,
             debug=debug,
         )
