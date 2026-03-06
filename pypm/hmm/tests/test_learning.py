@@ -184,7 +184,7 @@ def test9():
 
 
 def test10():
-    obs = [("oA",)] * 40
+    obs = [("oA",)] * 50
     ans = ex7_app(obs, True, debug=False)
     assert ans.false_emission == {"oA": 0.001}
     assert ans.true_positive == {
