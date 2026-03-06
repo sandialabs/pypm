@@ -59,11 +59,14 @@ class PypmHMMApplication:
         observed,
         false_emission_probability=1e-3,
         constrained=True,
+        schedule_all_activities=True,
         max_iterations=None,
         num_solutions_per_step=None,
         debug=False,
     ):
-        constraints = [] if not constrained else self.oracle_constraints()
+        constraints = (
+            [] if not constrained else self.oracle_constraints(schedule_all_activities)
+        )
 
         if self.emission_params is None:
             self.emission_params = initial_emission_parameters(
@@ -175,13 +178,15 @@ class PypmHMMApplication:
                 },
             )
 
-    def oracle_constraints(self):
+    def oracle_constraints(self, schedule_all_activities):
         return GSF_oracle_constraints(
-            self.data_wrapper, self.transition_params.hidden_states
+            self.data_wrapper,
+            self.transition_params.hidden_states,
+            schedule_all_activities,
         )
 
 
-def GSF_oracle_constraints(data_wrapper, hidden_states):
+def GSF_oracle_constraints(data_wrapper, hidden_states, schedule_all_activities):
     """
     Returns a list of constraints that define a GSF HMM model
 
@@ -298,18 +303,18 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
 
         constraints.append(
             conin.OracleConstraint(
-                func=lambda seq, name=name, i=i: length_lb_cont(
-                    seq, name, data_wrapper.lower_times[i]
-                ),
+                func=lambda seq, name=name, i=i, lb=data_wrapper.lower_times[
+                    i
+                ]: length_lb_cont(seq, name, lb),
                 same_partial_as_func=True,
             )
         )
 
         constraints.append(
             conin.OracleConstraint(
-                func=lambda seq, name=name, i=i: length_ub(
-                    seq, name, data_wrapper.upper_times[i]
-                ),
+                func=lambda seq, name=name, i=i, ub=data_wrapper.upper_times[
+                    i
+                ]: length_ub(seq, name, ub),
                 same_partial_as_func=True,
             )
         )
@@ -318,19 +323,22 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         for j, parent_name in enumerate(data_wrapper.process_parents[i]):
             constraints.append(
                 conin.OracleConstraint(
-                    func=lambda seq, parent_name=parent_name, name=name: must_appear_before(
-                        seq, parent_name, name, data_wrapper.delay_times[i - 1]
+                    func=lambda seq, parent_name=parent_name, name=name, delay=data_wrapper.delay_times[
+                        i - 1
+                    ]: must_appear_before(
+                        seq, parent_name, name, delay
                     ),
                     same_partial_as_func=True,
                 )
             )
 
-    constraints.append(
-        conin.OracleConstraint(
-            func=lambda seq, hidden_states=hidden_states: all_processes(
-                seq, data_wrapper.process_names
+    if schedule_all_activities:
+        constraints.append(
+            conin.OracleConstraint(
+                func=lambda seq, hidden_states=hidden_states, process_names=data_wrapper.process_names: all_processes(
+                    seq, process_names
+                )
             )
         )
-    )
 
     return constraints
