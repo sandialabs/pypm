@@ -1791,6 +1791,7 @@ class Simian(object):
     # Note: changed interface here to add silent option and default values for start and end times
     def __init__(
         self,
+        *,
         simName="simian_run",
         startTime=0.0,
         endTime=10e10,
@@ -2041,5 +2042,5 @@ class Simian(object):
                     "engine": self,
                     "num": num,
                 },
-                *args
+                *args,
             )  # Entity is instantiated
