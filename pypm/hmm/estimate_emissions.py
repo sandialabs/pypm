@@ -325,6 +325,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
             val, seq = heapq.heappop(openSet)
             t = len(seq)
+            if debug:
+                print(f"{iteration=} {float(val)=} {seq=}")
 
             if t == time_steps:
                 if self._fake_oracle.is_feasible(seq):
@@ -349,13 +351,13 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         continue
                     newSeq = seq + (h2,)
                     if debug:
+                        print(f"{h2=}")
                         print(
-                            f"{iteration=} {time_steps=} {emission_mat[h2,obs]=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq)} {len(openSet)}"
+                              f"    {time_steps=} {emission_mat[h2,obs]=} {self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq)} {len(openSet)}"
                         )
                         print(f"    {seq=}")
                         print(f"    {currentGScore=}")
                         print(f"    {newSeq=}")
-                        print(f"    {h2=}")
                         print(f"    {obs=}")
                     if self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq):
                         tempGScore = (
@@ -364,6 +366,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                             - np.log(emission_mat[(h2, obs)])
                         )
                         gScore[newSeq] = tempGScore
+                        if debug:
+                            print(f"    {tempGScore=} {V[t][h2]=} {tempGScore + V[t][h2]}")
                         heapq.heappush(
                             openSet,
                             HeapItem(priority=tempGScore + V[t][h2], seq=newSeq),
