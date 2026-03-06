@@ -98,11 +98,17 @@ def create_data_wrapper(**kwds):
             if num_time_steps is not None:
                 self.num_time_steps = num_time_steps
 
-            if hasattr(config, 'known_process_features') and config.known_process_features is not None:
+            if (
+                hasattr(config, "known_process_features")
+                and config.known_process_features is not None
+            ):
                 self.known_process_features = config.known_process_features
             else:
                 self.known_process_features = {}
-            if hasattr(config, 'possible_process_features') and config.possible_process_features is not None:
+            if (
+                hasattr(config, "possible_process_features")
+                and config.possible_process_features is not None
+            ):
                 self.possible_process_features = config.possible_process_features
             else:
                 self.possible_process_features = {}
@@ -118,7 +124,7 @@ def run_simian(
     data_wrapper=None,
     pm=None,
     num_simulations=1,
-    num_time_steps,
+    num_time_steps=None,
     seed=None,
     max_delay_before=0,
     quiet=True,
@@ -138,8 +144,6 @@ def run_simian(
     TODO: Inclusive start and end times?
 
     TODO: Figure out how to deal with start_delay_time
-
-    TODO: endTime for simianEngine
     """
     if pm is not None:
         data_wrapper = create_data_wrapper(
@@ -218,12 +222,19 @@ def run_simian(
     #
     simName = "simple_process"
     startTime = 0
-    endTime = data_wrapper.num_time_steps + 1
+    endTime = None if num_time_steps is None else num_time_steps + 1
     minDelay = 0.0001
 
     unformatted_simulations = []
     for i in range(num_simulations):
-        simianEngine = Simian(simName, startTime, endTime, minDelay)
+        if endTime is None:
+            simianEngine = Simian(
+                simName=simName, startTime=startTime, minDelay=minDelay
+            )
+        else:
+            simianEngine = Simian(
+                simName=simName, startTime=startTime, endTime=endTime, minDelay=minDelay
+            )
         simianEngine.addEntity("Main", Main, 0, data_wrapper)
         simianEngine.schedService(0, "run", None, "Main", 0)
         if quiet:
@@ -241,11 +252,15 @@ def run_simian(
     # Collect tuples at each time step that show the activities being executed
     #
     simulations = []
-    for i in range(num_simulations):
-        simulation = [set() for _ in range(data_wrapper.num_time_steps)]
-        for process in unformatted_simulations[i]:
+    for unformatted_simulation in unformatted_simulations:
+        if num_time_steps is None:
+            sim_length = max(process["end"] for process in unformatted_simulation) + 2
+        else:
+            sim_length = num_time_steps
+        simulation = [set() for _ in range(sim_length)]
+        for process in unformatted_simulation:
             for t in range(process["start"], process["end"] + 1):
-                if t == data_wrapper.num_time_steps:
+                if t >= sim_length:
                     break
                 simulation[t].add(process["name"])
         simulations.append(
