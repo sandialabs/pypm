@@ -93,8 +93,9 @@ class PypmHMMApplication:
             self.transition_params is not None
         ), "ERROR: must learn transition parameters before creating the HMM"
         if observed_states is None:
-            assert hasattr(
-                self.data_wrapper, "observed_states"
+            assert (
+                hasattr(self.data_wrapper, "observed_states")
+                and self.data_wrapper.observed_states is not None
             ), "If observed_states is not specified, then data observations must be included in the config object"
             observed_states = self.data_wrapper.observed_states
 
