@@ -270,3 +270,72 @@ activities:
   resources:
     rA:
 """
+
+# ---------------------------------------------------------------------------
+# ex7
+# ---------------------------------------------------------------------------
+
+ex7 = """
+resources:
+  rA:
+
+activities:
+
+- name: a1
+  dependencies:
+  duration:
+    max_hours: 5
+    min_hours: 5
+  delay_after_hours: 5
+  resources:
+    rA:
+
+- name: a2
+  dependencies:
+  - a1
+  duration:
+    max_hours: 5
+    min_hours: 5
+  delay_after_hours: 4
+  resources:
+    rA:
+
+- name: a3
+  dependencies:
+  - a2
+  duration:
+    max_hours: 5
+    min_hours: 5
+  delay_after_hours: 3
+  resources:
+    rA:
+
+- name: a4
+  dependencies:
+  - a3
+  duration:
+    max_hours: 5
+    min_hours: 5
+  delay_after_hours: 2
+  resources:
+    rA:
+
+- name: a5
+  dependencies:
+  - a4
+  duration:
+    max_hours: 5
+    min_hours: 5
+  delay_after_hours: 1
+  resources:
+    rA:
+
+- name: a6
+  dependencies:
+  - a5
+  duration:
+    max_hours: 5
+    min_hours: 5
+  resources:
+    rA:
+"""

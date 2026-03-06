@@ -17,7 +17,9 @@ def config(**kwds):
     return munch.DefaultMunch(None, **kwds)
 
 
-def run(*, name, observed, features, known_process_features, constrained, debug=False):
+def run(
+    *, name, observed, features, known_process_features=None, constrained, debug=False
+):
     pm = load_process(data=getattr(examples, name))
     app = PypmHMMApplication()
 
@@ -30,6 +32,10 @@ def run(*, name, observed, features, known_process_features, constrained, debug=
         seed=123456789,
         quiet=quiet,
     )
+
+    import pprint
+
+    pprint.pprint(app.simulations)
 
     app.learn_emission_parameters(
         observed=observed,
@@ -61,6 +67,18 @@ def ex1_app(observed, constrained, debug=False):
         observed=observed,
         features=features,
         known_process_features=known_process_features,
+        constrained=constrained,
+        debug=debug,
+    )
+
+
+def ex7_app(observed, constrained, debug=False):
+    name = "ex7"
+    features = {"oA"}
+    return run(
+        name=name,
+        observed=observed,
+        features=features,
         constrained=constrained,
         debug=debug,
     )
@@ -157,7 +175,7 @@ def test8():
 
 def test9():
     obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), (), (), ]  # fmt: skip
-    ans = ex1_app(obs, True, debug=False)
+    ans = ex1_app(obs, True, debug=True)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
@@ -170,14 +188,14 @@ def test9():
 
 
 def test10():
-    obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), ]  # fmt: skip
-    ans = ex1_app(obs, True, debug=False)
-    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
-    assert ans.true_positive == pytest.approx(
-        {
-            ("a1", "oC"): 0.24924924956491418,
-            ("a1", "oB"): 0.7497497494361838,
-            ("a2", "oA"): 1.0,
-        },
-        abs=1e-3,
-    )
+    obs = [("oA",)] * 40
+    ans = ex7_app(obs, True, debug=True)
+    assert ans.false_emission == {"oA": 0.001}
+    assert ans.true_positive == {
+        ("a1", "oA"): 1.0,
+        ("a2", "oA"): 1.0,
+        ("a3", "oA"): 1.0,
+        ("a4", "oA"): 1.0,
+        ("a5", "oA"): 1.0,
+        ("a6", "oA"): 1.0,
+    }
