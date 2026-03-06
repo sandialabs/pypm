@@ -104,10 +104,8 @@ def estimate_emission_parameters(
                 ) in hmm_app._true_positive:
                     error = max(
                         error,
-                        abs(old_true_positive[(h, o)] - hmm_app._true_positive[(h, o)]),
+                        abs(old_true_positive[h, o] - hmm_app._true_positive[h, o]),
                     )
-                    # if abs(old_true_positive[(h, o)] - hmm_app._true_positive[(h, o)]) > (1 - 1E-3)/num_it:
-                    #    print(f"{h}, {o}")
         if debug:
             print(f"Error {error}, iteration {num_it}")
         if error < eps:
@@ -277,12 +275,12 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             for h1 in hidden_states:
                 temp = np.inf
                 for h2 in self._allowed_transitions[h1]:
-                    if emission_mat[(h2, obs)] != 0:
+                    if emission_mat[h2, obs] != 0:
                         temp = min(
                             temp,
                             V[t + 1][h2]
-                            - np.log(transition_mat[(h1, h2)])
-                            - np.log(emission_mat[(h2, obs)]),
+                            - np.log(transition_mat[h1, h2])
+                            - np.log(emission_mat[h2, obs]),
                         )
                 V[t][h1] = temp
 
@@ -364,8 +362,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                     if self._fake_oracle.partial_is_feasible(T=time_steps, seq=newSeq):
                         tempGScore = (
                             currentGScore
-                            - np.log(transition_mat[(h1, h2)])
-                            - np.log(emission_mat[(h2, obs)])
+                            - np.log(transition_mat[h1, h2])
+                            - np.log(emission_mat[h2, obs])
                         )
                         gScore[newSeq] = tempGScore
                         if debug:
@@ -505,18 +503,18 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         for o in self._observable_states:
             for h in self._processes:
                 if (h, o) in new_true_positive:
-                    if pe.value(model.p[(h, o)]) < lb:
-                        new_true_positive[(h, o)] = lb
+                    if pe.value(model.p[h, o]) < lb:
+                        new_true_positive[h, o] = lb
                     else:
-                        new_true_positive[(h, o)] = min(pe.value(model.p[h, o]), ub)
+                        new_true_positive[h, o] = min(pe.value(model.p[h, o]), ub)
 
         # Underweight as we go. This makes everything more numerically stable
         for o in self._observable_states:
             for h in self._processes:
                 if (h, o) in new_true_positive.keys():
-                    new_true_positive[(h, o)] = (
-                        new_true_positive[(h, o)] / iteration
-                        + self._true_positive[(h, o)] * (iteration - 1) / iteration
+                    new_true_positive[h, o] = (
+                        new_true_positive[h, o] / iteration
+                        + self._true_positive[h, o] * (iteration - 1) / iteration
                     )
 
         self.update_statistical_models(
