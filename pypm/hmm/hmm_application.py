@@ -208,16 +208,18 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
                 return True
         return True
 
-    def must_appear_before(seq, val1, val2):
+    def must_appear_before(seq, val1, val2, offset):
         """
-        val1 must appear before val2
+        val1 must appear before val2, offset time steps in advance
         """
-        found_val1 = False
+        last_val1_index = None
         for index1, x1 in enumerate(seq):
-            if val2 in x1:
-                return found_val1
             if val1 in x1:
-                found_val1 = True
+                last_val1_index = index1
+            if val2 in x1:
+                if last_val1_index is None:
+                    return False
+                return index1 - last_val1_index > offset
         return True
 
     def cont(seq):
@@ -254,10 +256,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         TODO this is hacky, fix it
         """
         if val not in seq[-1]:
-            length = 0
-            for X in seq:
-                if val in X:
-                    length += 1
+            length = sum(val in X for X in seq)
             if length != 0:
                 return length >= lb
         return True
@@ -266,13 +265,8 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         """
         Determines that val doesn't appear too much
         """
-        length = 0
-        for X in seq:
-            if val in X:
-                length += 1
-            if length > ub:
-                return False
-        return True
+        length = sum(val in X for X in seq)
+        return length <= ub
 
     def at_least_one(seq):
         """
@@ -287,9 +281,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         """
         Requires that all processes are run
         """
-        processes = set()
-        for X in seq:
-            processes = processes.union(X)
+        processes = {p for X in seq for p in X}
         return processes == set(process_names)
 
     #
@@ -298,9 +290,9 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
 
     constraints = []
 
-    constraints.append(
-        conin.OracleConstraint(func=lambda seq: cont(seq), same_partial_as_func=True)
-    )
+    # constraints.append(
+    #    conin.OracleConstraint(func=lambda seq: cont(seq), same_partial_as_func=True)
+    # )
 
     for i, name in enumerate(data_wrapper.process_names):
 
@@ -326,25 +318,12 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
         for j, parent_name in enumerate(data_wrapper.process_parents[i]):
             constraints.append(
                 conin.OracleConstraint(
-                    func=lambda seq, parent_name=parent_name, name=name: always_appears_before_set(
-                        seq, parent_name, name
-                    ),
-                    same_partial_as_func=True,
-                )
-            )
-
-    for i, name in enumerate(data_wrapper.process_names):
-        for j, parent_name in enumerate(data_wrapper.process_parents[i]):
-            constraints.append(
-                conin.OracleConstraint(
                     func=lambda seq, parent_name=parent_name, name=name: must_appear_before(
-                        seq, parent_name, name
+                        seq, parent_name, name, data_wrapper.delay_times[i - 1]
                     ),
                     same_partial_as_func=True,
                 )
             )
-
-    # constraints.append(conin.OracleConstraint(func=lambda seq: at_least_one(seq))
 
     constraints.append(
         conin.OracleConstraint(
