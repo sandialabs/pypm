@@ -184,6 +184,8 @@ class PypmHMMApplication:
 def GSF_oracle_constraints(data_wrapper, hidden_states):
     """
     Returns a list of constraints that define a GSF HMM model
+
+    TODO - Add logic for constraints associated with 'delay_after_hours' > 0
     """
 
     #
@@ -192,7 +194,7 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
 
     def always_appears_before_set(seq, val1, val2):
         """
-        Note that here we can't use the common constraint becuase the hidden
+        Note that here we can't use the common constraint because the hidden
         states are sets rather than values. However, it is basically the same
         as that function.
 
@@ -204,6 +206,18 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
                     if val1 in seq[index2]:
                         return False
                 return True
+        return True
+
+    def must_appear_before(seq, val1, val2):
+        """
+        val1 must appear before val2
+        """
+        found_val1 = False
+        for index1, x1 in enumerate(seq):
+            if val2 in x1:
+                return found_val1
+            if val1 in x1:
+                found_val1 = True
         return True
 
     def cont(seq):
@@ -313,6 +327,17 @@ def GSF_oracle_constraints(data_wrapper, hidden_states):
             constraints.append(
                 conin.OracleConstraint(
                     func=lambda seq, parent_name=parent_name, name=name: always_appears_before_set(
+                        seq, parent_name, name
+                    ),
+                    same_partial_as_func=True,
+                )
+            )
+
+    for i, name in enumerate(data_wrapper.process_names):
+        for j, parent_name in enumerate(data_wrapper.process_parents[i]):
+            constraints.append(
+                conin.OracleConstraint(
+                    func=lambda seq, parent_name=parent_name, name=name: must_appear_before(
                         seq, parent_name, name
                     ),
                     same_partial_as_func=True,
