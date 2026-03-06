@@ -33,10 +33,6 @@ def run(
         quiet=quiet,
     )
 
-    import pprint
-
-    pprint.pprint(app.simulations)
-
     app.learn_emission_parameters(
         observed=observed,
         constrained=constrained,
@@ -175,7 +171,7 @@ def test8():
 
 def test9():
     obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), (), (), ]  # fmt: skip
-    ans = ex1_app(obs, True, debug=True)
+    ans = ex1_app(obs, True, debug=False)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
@@ -189,7 +185,7 @@ def test9():
 
 def test10():
     obs = [("oA",)] * 40
-    ans = ex7_app(obs, True, debug=True)
+    ans = ex7_app(obs, True, debug=False)
     assert ans.false_emission == {"oA": 0.001}
     assert ans.true_positive == {
         ("a1", "oA"): 1.0,
