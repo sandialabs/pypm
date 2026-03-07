@@ -1,9 +1,11 @@
+import random
 import time
 from dataclasses import dataclass, field
 from typing import Any
 import numpy as np
 import heapq
 from munch import Munch
+
 import pyomo.environ as pe
 import conin.hmm
 from pypm.hmm.matrix import Sparse_Emissions_Matrix
@@ -47,7 +49,64 @@ def estimate_emission_parameters(
     observed,
     data_wrapper,
     transition_params,
-    emission_params=None,
+    emission_params,
+    constraints=[],
+    max_iterations=None,
+    num_solutions_per_step=None,
+    num_random_restarts=10,
+    debug=False,
+):
+
+    ans = _estimate_emission_parameters_iter(
+        observed=observed,
+        data_wrapper=data_wrapper,
+        transition_params=transition_params,
+        emission_params=emission_params,
+        constraints=constraints,
+        max_iterations=max_iterations,
+        num_solutions_per_step=num_solutions_per_step,
+        debug=debug,
+    )
+    if debug:
+        print("Initial emission parameters")
+        print(ans.true_positive)
+        print(ans.value)
+
+    for i in range(num_random_restarts):
+        for k in emission_params.true_positive:
+            emission_params.true_positive[k] = random.random()
+        ans_ = _estimate_emission_parameters_iter(
+            observed=observed,
+            data_wrapper=data_wrapper,
+            transition_params=transition_params,
+            emission_params=emission_params,
+            constraints=constraints,
+            max_iterations=max_iterations,
+            num_solutions_per_step=num_solutions_per_step,
+            debug=debug,
+        )
+        if debug:
+            print(f"Randomized iteration {i}")
+            print(ans.true_positive)
+            print(ans.value)
+        if ans_.value is None:
+            continue
+        if ans.value is None or ans_.value > ans.value:
+            ans = ans_
+
+    if debug:
+        print("Final emission parameters")
+        print(ans.true_positive)
+        print(ans.value)
+    return ans
+
+
+def _estimate_emission_parameters_iter(
+    *,
+    observed,
+    data_wrapper,
+    transition_params,
+    emission_params,
     constraints=[],
     max_iterations=None,
     num_solutions_per_step=None,
@@ -77,6 +136,9 @@ def estimate_emission_parameters(
         false_emission=false_emission,
     )
 
+    if debug:
+        print("SAEM START")
+
     num_it = 0
     while num_it < max_iterations:
         num_it += 1
@@ -89,19 +151,16 @@ def estimate_emission_parameters(
             iteration=num_it,
             debug=debug,
         )
-        if not status:
+        if status.error:
             print("Error running SAEM_step - no solutions generated")
-            return Munch(true_positive=None, false_emission=false_emission)
+            return Munch(true_positive=None, false_emission=false_emission, value=None)
 
         # l1 error
         # TODO: l2?
         error = 0
         for o in data_wrapper.features:
             for h in data_wrapper.process_names:
-                if (h, o) in old_true_positive.keys() and (
-                    h,
-                    o,
-                ) in hmm_app._true_positive:
+                if (h, o) in old_true_positive and (h, o) in hmm_app._true_positive:
                     error = max(
                         error,
                         abs(old_true_positive[h, o] - hmm_app._true_positive[h, o]),
@@ -113,9 +172,12 @@ def estimate_emission_parameters(
             break
 
     if debug:
+        print("SAEM STOP")
         print("Number of iterations: ", num_it)
 
-    return Munch(true_positive=_true_positive, false_emission=false_emission)
+    return Munch(
+        true_positive=_true_positive, false_emission=false_emission, value=status.value
+    )
 
 
 class Process_Matching_HMM(conin.hmm.HMMApplication):
@@ -221,14 +283,14 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             observation=observation, num_solutions=num_solutions, debug=debug
         )
         if len(hidden_vec) == 0:
-            return False
-        self._M_step(
+            return Munch(error=True)
+        value = self._M_step(
             observation=observation,
             hidden_vec=hidden_vec,
             iteration=iteration,
             debug=debug,
         )
-        return True
+        return Munch(error=False, value=value)
 
     def oracle_inference(
         self,
@@ -511,7 +573,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         # Underweight as we go. This makes everything more numerically stable
         for o in self._observable_states:
             for h in self._processes:
-                if (h, o) in new_true_positive.keys():
+                if (h, o) in new_true_positive:
                     new_true_positive[h, o] = (
                         new_true_positive[h, o] / iteration
                         + self._true_positive[h, o] * (iteration - 1) / iteration
@@ -520,6 +582,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         self.update_statistical_models(
             false_emission=self._false_emission, true_positive=new_true_positive
         )
+
+        return pe.value(model.obj)
 
 
 # A data class that only allows comparisons w.r.t. the priority value
