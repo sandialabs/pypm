@@ -484,7 +484,12 @@ class StatisticalModel(SupervisedMIP):
             h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
             for i, h in enumerate(hmm.hidden_states)
         }
-        results['hmm'] = dict(true_positive = self.config.hmm_app.emission_params.true_positive, false_emission = self.config.hmm_app.emission_params.false_emission, emission_mat=E, transition_mat=T)
+        results["hmm"] = dict(
+            true_positive=self.config.hmm_app.emission_params.true_positive,
+            false_emission=self.config.hmm_app.emission_params.false_emission,
+            emission_mat=E,
+            transition_mat=T,
+        )
 
         return results
 
@@ -495,14 +500,7 @@ class StatisticalModel(SupervisedMIP):
         self.config.hmm_app.read(filename)
 
     def learn_transition_parameters(
-        self,
-        *,
-        num_simulations,
-        num_time_steps=None,
-        max_delay_before=5,
-        seed=None,
-        debug=None,
-        quiet=None
+        self, *, num_simulations, max_delay_before=5, seed=None, debug=None, quiet=None
     ):
         if seed is None:
             seed = self.config.seed
@@ -513,17 +511,24 @@ class StatisticalModel(SupervisedMIP):
         self.config.hmm_app.learn_transition_parameters(
             num_simulations=num_simulations,
             seed=seed,
-            num_time_steps=num_time_steps,
             max_delay_before=max_delay_before,
             debug=debug,
             quiet=quiet,
         )
 
     def learn_emission_parameters(
-        self, *, max_false_emission_probability=None, debug=False
+        self,
+        *,
+        false_emission_probability=None,
+        debug=False,
+        schedule_all_activities=False,
     ):
         self.config.hmm_app.learn_emission_parameters(
-            debug=debug, constrained=True, max_false_emission_probability=max_false_emission_probability,
+            observed=self.config.hmm_app.data_wrapper.observation,
+            debug=debug,
+            constrained=True,
+            schedule_all_activities=schedule_all_activities,
+            false_emission_probability=false_emission_probability,
         )
 
     def create_hmm(self):
