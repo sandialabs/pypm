@@ -1,6 +1,11 @@
 from conin.hmm import ConstrainedHiddenMarkovModel
 import pyomo.environ as pe
-from .matching_models import BaseModel, Z_Repn_Model, GSF_UnrestrictedMatches_VariableLengthActivities_constraints, fracval
+from .matching_models import (
+    BaseModel,
+    Z_Repn_Model,
+    GSF_UnrestrictedMatches_VariableLengthActivities_constraints,
+    fracval,
+)
 
 # ====================================================================================
 # HMM models
@@ -25,7 +30,9 @@ class GSF_HMM(Z_Repn_Model):
                 self.description = "Supervised process matching maximizing log-likelihood with compactness constraint"
             else:
                 self.name = "HMM_UnrestrictedMatches_VariableLengthActivities"
-                self.description = "Supervised process matching maximizing log-likelihood"
+                self.description = (
+                    "Supervised process matching maximizing log-likelihood"
+                )
 
     def summarize(self):
         results = BaseModel.summarize(self)
@@ -63,14 +70,6 @@ class GSF_HMM(Z_Repn_Model):
             results["goals"]["total_separation"] = sum(
                 val for val in results["goals"]["separation"].values()
             )
-        #
-        #results["goals"]["match"] = {}
-        #for activity, value in results["variables"]["o"].items():
-        #    results["goals"]["match"][activity] = value
-        #results["goals"]["total_match"] = sum(
-        #    val for val in results["goals"]["match"].values()
-        #)
-        #
         return results
 
     def __call__(self, config, constraints=[]):
@@ -123,7 +122,7 @@ class GSF_HMM(Z_Repn_Model):
         Upsilon,
         tprev,
         verbose,
-        debug
+        debug,
     ):
         if verbose:
             print("")
@@ -137,11 +136,15 @@ class GSF_HMM(Z_Repn_Model):
         assert (
             objective == "log_likelihood"
         ), "GSF_HMM can not optimize the goal {}".format(objective)
-        assert hasattr(self.config.hmm_app, "hmm"), f"You need to create an HMM before generating a schedule with GSF_HMM."
+        assert hasattr(
+            self.config.hmm_app, "hmm"
+        ), f"You need to create an HMM before generating a schedule with GSF_HMM."
 
         chmm = ConstrainedHiddenMarkovModel(hmm=self.config.hmm_app.hmm)
         chmm.initialize_chmm("pyomo")
-        M = chmm.chmm.generate_unconstrained_model(observed=self.config.hmm_app.data_wrapper.observation)
+        M = chmm.chmm.generate_unconstrained_model(
+            observed=self.config.hmm_app.data_wrapper.observation
+        )
 
         tmp = M.hmm.o
         M.hmm.del_component("o")
@@ -151,11 +154,11 @@ class GSF_HMM(Z_Repn_Model):
 
         # M.a[j,t] may be one if the active state at time t constains activity j
         M.a_con = pe.ConstraintList()
-        for t,internal_state in M.hmm.x:
+        for t, internal_state in M.hmm.x:
             state = self.config.hmm_app.hmm.hidden_to_external[internal_state]
             for j in J:
                 if j in state:
-                    M.a_con.add( M.a[j,t] <= M.hmm.x[t,internal_state] )
+                    M.a_con.add(M.a[j, t] >= M.hmm.x[t, internal_state])
 
         M = GSF_UnrestrictedMatches_VariableLengthActivities_constraints(
             M=M,
@@ -370,4 +373,3 @@ class XSF_HMM(Z_Repn_Model):
             )
 
         return M
-

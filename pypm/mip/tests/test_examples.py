@@ -27,7 +27,8 @@ def run(testname, dirname, debug=False, verify=False):
     assert testname.startswith(driver.config.process[:-5])
 
     if "HMM" in dirname:
-        driver.learn_transition_parameters(num_simulations=10, quiet=True)
+        driver.learn_transition_parameters(num_simulations=100, quiet=not debug)
+        driver.learn_emission_parameters(debug=debug)
         driver.create_hmm()
 
     results = driver.generate_schedule()
@@ -226,11 +227,11 @@ def test7_GSF_HMM():
 
 
 def test100_GSF_HMM():
-    run("test100", "GSF-HMM")
+    run("test100", "GSF-HMM", debug=False)
 
 
 def test101_GSF_HMM():
-    run("test101", "GSF-HMM")
+    run("test101", "GSF-HMM", debug=False)
 
 
 def test102_GSF_HMM():
@@ -238,7 +239,7 @@ def test102_GSF_HMM():
 
 
 def test103_GSF_HMM():
-    run("test103", "GSF-HMM")
+    run("test103", "GSF-HMM", debug=False)
 
 
 def test104_GSF_HMM():
@@ -266,7 +267,7 @@ def test300_GSF_HMM():
 
 
 def test301_GSF_HMM():
-    run("test301", "GSF-HMM")
+    run("test301", "GSF-HMM", debug=False)
 
 
 def test302_GSF_HMM():
@@ -494,7 +495,7 @@ def test100_XSF_compact():
 
 
 def test101_XSF_compact():
-    run("test101", "XSF-compact", debug=True)
+    run("test101", "XSF-compact", debug=False)
 
 
 def test102_XSF_compact():
