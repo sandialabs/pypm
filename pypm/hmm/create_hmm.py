@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import Any
 from conin.util import Util
 
-from pypm.hmm.estimate_emissions import initial_emission_parameters
 from pypm.hmm.matrix import Sparse_Emissions_Matrix
 
 
