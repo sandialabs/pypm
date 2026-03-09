@@ -521,11 +521,13 @@ class StatisticalModel(SupervisedMIP):
         *,
         false_emission_probability=None,
         debug=False,
+        quiet=True,
         schedule_all_activities=False,
     ):
         self.config.hmm_app.learn_emission_parameters(
             observed=self.config.hmm_app.data_wrapper.observation,
             debug=debug,
+            quiet=quiet,
             constrained=True,
             schedule_all_activities=schedule_all_activities,
             false_emission_probability=false_emission_probability,
