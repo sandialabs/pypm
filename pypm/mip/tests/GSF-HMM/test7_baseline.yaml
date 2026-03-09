@@ -25,15 +25,19 @@ hmm:
       : 0.000998001000000001
     ? &id004 !!python/tuple [a1]
     : !!python/tuple []: 0.0
-      *id001: 0.3750000001576175
-      *id002: 0.06250000007880874
-      *id003: 0.5624999997635738
+      *id001: 0.4800000000404183
+      *id002: 0.1600000000808366
+      *id003: 0.3599999998787451
     ? &id005 !!python/tuple [a2]
-    : !!python/tuple []: 0.0009970029989999993
-      *id001: 0.2607769629989999
-      *id002: 0.7292430270010001
-      *id003: 0.008983007000999996
+    : !!python/tuple []: 0.49899950199824306
+      *id001: 0.002000495001503122
+      *id002: 5.009994990018188e-07
+      *id003: 0.49899950200075477
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001}
+  start_prob:
+    !!python/tuple []: 0.8
+    *id004: 0.2
+    *id005: 0.0
   transition_mat:
     !!python/tuple []:
       !!python/tuple []: 0.6439232409381663
@@ -49,26 +53,24 @@ hmm:
       *id005: 0.5
   true_positive:
     ? !!python/tuple [a1, rA]
-    : 0.2492492494070245
+    : 0.39939939950054626
     ? !!python/tuple [a1, rB]
-    : 0.2492492494070245
+    : 0.39939939950054626
     ? !!python/tuple [a1, rC]
     : 1.0
     ? !!python/tuple [a2, rA]
-    : 0.9
+    : 1.0e-06
     ? !!python/tuple [a2, rB]
-    : 0.9
+    : 1.0e-06
     ? !!python/tuple [a2, rC]
-    : 0.9
+    : 0.49949949950075917
 results:
 - datetime_schedule:
     a1: {first: '2020-01-01 01:00:00', last: '2020-01-01 08:00:00', stop: '2020-01-01
         09:00:00'}
     a2: {post: '2020-01-02 05:00:00'}
-  goals:
-    separation: {rA: 0, rB: 0, rC: 1.0}
-    total_separation: 1.0
-  objective: -23.01290205586442
+  goals: {}
+  objective: -23.810610155662452
   schedule:
     a1: {first: 1, last: 8}
     a2: {post: true}

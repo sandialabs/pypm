@@ -1,11 +1,11 @@
 _options:
   comments: 
-    - testing behavior when only second activity matches
-  process: test100.yaml
+    - confirming that first activity is included when it only weakly matches
+  process: test101.yaml
   solver: glpk
   tee: true
   timesteps: 30
-  model: HMM_UnrestrictedMatches_VariableLengthActivities
+  model: HMM_CompactMatches_VariableLengthActivities
 
 resources:
   rA:
@@ -36,8 +36,8 @@ data:
 - ground_truth:
     a2: {start: 6, stop: 10}
   observations:
-    oA: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    oB: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-    oC: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rA: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rB: [0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    rC: [1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
   seed: 0
   trial: 0

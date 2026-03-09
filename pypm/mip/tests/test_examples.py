@@ -28,7 +28,7 @@ def run(testname, dirname, debug=False, verify=False):
 
     if "HMM" in dirname:
         driver.learn_transition_parameters(num_simulations=100, quiet=not debug)
-        driver.learn_emission_parameters(debug=debug)
+        driver.learn_emission_parameters(debug=debug, num_random_restarts=10)
         driver.create_hmm()
 
     results = driver.generate_schedule()
@@ -272,6 +272,82 @@ def test301_GSF_HMM():
 
 def test302_GSF_HMM():
     run("test302", "GSF-HMM")
+
+
+def test1_GSF_HMM_compact():
+    run("test1", "GSF-HMM-compact")
+
+
+def test2_GSF_HMM_compact():
+    run("test2", "GSF-HMM-compact")
+
+
+def test3_GSF_HMM_compact():
+    run("test3", "GSF-HMM-compact")
+
+
+def test4_GSF_HMM_compact():
+    run("test4", "GSF-HMM-compact")
+
+
+def test5_GSF_HMM_compact():
+    run("test5", "GSF-HMM-compact")
+
+
+def test6_GSF_HMM_compact():
+    run("test6", "GSF-HMM-compact")
+
+
+def test7_GSF_HMM_compact():
+    run("test7", "GSF-HMM-compact")
+
+
+def test100_GSF_HMM_compact():
+    run("test100", "GSF-HMM-compact", debug=False)
+
+
+def test101_GSF_HMM_compact():
+    run("test101", "GSF-HMM-compact", debug=False)
+
+
+def test102_GSF_HMM_compact():
+    run("test102", "GSF-HMM-compact")
+
+
+def test103_GSF_HMM_compact():
+    run("test103", "GSF-HMM-compact", debug=False)
+
+
+def test104_GSF_HMM_compact():
+    run("test104", "GSF-HMM-compact")
+
+
+def test105_GSF_HMM_compact():
+    run("test105", "GSF-HMM-compact")
+
+
+def test106_GSF_HMM_compact():
+    run("test106", "GSF-HMM-compact")
+
+
+def test107_GSF_HMM_compact():
+    run("test107", "GSF-HMM-compact")
+
+
+def test108_GSF_HMM_compact():
+    run("test108", "GSF-HMM-compact")
+
+
+def test300_GSF_HMM_compact():
+    run("test300", "GSF-HMM-compact")
+
+
+def test301_GSF_HMM_compact():
+    run("test301", "GSF-HMM-compact", debug=False)
+
+
+def test302_GSF_HMM_compact():
+    run("test302", "GSF-HMM-compact")
 
 
 def test1_13():
