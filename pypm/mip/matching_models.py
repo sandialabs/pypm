@@ -517,6 +517,28 @@ class GSF_TotalMatchScore(Z_Repn_Model):
                 debug=debug,
             )
 
+        # Auxilliary computed values
+
+        def activity_length_(m, j):
+            return sum(m.a[j, t] for t in T)
+
+        M.activity_length = pe.Expression(J, rule=activity_length_)
+
+        def weighted_activity_length_(m, j):
+            return sum(O[k][t] * m.a[j, t] for k in K[j] for t in T)
+
+        M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
+
+        def nonactivity_length_(m, j):
+            return sum((1 - m.a[j, t]) for t in T)
+
+        M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
+
+        def weighted_nonactivity_length_(m, j):
+            return sum(O[k][t] * (1 - m.a[j, t]) for k in K[j] for t in T)
+
+        M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
+
         return M
 
 
@@ -576,28 +598,6 @@ def GSF_UnrestrictedMatches_VariableLengthActivities_constraints(
         return m.z[j, t] - m.z[j, tau] >= m.a[j, t]
 
     M.activity_start = pe.Constraint(J, T, rule=activity_start_)
-
-    # Auxilliary computed values
-
-    def activity_length_(m, j):
-        return sum(m.a[j, t] for t in T)
-
-    M.activity_length = pe.Expression(J, rule=activity_length_)
-
-    def weighted_activity_length_(m, j):
-        return sum(O[k][t] * m.a[j, t] for k in K[j] for t in T)
-
-    M.weighted_activity_length = pe.Expression(J, rule=weighted_activity_length_)
-
-    def nonactivity_length_(m, j):
-        return sum((1 - m.a[j, t]) for t in T)
-
-    M.nonactivity_length = pe.Expression(J, rule=nonactivity_length_)
-
-    def weighted_nonactivity_length_(m, j):
-        return sum(O[k][t] * (1 - m.a[j, t]) for k in K[j] for t in T)
-
-    M.weighted_nonactivity_length = pe.Expression(J, rule=weighted_nonactivity_length_)
 
     return M
 
