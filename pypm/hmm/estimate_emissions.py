@@ -1,3 +1,4 @@
+import sys
 import random
 import time
 from dataclasses import dataclass, field
@@ -55,7 +56,11 @@ def estimate_emission_parameters(
     num_solutions_per_step=None,
     num_random_restarts=10,
     debug=False,
+    quiet=True,
 ):
+
+    if debug or not quiet:
+        print("Estimating emission parameters - START")
 
     ans = _estimate_emission_parameters_iter(
         observed=observed,
@@ -66,8 +71,9 @@ def estimate_emission_parameters(
         max_iterations=max_iterations,
         num_solutions_per_step=num_solutions_per_step,
         debug=debug,
+        quiet=quiet,
     )
-    if debug:
+    if debug or not quiet:
         print("Initial emission parameters")
         print(ans.true_positive)
         print(ans.value)
@@ -83,9 +89,9 @@ def estimate_emission_parameters(
             constraints=constraints,
             max_iterations=max_iterations,
             num_solutions_per_step=num_solutions_per_step,
-            debug=debug,
+            quiet=quiet,
         )
-        if debug:
+        if debug or not quiet:
             print(f"Randomized iteration {i}")
             print(ans.true_positive)
             print(ans.value)
@@ -94,7 +100,8 @@ def estimate_emission_parameters(
         if ans.value is None or ans_.value > ans.value:
             ans = ans_
 
-    if debug:
+    if debug or not quiet:
+        print("Estimating emission parameters - STOP")
         print("Final emission parameters")
         print(ans.true_positive)
         print(ans.value)
@@ -111,6 +118,7 @@ def _estimate_emission_parameters_iter(
     max_iterations=None,
     num_solutions_per_step=None,
     debug=False,
+    quiet=True,
 ):
     """
     Creates an vector of emissions matrices indexed by resources
@@ -136,11 +144,13 @@ def _estimate_emission_parameters_iter(
         false_emission=false_emission,
     )
 
-    if debug:
+    if debug or not quiet:
         print("SAEM START")
 
     num_it = 0
     while num_it < max_iterations:
+        if debug or not quiet:
+            print(f"SAEM - Iteration {num_it}")
         num_it += 1
 
         # Calculate new true_positive, false_emission
@@ -150,6 +160,7 @@ def _estimate_emission_parameters_iter(
             num_solutions=num_solutions_per_step,
             iteration=num_it,
             debug=debug,
+            quiet=quiet,
         )
         if status.error:
             print("Error running SAEM_step - no solutions generated")
@@ -165,13 +176,13 @@ def _estimate_emission_parameters_iter(
                         error,
                         abs(old_true_positive[h, o] - hmm_app._true_positive[h, o]),
                     )
-        if debug:
+        if debug or not quiet:
             print(f"Error {error}, iteration {num_it}")
         if error < eps:
             _true_positive = hmm_app._true_positive
             break
 
-    if debug:
+    if debug or not quiet:
         print("SAEM STOP")
         print("Number of iterations: ", num_it)
 
@@ -272,24 +283,32 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         self._constraints = constraints
         self.update_statistical_models()
 
-    def SAEM_step(self, *, observation, iteration, num_solutions=1, debug=False):
+    def SAEM_step(
+        self, *, observation, iteration, num_solutions=1, debug=False, quiet=True
+    ):
         """
         A single step of the SAEM algorithm
         Runs inference on observations, and then updates the true_positive and false_emission from that
         NOTE: this does not update the start probs and transition_probs
         This is because we assume they are already well-described by the Simian simulations
         """
+        if debug or not quiet:
+            print("SAEM_step - Oracle inference")
         hidden_vec = self.oracle_inference(
             observation=observation, num_solutions=num_solutions, debug=debug
         )
         if len(hidden_vec) == 0:
             return Munch(error=True)
+        if debug or not quiet:
+            print("SAEM_step - M_step optimization")
         value = self._M_step(
             observation=observation,
             hidden_vec=hidden_vec,
             iteration=iteration,
             debug=debug,
         )
+        if debug or not quiet:
+            print("SAEM_step - DONE")
         return Munch(error=False, value=value)
 
     def oracle_inference(

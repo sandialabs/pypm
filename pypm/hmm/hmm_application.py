@@ -34,7 +34,7 @@ class PypmHMMApplication:
         num_simulations,
         seed,
         max_delay_before=5,
-        quiet=False,
+        quiet=True,
         debug=False,
     ):
         self.simulations = run_simian(
@@ -63,6 +63,7 @@ class PypmHMMApplication:
         max_iterations=None,
         num_solutions_per_step=None,
         debug=False,
+        quiet=True,
     ):
         constraints = (
             [] if not constrained else self.oracle_constraints(schedule_all_activities)
@@ -83,6 +84,7 @@ class PypmHMMApplication:
             max_iterations=max_iterations,
             num_solutions_per_step=num_solutions_per_step,
             debug=debug,
+            quiet=quiet,
         )
 
     def create_hmm(self, observed_states=None, no_zeros=False, no_zeros_tol=1e-6):
