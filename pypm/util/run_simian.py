@@ -1,6 +1,7 @@
+import math
 import os
-import munch
 import random
+import munch
 
 from pypm.util.simian import Simian, Entity
 from pypm.util.context_manager import suppress_stdout
@@ -254,12 +255,12 @@ def run_simian(
     simulations = []
     for unformatted_simulation in unformatted_simulations:
         if num_time_steps is None:
-            sim_length = max(process["end"] for process in unformatted_simulation) + 2
+            sim_length = max(math.ceil(process["end"]) for process in unformatted_simulation) + 2
         else:
             sim_length = num_time_steps
         simulation = [set() for _ in range(sim_length)]
         for process in unformatted_simulation:
-            for t in range(process["start"], process["end"] + 1):
+            for t in range(math.floor(process["start"]), math.ceil(process["end"]) + 1):
                 if t >= sim_length:
                     break
                 simulation[t].add(process["name"])
