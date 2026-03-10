@@ -69,8 +69,14 @@ def estimate_emission_parameters(
 
     ans = Munch(true_positive=None, value=None)
     for i in range(num_random_restarts):
-        for k in emission_params.true_positive:
-            emission_params.true_positive[k] = random.random()
+        if i == 0:
+            # Perturb the initial true_positive values
+            for k in emission_params.true_positive:
+                emission_params.true_positive[k] *= random.uniform(0.9,1.0)
+        else:
+            # Generate random true_positive values
+            for k in emission_params.true_positive:
+                emission_params.true_positive[k] = random.random()
         ans_ = _estimate_emission_parameters_iter(
             observed=observed,
             config=config,
@@ -317,7 +323,6 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                 for h,val in res['schedule'].items():
                     if 'pre' in val or 'post' in val:
                         continue
-                    print(f"{val=}")
                     for t in range(val['first'], val['last']+1):
                         hidden[t].add(h)
                 hidden_vec.append(hidden)
