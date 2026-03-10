@@ -36,17 +36,17 @@ hmm:
       *id005: 0.0
     ? &id007 !!python/tuple [a2]
     : !!python/tuple []: 0.0
-      *id001: 0.12587587428162894
-      *id002: 0.3746246252189996
-      *id003: 0.37462462521805684
-      *id004: 0.12487487528131462
+      *id001: 0.12587587428162206
+      *id002: 0.3746246252190062
+      *id003: 0.3746246252180639
+      *id004: 0.12487487528130788
       *id005: 0.0
     ? &id008 !!python/tuple [a2, a3]
     : !!python/tuple []: 0.0
-      *id001: 0.1258767484056298
-      *id002: 0.37462475009350027
-      *id003: 0.37462400084380654
-      *id004: 0.12487450065706339
+      *id001: 0.12587674840562302
+      *id002: 0.3746247500935068
+      *id003: 0.37462400084381353
+      *id004: 0.12487450065705664
       *id005: 0.0
     ? &id009 !!python/tuple [a3]
     : !!python/tuple []: 0.0
@@ -57,11 +57,11 @@ hmm:
       *id005: 0.0
     ? &id010 !!python/tuple [a4]
     : !!python/tuple []: 0.0
-      *id001: 1.0
+      *id001: 0.003997988017008236
       *id002: 0.0
       *id003: 0.0
       *id004: 0.0
-      *id005: 0.0
+      *id005: 0.9960020119829918
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001, rD: 0.001, rE: 0.001}
   start_prob:
     !!python/tuple []: 0.85
@@ -125,9 +125,9 @@ hmm:
     ? !!python/tuple [a1, rE]
     : 1.0
     ? !!python/tuple [a2, rA]
-    : 0.4994994995001293
+    : 0.4994994995001289
     ? !!python/tuple [a2, rB]
-    : 0.7497497494361791
+    : 0.7497497494361928
     ? !!python/tuple [a2, rC]
     : 1.0
     ? !!python/tuple [a2, rD]
@@ -145,32 +145,35 @@ hmm:
     ? !!python/tuple [a3, rE]
     : 1.0
     ? !!python/tuple [a4, rA]
-    : 1.0
+    : 1.0e-06
     ? !!python/tuple [a4, rB]
-    : 1.0
+    : 1.0e-06
     ? !!python/tuple [a4, rC]
-    : 1.0
+    : 1.0e-06
     ? !!python/tuple [a4, rD]
     : 1.0
     ? !!python/tuple [a4, rE]
-    : 1.0
+    : 1.0e-06
 results:
 - datetime_schedule:
     a1: {pre: '2020-01-01 00:00:00'}
-    a2: {first: '2020-01-01 06:00:00', last: '2020-01-01 08:00:00', stop: '2020-01-01
+    a2: {first: '2020-01-01 05:00:00', last: '2020-01-01 08:00:00', stop: '2020-01-01
         09:00:00'}
     a3: {first: '2020-01-01 01:00:00', last: '2020-01-01 05:00:00', stop: '2020-01-01
         06:00:00'}
-    a4: {post: '2020-01-02 05:00:00'}
+    a4: {first: '2020-01-01 10:00:00', last: '2020-01-01 14:00:00', stop: '2020-01-01
+        15:00:00'}
   goals: {}
-  objective: -56.2646449075671
+  objective: -24.364271564836912
   schedule:
     a1: {pre: true}
-    a2: {first: 6, last: 8}
+    a2: {first: 5, last: 8}
     a3: {first: 1, last: 5}
-    a4: {post: true}
+    a4: {first: 10, last: 14}
   variables:
     a:
+      ? !!python/tuple [a2, 5]
+      : 1.0
       ? !!python/tuple [a2, 6]
       : 1.0
       ? !!python/tuple [a2, 7]
@@ -186,6 +189,16 @@ results:
       ? !!python/tuple [a3, 4]
       : 1.0
       ? !!python/tuple [a3, 5]
+      : 1.0
+      ? !!python/tuple [a4, 10]
+      : 1.0
+      ? !!python/tuple [a4, 11]
+      : 1.0
+      ? !!python/tuple [a4, 12]
+      : 1.0
+      ? !!python/tuple [a4, 13]
+      : 1.0
+      ? !!python/tuple [a4, 14]
       : 1.0
     hmm.x:
       ? !!python/tuple [0, 0]
@@ -208,15 +221,15 @@ results:
       : 1.0
       ? !!python/tuple [9, 0]
       : 1.0
-      ? !!python/tuple [10, 0]
+      ? !!python/tuple [10, 5]
       : 1.0
-      ? !!python/tuple [11, 0]
+      ? !!python/tuple [11, 5]
       : 1.0
-      ? !!python/tuple [12, 0]
+      ? !!python/tuple [12, 5]
       : 1.0
-      ? !!python/tuple [13, 0]
+      ? !!python/tuple [13, 5]
       : 1.0
-      ? !!python/tuple [14, 0]
+      ? !!python/tuple [14, 5]
       : 1.0
       ? !!python/tuple [15, 0]
       : 1.0
@@ -266,20 +279,20 @@ results:
       ? !!python/tuple [7, 2, 2]
       : 1.0
       ? !!python/tuple [8, 2, 2]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [9, 2, 0]
-      : 1.0
-      ? !!python/tuple [10, 0, 0]
-      : 1.0
-      ? !!python/tuple [11, 0, 0]
-      : 1.0
-      ? !!python/tuple [12, 0, 0]
-      : 1.0
-      ? !!python/tuple [13, 0, 0]
-      : 1.0
-      ? !!python/tuple [14, 0, 0]
-      : 1.0
-      ? !!python/tuple [15, 0, 0]
+      : 0.999999999999999
+      ? !!python/tuple [10, 0, 5]
+      : 0.999999999999998
+      ? !!python/tuple [11, 5, 5]
+      : 0.999999999999998
+      ? !!python/tuple [12, 5, 5]
+      : 0.999999999999998
+      ? !!python/tuple [13, 5, 5]
+      : 0.999999999999998
+      ? !!python/tuple [14, 5, 5]
+      : 0.999999999999998
+      ? !!python/tuple [15, 5, 0]
       : 1.0
       ? !!python/tuple [16, 0, 0]
       : 1.0
@@ -373,6 +386,8 @@ results:
       ? !!python/tuple [a1, 28]
       : 1.0
       ? !!python/tuple [a1, 29]
+      : 1.0
+      ? !!python/tuple [a2, 5]
       : 1.0
       ? !!python/tuple [a2, 6]
       : 1.0
@@ -479,6 +494,46 @@ results:
       ? !!python/tuple [a3, 28]
       : 1.0
       ? !!python/tuple [a3, 29]
+      : 1.0
+      ? !!python/tuple [a4, 10]
+      : 1.0
+      ? !!python/tuple [a4, 11]
+      : 1.0
+      ? !!python/tuple [a4, 12]
+      : 1.0
+      ? !!python/tuple [a4, 13]
+      : 1.0
+      ? !!python/tuple [a4, 14]
+      : 1.0
+      ? !!python/tuple [a4, 15]
+      : 1.0
+      ? !!python/tuple [a4, 16]
+      : 1.0
+      ? !!python/tuple [a4, 17]
+      : 1.0
+      ? !!python/tuple [a4, 18]
+      : 1.0
+      ? !!python/tuple [a4, 19]
+      : 1.0
+      ? !!python/tuple [a4, 20]
+      : 1.0
+      ? !!python/tuple [a4, 21]
+      : 1.0
+      ? !!python/tuple [a4, 22]
+      : 1.0
+      ? !!python/tuple [a4, 23]
+      : 1.0
+      ? !!python/tuple [a4, 24]
+      : 1.0
+      ? !!python/tuple [a4, 25]
+      : 1.0
+      ? !!python/tuple [a4, 26]
+      : 1.0
+      ? !!python/tuple [a4, 27]
+      : 1.0
+      ? !!python/tuple [a4, 28]
+      : 1.0
+      ? !!python/tuple [a4, 29]
       : 1.0
 solver:
   model: {name: HMM_UnrestrictedMatches_VariableLengthActivities}

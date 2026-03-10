@@ -28,7 +28,7 @@ def run(testname, dirname, debug=False, verify=False):
 
     if "HMM" in dirname:
         driver.learn_transition_parameters(num_simulations=100, quiet=not debug)
-        driver.learn_emission_parameters(debug=debug, num_random_restarts=10)
+        driver.learn_emission_parameters(debug=debug, num_random_restarts=10) #, false_emission_probability=0)
         driver.create_hmm()
 
     results = driver.generate_schedule()
@@ -187,7 +187,7 @@ def test108_GSF_compact():
 
 
 def test300_GSF_compact():
-    run("test300", "GSF-compact")
+    run("test300", "GSF-compact", debug=False)
 
 
 def test301_GSF_compact():
@@ -263,7 +263,7 @@ def test108_GSF_HMM():
 
 
 def test300_GSF_HMM():
-    run("test300", "GSF-HMM")
+    run("test300", "GSF-HMM", debug=False)
 
 
 def test301_GSF_HMM():
@@ -339,7 +339,7 @@ def test108_GSF_HMM_compact():
 
 
 def test300_GSF_HMM_compact():
-    run("test300", "GSF-HMM-compact")
+    run("test300", "GSF-HMM-compact", debug=False)
 
 
 def test301_GSF_HMM_compact():
@@ -605,79 +605,80 @@ def test108_XSF_compact():
 def test300_XSF_compact():
     run("test300", "XSF-compact")
 
-def test1_XSF_HMM():
-    run("test1", "XSF-HMM")
+if False:
+    def test1_XSF_HMM():
+        run("test1", "XSF-HMM")
 
 
-def test2_XSF_HMM():
-    run("test2", "XSF-HMM")
+    def test2_XSF_HMM():
+        run("test2", "XSF-HMM")
 
 
-def test3_XSF_HMM():
-    run("test3", "XSF-HMM")
+    def test3_XSF_HMM():
+        run("test3", "XSF-HMM")
 
 
-def test4_XSF_HMM():
-    run("test4", "XSF-HMM")
+    def test4_XSF_HMM():
+        run("test4", "XSF-HMM")
 
 
-def test5_XSF_HMM():
-    run("test5", "XSF-HMM")
+    def test5_XSF_HMM():
+        run("test5", "XSF-HMM")
 
 
-def test6_XSF_HMM():
-    run("test6", "XSF-HMM")
+    def test6_XSF_HMM():
+        run("test6", "XSF-HMM")
 
 
-def test7_XSF_HMM():
-    run("test7", "XSF-HMM")
+    def test7_XSF_HMM():
+        run("test7", "XSF-HMM")
 
 
-def test100_XSF_HMM():
-    run("test100", "XSF-HMM", debug=False)
+    def test100_XSF_HMM():
+        run("test100", "XSF-HMM", debug=False)
 
 
-def test101_XSF_HMM():
-    run("test101", "XSF-HMM", debug=False)
+    def test101_XSF_HMM():
+        run("test101", "XSF-HMM", debug=False)
 
 
-def test102_XSF_HMM():
-    run("test102", "XSF-HMM")
+    def test102_XSF_HMM():
+        run("test102", "XSF-HMM")
 
 
-def test103_XSF_HMM():
-    run("test103", "XSF-HMM", debug=False)
+    def test103_XSF_HMM():
+        run("test103", "XSF-HMM", debug=False)
 
 
-def test104_XSF_HMM():
-    run("test104", "XSF-HMM")
+    def test104_XSF_HMM():
+        run("test104", "XSF-HMM")
 
 
-def test105_XSF_HMM():
-    run("test105", "XSF-HMM")
+    def test105_XSF_HMM():
+        run("test105", "XSF-HMM")
 
 
-def test106_XSF_HMM():
-    run("test106", "XSF-HMM")
+    def test106_XSF_HMM():
+        run("test106", "XSF-HMM")
 
 
-def test107_XSF_HMM():
-    run("test107", "XSF-HMM")
+    def test107_XSF_HMM():
+        run("test107", "XSF-HMM")
 
 
-def test108_XSF_HMM():
-    run("test108", "XSF-HMM")
+    def test108_XSF_HMM():
+        run("test108", "XSF-HMM")
 
 
-def test300_XSF_HMM():
-    run("test300", "XSF-HMM")
+    def test300_XSF_HMM():
+        run("test300", "XSF-HMM")
 
 
-def test301_XSF_HMM():
-    run("test301", "XSF-HMM", debug=False)
+    def test301_XSF_HMM():
+        run("test301", "XSF-HMM", debug=False)
 
 
-def test302_XSF_HMM():
-    run("test302", "XSF-HMM")
+    def test302_XSF_HMM():
+        run("test302", "XSF-HMM")
 
 

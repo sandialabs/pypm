@@ -59,7 +59,7 @@ hmm:
     ? !!python/tuple [a1, rC]
     : 1.0
     ? !!python/tuple [a2, rA]
-    : 0.3993993995005463
+    : 0.39939939950054626
     ? !!python/tuple [a2, rB]
     : 1.0e-06
     ? !!python/tuple [a2, rC]
