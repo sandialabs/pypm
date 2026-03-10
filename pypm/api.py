@@ -521,7 +521,7 @@ class StatisticalModel(SupervisedMIP):
     def learn_emission_parameters(
         self,
         *,
-        false_emission_probability=None,
+        false_emission_probability=1e-3,
         num_random_restarts=3,
         debug=False,
         quiet=True,
