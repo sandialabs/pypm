@@ -314,8 +314,12 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             hidden_vec = []
             for res in results["results"]:
                 hidden = [set() for _ in range(T)]
-                for h, t in res["variables"]["a"]:
-                    hidden[t].add(h)
+                for h,val in res['schedule'].items():
+                    if 'pre' in val or 'post' in val:
+                        continue
+                    print(f"{val=}")
+                    for t in range(val['first'], val['last']+1):
+                        hidden[t].add(h)
                 hidden_vec.append(hidden)
 
         if len(hidden_vec) == 0:
