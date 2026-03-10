@@ -46,6 +46,7 @@ def run(
         schedule_all_activities=schedule_all_activities,
         debug=debug,
         false_emission_probability=1e-3,
+        seed=123456789,
     )
 
     observed_states = {o for o in observed}
@@ -210,11 +211,11 @@ def test11():
     obs = [("oA",)] * 20
     ans = ex7_app(obs, True, debug=False, schedule_all_activities=False)
     assert ans.false_emission == {"oA": 0.001}
-    assert ans.true_positive == {
+    assert ans.true_positive == pytest.approx({
         ("a1", "oA"): 1.0,
         ("a2", "oA"): 1.0,
         ("a3", "oA"): 1.0,
-        ("a4", "oA"): 0.9,
-        ("a5", "oA"): 0.9,
-        ("a6", "oA"): 0.9,
-    }
+        ("a4", "oA"): 1.0,
+        ("a5", "oA"): 1.0,
+        ("a6", "oA"): 1.0,
+    })

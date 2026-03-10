@@ -466,7 +466,8 @@ class StatisticalModel(SupervisedMIP):
 
         self.config.hmm_app = initialize_hmm_application(self.model)
         self.config.hmm_app.initialize(self.config)
-        # TODO - use this
+
+        # TODO - Are labeling restrictions relevant for HMM models?
         # if self.config.labeling_restrictions:
         #    for activity in self.activities():
         #        dummyname = "dummy " + activity
@@ -487,6 +488,7 @@ class StatisticalModel(SupervisedMIP):
         results["hmm"] = dict(
             true_positive=self.config.hmm_app.emission_params.true_positive,
             false_emission=self.config.hmm_app.emission_params.false_emission,
+            start_prob=hmm.get_start_probs(),
             emission_mat=E,
             transition_mat=T,
         )
@@ -520,18 +522,26 @@ class StatisticalModel(SupervisedMIP):
         self,
         *,
         false_emission_probability=None,
+        num_random_restarts=3,
         debug=False,
         quiet=True,
         schedule_all_activities=False,
+        seed=None,
     ):
+        if seed is None:
+            seed = self.config.seed
+        self.config.hmm_app._api = self
         self.config.hmm_app.learn_emission_parameters(
             observed=self.config.hmm_app.data_wrapper.observation,
             debug=debug,
             quiet=quiet,
+            num_random_restarts=num_random_restarts,
             constrained=True,
             schedule_all_activities=schedule_all_activities,
             false_emission_probability=false_emission_probability,
+            seed=seed,
         )
+        self.config.hmm_app._api = None
 
     def create_hmm(self):
         self.config.hmm_app.create_hmm()

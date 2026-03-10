@@ -60,10 +60,12 @@ class PypmHMMApplication:
         false_emission_probability=1e-3,
         constrained=True,
         schedule_all_activities=True,
+        num_random_restarts=3,
         max_iterations=None,
         num_solutions_per_step=None,
         debug=False,
         quiet=True,
+        seed=None,
     ):
         constraints = (
             [] if not constrained else self.oracle_constraints(schedule_all_activities)
@@ -75,16 +77,22 @@ class PypmHMMApplication:
                 false_emission=self.false_emission_probability,
             )
 
+        API = getattr(self, "_api", None)
+        config = None if API is None else API.config
+
         self.emission_params = estimate_emission_parameters(
+            config=config,
             observed=observed,
             data_wrapper=self.data_wrapper,
             emission_params=self.emission_params,
             transition_params=self.transition_params,
+            num_random_restarts=num_random_restarts,
             constraints=constraints,
             max_iterations=max_iterations,
             num_solutions_per_step=num_solutions_per_step,
             debug=debug,
             quiet=quiet,
+            seed=seed,
         )
 
     def create_hmm(self, observed_states=None, no_zeros=False, no_zeros_tol=1e-6):

@@ -51,38 +51,29 @@ def estimate_emission_parameters(
     data_wrapper,
     transition_params,
     emission_params,
+    config=None,
     constraints=[],
     max_iterations=None,
     num_solutions_per_step=None,
-    num_random_restarts=10,
+    num_random_restarts=5,
     debug=False,
     quiet=True,
+    seed=None,
 ):
+
+    if seed:
+        random.seed(seed)
 
     if debug or not quiet:
         print("Estimating emission parameters - START")
 
-    ans = _estimate_emission_parameters_iter(
-        observed=observed,
-        data_wrapper=data_wrapper,
-        transition_params=transition_params,
-        emission_params=emission_params,
-        constraints=constraints,
-        max_iterations=max_iterations,
-        num_solutions_per_step=num_solutions_per_step,
-        debug=debug,
-        quiet=quiet,
-    )
-    if debug or not quiet:
-        print("Initial emission parameters")
-        print(ans.true_positive)
-        print(ans.value)
-
+    ans = Munch(true_positive=None, value=None)
     for i in range(num_random_restarts):
         for k in emission_params.true_positive:
             emission_params.true_positive[k] = random.random()
         ans_ = _estimate_emission_parameters_iter(
             observed=observed,
+            config=config,
             data_wrapper=data_wrapper,
             transition_params=transition_params,
             emission_params=emission_params,
@@ -111,6 +102,7 @@ def estimate_emission_parameters(
 def _estimate_emission_parameters_iter(
     *,
     observed,
+    config,
     data_wrapper,
     transition_params,
     emission_params,
@@ -157,6 +149,7 @@ def _estimate_emission_parameters_iter(
         old_true_positive = {key: val for key, val in hmm_app._true_positive.items()}
         status = hmm_app.SAEM_step(
             observation=observed,  # data_wrapper.observation
+            config=config,
             num_solutions=num_solutions_per_step,
             iteration=num_it,
             debug=debug,
@@ -284,7 +277,14 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         self.update_statistical_models()
 
     def SAEM_step(
-        self, *, observation, iteration, num_solutions=1, debug=False, quiet=True
+        self,
+        *,
+        observation,
+        config,
+        iteration,
+        num_solutions=1,
+        debug=False,
+        quiet=True,
     ):
         """
         A single step of the SAEM algorithm
@@ -292,11 +292,32 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         NOTE: this does not update the start probs and transition_probs
         This is because we assume they are already well-described by the Simian simulations
         """
-        if debug or not quiet:
-            print("SAEM_step - Oracle inference")
-        hidden_vec = self.oracle_inference(
-            observation=observation, num_solutions=num_solutions, debug=debug
-        )
+        if config is None:
+            if debug or not quiet:
+                print("SAEM_step - Oracle inference")
+            hidden_vec = self.oracle_inference(
+                observation=observation, num_solutions=num_solutions, debug=debug
+            )
+        else:
+            if debug or not quiet:
+                print("SAEM_step - Algebraic inference")
+            # Configure the PypmHMMApplication object with the current estimate of true_positive
+            config.hmm_app._emission_probs = Munch(
+                true_positive=self._true_positive, false_emission=self._false_emission
+            )
+            # Initialize the HMM in the PypmHMMApplication object
+            config.hmm_app._api.create_hmm()
+            # Generate a schedule using optimization
+            results = config.hmm_app._api.generate_schedule()
+            # Collect results
+            T = len(results["data"]["datetime"])
+            hidden_vec = []
+            for res in results["results"]:
+                hidden = [set() for _ in range(T)]
+                for h, t in res["variables"]["a"]:
+                    hidden[t].add(h)
+                hidden_vec.append(hidden)
+
         if len(hidden_vec) == 0:
             return Munch(error=True)
         if debug or not quiet:
@@ -567,6 +588,11 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                             temp = 1 - temp
 
                         val += pe.log(temp)
+
+            # Add terms for true_positive variables that are not added in the log-likelihood
+            # This biases their value to 1.0
+            tmp = {(h,o) for t in range(num_time_steps) for h in hidden[t] for o in B if (h,o) in self._true_positive}
+            val += sum(m.p[h,o] for (h,o) in self._true_positive if (h,o) not in tmp)
             return val
 
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
