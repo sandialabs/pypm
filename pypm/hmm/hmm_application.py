@@ -74,7 +74,7 @@ class PypmHMMApplication:
         if self.emission_params is None:
             self.emission_params = initial_emission_parameters(
                 data_wrapper=self.data_wrapper,
-                false_emission=self.false_emission_probability,
+                false_emission=false_emission_probability,
             )
 
         API = getattr(self, "_api", None)
