@@ -29,10 +29,10 @@ hmm:
       *id002: 0.0
       *id003: 0.9979990039989979
     ? &id005 !!python/tuple [a2]
-    : !!python/tuple []: 0.08093817769715549
-      *id001: 0.5220478811286502
-      *id002: 0.3968561549691965
-      *id003: 0.0001577862049977537
+    : !!python/tuple []: 0.0
+      *id001: 1.0
+      *id002: 0.0
+      *id003: 0.0
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.84
@@ -59,11 +59,11 @@ hmm:
     ? !!python/tuple [a1, rC]
     : 1.0
     ? !!python/tuple [a2, rA]
-    : 0.8304308122661933
+    : 1.0
     ? !!python/tuple [a2, rB]
-    : 0.5207950186669513
+    : 1.0
     ? !!python/tuple [a2, rC]
-    : 0.0009466193434278791
+    : 1.0
 results:
 - datetime_schedule:
     a1: {first: '2020-01-01 20:00:00', last: '2020-01-02 00:00:00', stop: '2020-01-02

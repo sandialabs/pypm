@@ -24,15 +24,15 @@ hmm:
       ? &id003 !!python/tuple [rC]
       : 0.000998001000000001
     ? &id004 !!python/tuple [a1]
-    : !!python/tuple []: 0.385346908519884
-      *id001: 0.580461488297875
-      *id002: 0.0036452085840640307
-      *id003: 0.030546394598176922
+    : !!python/tuple []: 0.7983992028969107
+      *id001: 0.0012009984005033614
+      *id002: 0.19959980110208717
+      *id003: 0.0007999976004987526
     ? &id005 !!python/tuple [a2]
-    : !!python/tuple []: 0.16633316761109132
-      *id001: 0.0018343298338898695
-      *id002: 0.00016666616711215755
-      *id003: 0.8316658363879066
+    : !!python/tuple []: 0.0
+      *id001: 1.0
+      *id002: 0.0
+      *id003: 0.0
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.84
@@ -53,51 +53,37 @@ hmm:
       *id005: 0.8333333333333334
   true_positive:
     ? !!python/tuple [a1, rA]
-    : 0.00837928533660226
+    : 0.19919919950239606
     ? !!python/tuple [a1, rB]
-    : 0.5797522854175975
+    : 1.0e-06
     ? !!python/tuple [a1, rC]
-    : 0.0725201914310557
+    : 1.0e-06
     ? !!python/tuple [a2, rA]
-    : 1.0e-06
+    : 1.0
     ? !!python/tuple [a2, rB]
-    : 1.0e-06
+    : 1.0
     ? !!python/tuple [a2, rC]
-    : 0.8331664995544055
+    : 1.0
 results:
 - datetime_schedule:
-    a1: {first: '2020-01-01 13:00:00', last: '2020-01-01 17:00:00', stop: '2020-01-01
-        18:00:00'}
-    a2: {first: '2020-01-01 18:00:00', last: '2020-01-01 23:00:00', stop: '2020-01-02
-        00:00:00'}
+    a1: {first: '2020-01-02 01:00:00', last: '2020-01-02 05:00:00'}
+    a2: {post: '2020-01-02 05:00:00'}
   goals: {}
-  objective: -21.923602394777692
+  objective: -49.859999651686806
   schedule:
-    a1: {first: 13, last: 17}
-    a2: {first: 18, last: 23}
+    a1: {first: 25, last: 29}
+    a2: {post: true}
   variables:
     a:
-      ? !!python/tuple [a1, 13]
+      ? !!python/tuple [a1, 25]
       : 1.0
-      ? !!python/tuple [a1, 14]
+      ? !!python/tuple [a1, 26]
       : 1.0
-      ? !!python/tuple [a1, 15]
+      ? !!python/tuple [a1, 27]
       : 1.0
-      ? !!python/tuple [a1, 16]
+      ? !!python/tuple [a1, 28]
       : 1.0
-      ? !!python/tuple [a1, 17]
-      : 1.0
-      ? !!python/tuple [a2, 18]
-      : 1.0
-      ? !!python/tuple [a2, 19]
-      : 1.0
-      ? !!python/tuple [a2, 20]
-      : 1.0
-      ? !!python/tuple [a2, 21]
-      : 1.0
-      ? !!python/tuple [a2, 22]
-      : 1.0
-      ? !!python/tuple [a2, 23]
+      ? !!python/tuple [a1, 29]
       : 1.0
     hmm.x:
       ? !!python/tuple [0, 0]
@@ -138,15 +124,15 @@ results:
       : 1.0
       ? !!python/tuple [18, 0]
       : 1.0
-      ? !!python/tuple [19, 2]
+      ? !!python/tuple [19, 0]
       : 1.0
-      ? !!python/tuple [20, 2]
+      ? !!python/tuple [20, 0]
       : 1.0
-      ? !!python/tuple [21, 2]
+      ? !!python/tuple [21, 0]
       : 1.0
-      ? !!python/tuple [22, 2]
+      ? !!python/tuple [22, 0]
       : 1.0
-      ? !!python/tuple [23, 2]
+      ? !!python/tuple [23, 0]
       : 1.0
       ? !!python/tuple [24, 0]
       : 1.0
@@ -158,7 +144,7 @@ results:
       : 1.0
       ? !!python/tuple [28, 0]
       : 1.0
-      ? !!python/tuple [29, 0]
+      ? !!python/tuple [29, 1]
       : 1.0
     hmm.y:
       ? !!python/tuple [0, -1, 0]
@@ -199,17 +185,17 @@ results:
       : 1.0
       ? !!python/tuple [18, 0, 0]
       : 1.0
-      ? !!python/tuple [19, 0, 2]
+      ? !!python/tuple [19, 0, 0]
       : 1.0
-      ? !!python/tuple [20, 2, 2]
+      ? !!python/tuple [20, 0, 0]
       : 1.0
-      ? !!python/tuple [21, 2, 2]
+      ? !!python/tuple [21, 0, 0]
       : 1.0
-      ? !!python/tuple [22, 2, 2]
+      ? !!python/tuple [22, 0, 0]
       : 1.0
-      ? !!python/tuple [23, 2, 2]
+      ? !!python/tuple [23, 0, 0]
       : 1.0
-      ? !!python/tuple [24, 2, 0]
+      ? !!python/tuple [24, 0, 0]
       : 1.0
       ? !!python/tuple [25, 0, 0]
       : 1.0
@@ -219,35 +205,11 @@ results:
       : 1.0
       ? !!python/tuple [28, 0, 0]
       : 1.0
-      ? !!python/tuple [29, 0, 0]
+      ? !!python/tuple [29, 0, 1]
       : 1.0
-      ? !!python/tuple [30, 0, -2]
+      ? !!python/tuple [30, 1, -2]
       : 1.0
     z:
-      ? !!python/tuple [a1, 13]
-      : 1.0
-      ? !!python/tuple [a1, 14]
-      : 1.0
-      ? !!python/tuple [a1, 15]
-      : 1.0
-      ? !!python/tuple [a1, 16]
-      : 1.0
-      ? !!python/tuple [a1, 17]
-      : 1.0
-      ? !!python/tuple [a1, 18]
-      : 1.0
-      ? !!python/tuple [a1, 19]
-      : 1.0
-      ? !!python/tuple [a1, 20]
-      : 1.0
-      ? !!python/tuple [a1, 21]
-      : 1.0
-      ? !!python/tuple [a1, 22]
-      : 1.0
-      ? !!python/tuple [a1, 23]
-      : 1.0
-      ? !!python/tuple [a1, 24]
-      : 1.0
       ? !!python/tuple [a1, 25]
       : 1.0
       ? !!python/tuple [a1, 26]
@@ -257,30 +219,6 @@ results:
       ? !!python/tuple [a1, 28]
       : 1.0
       ? !!python/tuple [a1, 29]
-      : 1.0
-      ? !!python/tuple [a2, 18]
-      : 1.0
-      ? !!python/tuple [a2, 19]
-      : 1.0
-      ? !!python/tuple [a2, 20]
-      : 1.0
-      ? !!python/tuple [a2, 21]
-      : 1.0
-      ? !!python/tuple [a2, 22]
-      : 1.0
-      ? !!python/tuple [a2, 23]
-      : 1.0
-      ? !!python/tuple [a2, 24]
-      : 1.0
-      ? !!python/tuple [a2, 25]
-      : 1.0
-      ? !!python/tuple [a2, 26]
-      : 1.0
-      ? !!python/tuple [a2, 27]
-      : 1.0
-      ? !!python/tuple [a2, 28]
-      : 1.0
-      ? !!python/tuple [a2, 29]
       : 1.0
     z_pre: {}
 solver:

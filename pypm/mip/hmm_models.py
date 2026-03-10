@@ -4,6 +4,8 @@ from .matching_models import (
     BaseModel,
     Z_Repn_Model,
     GSF_UnrestrictedMatches_VariableLengthActivities_constraints,
+    GSF_CompactMatches_constraints,
+    XSF_UnrestrictedMatches_FixedLengthActivities_constraints,
     fracval,
 )
 
@@ -35,42 +37,7 @@ class GSF_HMM(Z_Repn_Model):
                 )
 
     def summarize(self):
-        results = BaseModel.summarize(self)
-        #
-        if hasattr(self.M, "activity_length"):
-            obs = {}
-            for k in self.config.obs.observations:
-                obs[k] = set()
-            for j in self.config.pm:
-                for k in self.config.pm[j]["resources"]:
-                    for t in range(self.data.Tmax):
-                        if self.M.a[j, t].value > 1 - 1e-7:
-                            obs[k].add(t)
-
-            feature_total = {}
-            feature_len = {}
-            separation = {}
-            for k in self.config.obs.observations:
-                feature_total = sum(
-                    self.config.obs.observations[k][t]
-                    for t in range(self.data.Tmax)
-                    if t not in obs[k]
-                )
-                feature_len = self.data.Tmax - len(obs[k])
-                activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
-                activity_len = len(obs[k])
-                # print(k, activity_total, activity_len, feature_total, feature_len)
-                separation[k] = max(
-                    0,
-                    fracval(activity_total, activity_len)
-                    - fracval(feature_total, feature_len),
-                )
-            results["goals"]["separation"] = separation
-
-            results["goals"]["total_separation"] = sum(
-                val for val in results["goals"]["separation"].values()
-            )
-        return results
+        return BaseModel.summarize(self)
 
     def __call__(self, config, constraints=[]):
         self.config = config
@@ -211,54 +178,7 @@ class XSF_HMM(Z_Repn_Model):
             self.description = "Supervised process matching maximizing log-likelihood"
 
     def summarize(self):
-        results = BaseModel.summarize(self)
-        #
-        obs = {}
-        for k in self.config.obs.observations:
-            obs[k] = set()
-        for j in self.config.pm:
-            for k in self.config.pm[j]["resources"]:
-                for t in range(self.data.Tmax):
-                    if (
-                        self.M.z[j, t].value > 1 - 1e-7
-                        and self.M.z[j, t - 1].value < 1e-7
-                        and t + self.data.P[j] - 1 < self.data.Tmax
-                    ):
-                        for i in range(self.data.P[j]):
-                            obs[k].add(t + i)
-
-        feature_total = {}
-        feature_len = {}
-        separation = {}
-        for k in self.config.obs.observations:
-            feature_total = sum(
-                self.config.obs.observations[k][t]
-                for t in range(self.data.Tmax)
-                if t not in obs[k]
-            )
-            feature_len = self.data.Tmax - len(obs[k])
-            activity_total = sum(self.config.obs.observations[k][t] for t in obs[k])
-            activity_len = len(obs[k])
-            # print(k, activity_total, activity_len, feature_total, feature_len)
-            separation[k] = max(
-                0,
-                fracval(activity_total, activity_len)
-                - fracval(feature_total, feature_len),
-            )
-        results["goals"]["separation"] = separation
-
-        results["goals"]["total_separation"] = sum(
-            val for val in results["goals"]["separation"].values()
-        )
-        #
-        results["goals"]["match"] = {}
-        for activity, value in results["variables"]["o"].items():
-            results["goals"]["match"][activity] = value
-        results["goals"]["total_match"] = sum(
-            val for val in results["goals"]["match"].values()
-        )
-        #
-        return results
+        return BaseModel.summarize(self)
 
     def summarize_alignment(self, v):
         ans = {j: {"post": True} for j in self.config.pm}
@@ -309,33 +229,29 @@ class XSF_HMM(Z_Repn_Model):
             print("  Upsilon", Upsilon)
 
         assert (
-            objective == "total_match_score"
-        ), "XSF can not optimize the goal {}".format(objective)
+            objective == "log_likelihood"
+        ), "XSF_HMM can not optimize the goal {}".format(objective)
 
-        M = pe.ConcreteModel()
+        chmm = ConstrainedHiddenMarkovModel(hmm=self.config.hmm_app.hmm)
+        chmm.initialize_chmm("pyomo")
+        M = chmm.chmm.generate_unconstrained_model(
+            observed=self.config.hmm_app.data_wrapper.observation
+        )
+
+        tmp = M.hmm.o
+        M.hmm.del_component("o")
+        M.objective = tmp
+
         M.z = pe.Var(J, [-1] + T, within=pe.Binary)
-        M.o = pe.Var(J, bounds=(0, None))
+        M.a = pe.Var(J, T, within=pe.Binary)
 
-        # Objective
-
-        def objective_(m):
-            return sum(m.o[j] for j in J)
-
-        M.objective = pe.Objective(sense=pe.maximize, rule=objective_)
-
-        def odef_(m, j):
-            total = 0
-            for t in T:
-                end = t + P[j] - 1
-                if end not in T:
-                    continue
-                match_score = sum(
-                    S[j, k] * sum(O[k][t + i] for i in range(P[j])) for k in K[j]
-                )
-                total += match_score * (m.z[j, t] - m.z[j, t - 1])
-            return m.o[j] == total
-
-        M.odef = pe.Constraint(J, rule=odef_)
+        # M.a[j,t] may be one if the active state at time t constains activity j
+        M.a_con = pe.ConstraintList()
+        for t, internal_state in M.hmm.x:
+            state = self.config.hmm_app.hmm.hidden_to_external[internal_state]
+            for j in J:
+                if j in state:
+                    M.a_con.add(M.a[j, t] >= M.hmm.x[t, internal_state])
 
         M = XSF_UnrestrictedMatches_FixedLengthActivities_constraints(
             M=M,

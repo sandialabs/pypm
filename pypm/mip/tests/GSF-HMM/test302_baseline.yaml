@@ -47,9 +47,9 @@ hmm:
       *id001: 0.0
       *id002: 1.0
     ? &id008 !!python/tuple [a6]
-    : !!python/tuple []: 0.09989999999999997
+    : !!python/tuple []: 0.0
       *id001: 0.0
-      *id002: 0.9001
+      *id002: 1.0
   false_emission: {rA: 0.001}
   start_prob:
     !!python/tuple []: 0.82
@@ -128,7 +128,7 @@ hmm:
     ? !!python/tuple [a5, rA]
     : 1.0
     ? !!python/tuple [a6, rA]
-    : 0.9
+    : 1.0
 results:
 - datetime_schedule:
     a1: {first: '2020-01-01 00:00:00', last: '2020-01-01 04:00:00', stop: '2020-01-01
@@ -142,7 +142,7 @@ results:
     a5: {first: '2020-01-02 16:00:00', last: '2020-01-02 20:00:00'}
     a6: {post: '2020-01-02 20:00:00'}
   goals: {}
-  objective: -91.85146974870706
+  objective: -91.85146974870709
   schedule:
     a1: {first: 0, last: 4}
     a2: {first: 10, last: 14}

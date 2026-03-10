@@ -21,11 +21,11 @@ hmm:
       ? &id002 !!python/tuple [rA]
       : 0.0010000000000000009
     ? &id003 !!python/tuple [a1]
-    : *id001: 0.09989999999999999
-      *id002: 0.9001
+    : *id001: 0.0
+      *id002: 1.0
     ? &id004 !!python/tuple [a2]
-    : *id001: 0.09989999999999999
-      *id002: 0.9001
+    : *id001: 0.0
+      *id002: 1.0
     ? &id005 !!python/tuple [a3]
     : *id001: 0.0
       *id002: 1.0
@@ -106,9 +106,9 @@ hmm:
       *id008: 0.8
   true_positive:
     ? !!python/tuple [a1, rA]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a2, rA]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a3, rA]
     : 1.0
     ? !!python/tuple [a4, rA]
@@ -129,7 +129,7 @@ results:
         00:00:00'}
     a6: {first: '2020-01-02 01:00:00', last: '2020-01-02 05:00:00'}
   goals: {}
-  objective: -92.56831984563586
+  objective: -92.56831984563605
   schedule:
     a1: {pre: true}
     a2: {pre: true}
@@ -244,41 +244,41 @@ results:
       ? !!python/tuple [0, -1, 0]
       : 1.0
       ? !!python/tuple [1, 0, 0]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [2, 0, 0]
       : 1.0
       ? !!python/tuple [3, 0, 0]
       : 1.0
       ? !!python/tuple [4, 0, 3]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [5, 3, 3]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [6, 3, 3]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [7, 3, 3]
       : 1.0
       ? !!python/tuple [8, 3, 3]
       : 1.0
       ? !!python/tuple [9, 3, 0]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [10, 0, 0]
       : 1.0
       ? !!python/tuple [11, 0, 0]
-      : 0.999999999999998
+      : 1.0
       ? !!python/tuple [12, 0, 4]
       : 1.0
       ? !!python/tuple [13, 4, 4]
       : 1.0
       ? !!python/tuple [14, 4, 4]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [15, 4, 4]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [16, 4, 4]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [17, 4, 0]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [18, 0, 0]
-      : 0.999999999999998
+      : 0.999999999999999
       ? !!python/tuple [19, 0, 5]
       : 1.0
       ? !!python/tuple [20, 5, 5]
@@ -288,21 +288,21 @@ results:
       ? !!python/tuple [22, 5, 5]
       : 1.0
       ? !!python/tuple [23, 5, 5]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [24, 5, 0]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [25, 0, 6]
       : 1.0
       ? !!python/tuple [26, 6, 6]
       : 1.0
       ? !!python/tuple [27, 6, 6]
-      : 0.999999999999999
+      : 1.0
       ? !!python/tuple [28, 6, 6]
       : 1.0
       ? !!python/tuple [29, 6, 6]
       : 1.0
       ? !!python/tuple [30, 6, -2]
-      : 1.0
+      : 0.999999999999999
     z:
       ? !!python/tuple [a1, -1]
       : 1.0
@@ -548,7 +548,7 @@ results:
       : 1.0
       ? !!python/tuple [a6, 29]
       : 1.0
-    z_pre: {}
+    z_pre: {a3: 1.0}
 solver:
   model: {name: HMM_CompactMatches_VariableLengthActivities}
   search_strategy: mip

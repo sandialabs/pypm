@@ -24,10 +24,10 @@ hmm:
       ? &id003 !!python/tuple [rC]
       : 0.000998001000000001
     ? &id004 !!python/tuple [a1]
-    : !!python/tuple []: 0.0009970029989999993
-      *id001: 0.909083007001
-      *id002: 0.08093698299899998
-      *id003: 0.008983007000999996
+    : !!python/tuple []: 0.0
+      *id001: 1.0
+      *id002: 0.0
+      *id003: 0.0
     ? &id005 !!python/tuple [a2]
     : !!python/tuple []: 0.0
       *id001: 0.001000999000000058
@@ -53,11 +53,11 @@ hmm:
       *id005: 0.8333333333333334
   true_positive:
     ? !!python/tuple [a1, rA]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a1, rB]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a1, rC]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a2, rA]
     : 1.0
     ? !!python/tuple [a2, rB]

@@ -1,0 +1,327 @@
+data:
+  datafile: null
+  datetime: {0: '2020-01-01 00:00:00', 1: '2020-01-01 01:00:00', 2: '2020-01-01 02:00:00',
+    3: '2020-01-01 03:00:00', 4: '2020-01-01 04:00:00', 5: '2020-01-01 05:00:00',
+    6: '2020-01-01 06:00:00', 7: '2020-01-01 07:00:00', 8: '2020-01-01 08:00:00',
+    9: '2020-01-01 09:00:00', 10: '2020-01-01 10:00:00', 11: '2020-01-01 11:00:00',
+    12: '2020-01-01 12:00:00', 13: '2020-01-01 13:00:00', 14: '2020-01-01 14:00:00',
+    15: '2020-01-01 15:00:00', 16: '2020-01-01 16:00:00', 17: '2020-01-01 17:00:00',
+    18: '2020-01-01 18:00:00', 19: '2020-01-01 19:00:00', 20: '2020-01-01 20:00:00',
+    21: '2020-01-01 21:00:00', 22: '2020-01-01 22:00:00', 23: '2020-01-01 23:00:00',
+    24: '2020-01-02 00:00:00', 25: '2020-01-02 01:00:00', 26: '2020-01-02 02:00:00',
+    27: '2020-01-02 03:00:00', 28: '2020-01-02 04:00:00', 29: '2020-01-02 05:00:00'}
+  index: 0
+  indicators: []
+  timesteps: 30
+hmm:
+  emission_mat:
+    !!python/tuple []:
+      !!python/tuple []: 0.995009990004999
+      ? &id001 !!python/tuple [_other_]
+      : 0.003993005997001031
+      ? &id002 !!python/tuple [rA, rB, rC, rE]
+      : 9.990000000000035e-13
+      ? &id003 !!python/tuple [rB, rC, rE]
+      : 9.980010000000027e-10
+      ? &id004 !!python/tuple [rC, rE]
+      : 9.970029990000018e-07
+      ? &id005 !!python/tuple [rD]
+      : 0.000996005996001001
+    ? &id006 !!python/tuple [a1]
+    : !!python/tuple []: 0.0
+      *id001: 0.0019999950050041404
+      *id002: 1.000995998006116e-06
+      *id003: 0.0009989960050040506
+      *id004: 0.9970000079939938
+      *id005: 0.0
+    ? &id007 !!python/tuple [a2]
+    : !!python/tuple []: 0.3064729017350396
+      *id001: 0.6918440199596281
+      *id002: 0.00027519749599239817
+      *id003: 0.0005503966283847525
+      *id004: 0.0005503977195505563
+      *id005: 0.0003070864614046703
+    ? &id008 !!python/tuple [a2, a3]
+    : !!python/tuple []: 0.0
+      *id001: 0.6932212389216679
+      *id002: 0.0
+      *id003: 0.0
+      *id004: 0.0
+      *id005: 0.30677876107833213
+    ? &id009 !!python/tuple [a3]
+    : !!python/tuple []: 0.0
+      *id001: 0.003997988017008236
+      *id002: 0.0
+      *id003: 0.0
+      *id004: 0.0
+      *id005: 0.9960020119829918
+    ? &id010 !!python/tuple [a4]
+    : !!python/tuple []: 0.0
+      *id001: 1.0
+      *id002: 0.0
+      *id003: 0.0
+      *id004: 0.0
+      *id005: 0.0
+  false_emission: {rA: 0.001, rB: 0.001, rC: 0.001, rD: 0.001, rE: 0.001}
+  start_prob:
+    !!python/tuple []: 0.85
+    *id006: 0.15
+    *id007: 0.0
+    *id008: 0.0
+    *id009: 0.0
+    *id010: 0.0
+  transition_mat:
+    !!python/tuple []:
+      !!python/tuple []: 0.695303550973654
+      *id006: 0.09736540664375716
+      *id007: 0.037800687285223365
+      *id008: 0.019473081328751432
+      *id009: 0.04009163802978236
+      *id010: 0.10996563573883161
+    *id006:
+      !!python/tuple []: 0.09375
+      *id006: 0.8641304347826086
+      *id007: 0.019021739130434784
+      *id008: 0.0
+      *id009: 0.02309782608695652
+      *id010: 0.0
+    *id007:
+      !!python/tuple []: 0.2647058823529412
+      *id006: 0.0
+      *id007: 0.5529411764705883
+      *id008: 0.11176470588235295
+      *id009: 0.07058823529411765
+      *id010: 0.0
+    *id008:
+      !!python/tuple []: 0.125
+      *id006: 0.0
+      *id007: 0.16176470588235295
+      *id008: 0.5220588235294118
+      *id009: 0.19117647058823528
+      *id010: 0.0
+    *id009:
+      !!python/tuple []: 0.22026431718061673
+      *id006: 0.0
+      *id007: 0.030837004405286344
+      *id008: 0.1277533039647577
+      *id009: 0.6035242290748899
+      *id010: 0.01762114537444934
+    *id010:
+      !!python/tuple []: 0.2915451895043732
+      *id006: 0.0
+      *id007: 0.0
+      *id008: 0.0
+      *id009: 0.0
+      *id010: 0.7084548104956269
+  true_positive:
+    ? !!python/tuple [a1, rA]
+    : 1.0e-06
+    ? !!python/tuple [a1, rB]
+    : 1.0e-06
+    ? !!python/tuple [a1, rC]
+    : 1.0
+    ? !!python/tuple [a1, rD]
+    : 1.0e-06
+    ? !!python/tuple [a1, rE]
+    : 1.0
+    ? !!python/tuple [a2, rA]
+    : 0.33266533797540987
+    ? !!python/tuple [a2, rB]
+    : 0.4994990033768296
+    ? !!python/tuple [a2, rC]
+    : 0.040116870602396756
+    ? !!python/tuple [a2, rD]
+    : 1.0e-06
+    ? !!python/tuple [a2, rE]
+    : 0.039277227672004644
+    ? !!python/tuple [a3, rA]
+    : 1.0e-06
+    ? !!python/tuple [a3, rB]
+    : 1.0e-06
+    ? !!python/tuple [a3, rC]
+    : 1.0e-06
+    ? !!python/tuple [a3, rD]
+    : 1.0
+    ? !!python/tuple [a3, rE]
+    : 1.0e-06
+    ? !!python/tuple [a4, rA]
+    : 1.0
+    ? !!python/tuple [a4, rB]
+    : 1.0
+    ? !!python/tuple [a4, rC]
+    : 1.0
+    ? !!python/tuple [a4, rD]
+    : 1.0
+    ? !!python/tuple [a4, rE]
+    : 1.0
+results:
+- datetime_schedule:
+    a1: {post: '2020-01-02 05:00:00'}
+    a2: {post: '2020-01-02 05:00:00'}
+    a3: {post: '2020-01-02 05:00:00'}
+    a4: {post: '2020-01-02 05:00:00'}
+  goals: {}
+  objective: -45.28563605329903
+  schedule:
+    a1: {post: true}
+    a2: {post: true}
+    a3: {post: true}
+    a4: {post: true}
+  variables:
+    a:
+      ? !!python/tuple [a1, 1]
+      : 1.0
+      ? !!python/tuple [a1, 2]
+      : 1.0
+      ? !!python/tuple [a1, 3]
+      : 1.0
+      ? !!python/tuple [a1, 4]
+      : 1.0
+      ? !!python/tuple [a1, 5]
+      : 1.0
+      ? !!python/tuple [a2, 6]
+      : 1.0
+      ? !!python/tuple [a2, 7]
+      : 1.0
+      ? !!python/tuple [a2, 8]
+      : 1.0
+      ? !!python/tuple [a2, 9]
+      : 1.0
+      ? !!python/tuple [a3, 10]
+      : 1.0
+      ? !!python/tuple [a3, 11]
+      : 1.0
+      ? !!python/tuple [a3, 12]
+      : 1.0
+      ? !!python/tuple [a3, 13]
+      : 1.0
+      ? !!python/tuple [a3, 14]
+      : 1.0
+    hmm.x:
+      ? !!python/tuple [0, 0]
+      : 1.0
+      ? !!python/tuple [1, 1]
+      : 1.0
+      ? !!python/tuple [2, 1]
+      : 1.0
+      ? !!python/tuple [3, 1]
+      : 1.0
+      ? !!python/tuple [4, 1]
+      : 1.0
+      ? !!python/tuple [5, 1]
+      : 1.0
+      ? !!python/tuple [6, 2]
+      : 1.0
+      ? !!python/tuple [7, 2]
+      : 1.0
+      ? !!python/tuple [8, 2]
+      : 1.0
+      ? !!python/tuple [9, 2]
+      : 1.0
+      ? !!python/tuple [10, 4]
+      : 1.0
+      ? !!python/tuple [11, 4]
+      : 1.0
+      ? !!python/tuple [12, 4]
+      : 1.0
+      ? !!python/tuple [13, 4]
+      : 1.0
+      ? !!python/tuple [14, 4]
+      : 1.0
+      ? !!python/tuple [15, 0]
+      : 1.0
+      ? !!python/tuple [16, 0]
+      : 1.0
+      ? !!python/tuple [17, 0]
+      : 1.0
+      ? !!python/tuple [18, 0]
+      : 1.0
+      ? !!python/tuple [19, 0]
+      : 1.0
+      ? !!python/tuple [20, 0]
+      : 1.0
+      ? !!python/tuple [21, 0]
+      : 1.0
+      ? !!python/tuple [22, 0]
+      : 1.0
+      ? !!python/tuple [23, 0]
+      : 1.0
+      ? !!python/tuple [24, 0]
+      : 1.0
+      ? !!python/tuple [25, 0]
+      : 1.0
+      ? !!python/tuple [26, 0]
+      : 1.0
+      ? !!python/tuple [27, 0]
+      : 1.0
+      ? !!python/tuple [28, 0]
+      : 1.0
+      ? !!python/tuple [29, 0]
+      : 1.0
+    hmm.y:
+      ? !!python/tuple [0, -1, 0]
+      : 1.0
+      ? !!python/tuple [1, 0, 1]
+      : 1.0
+      ? !!python/tuple [2, 1, 1]
+      : 1.0
+      ? !!python/tuple [3, 1, 1]
+      : 1.0
+      ? !!python/tuple [4, 1, 1]
+      : 1.0
+      ? !!python/tuple [5, 1, 1]
+      : 1.0
+      ? !!python/tuple [6, 1, 2]
+      : 1.0
+      ? !!python/tuple [7, 2, 2]
+      : 1.0
+      ? !!python/tuple [8, 2, 2]
+      : 1.0
+      ? !!python/tuple [9, 2, 2]
+      : 1.0
+      ? !!python/tuple [10, 2, 4]
+      : 1.0
+      ? !!python/tuple [11, 4, 4]
+      : 1.0
+      ? !!python/tuple [12, 4, 4]
+      : 1.0
+      ? !!python/tuple [13, 4, 4]
+      : 1.0
+      ? !!python/tuple [14, 4, 4]
+      : 1.0
+      ? !!python/tuple [15, 4, 0]
+      : 1.0
+      ? !!python/tuple [16, 0, 0]
+      : 1.0
+      ? !!python/tuple [17, 0, 0]
+      : 1.0
+      ? !!python/tuple [18, 0, 0]
+      : 1.0
+      ? !!python/tuple [19, 0, 0]
+      : 1.0
+      ? !!python/tuple [20, 0, 0]
+      : 1.0
+      ? !!python/tuple [21, 0, 0]
+      : 1.0
+      ? !!python/tuple [22, 0, 0]
+      : 1.0
+      ? !!python/tuple [23, 0, 0]
+      : 1.0
+      ? !!python/tuple [24, 0, 0]
+      : 1.0
+      ? !!python/tuple [25, 0, 0]
+      : 1.0
+      ? !!python/tuple [26, 0, 0]
+      : 1.0
+      ? !!python/tuple [27, 0, 0]
+      : 1.0
+      ? !!python/tuple [28, 0, 0]
+      : 1.0
+      ? !!python/tuple [29, 0, 0]
+      : 1.0
+      ? !!python/tuple [30, 0, -2]
+      : 1.0
+    z: {}
+solver:
+  model: {name: HMM_UnrestrictedMatches_FixedLengthActivities}
+  search_strategy: mip

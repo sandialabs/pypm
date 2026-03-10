@@ -22,9 +22,9 @@ hmm:
       ? &id002 !!python/tuple [oA, oB]
       : 9.990000000000018e-07
     ? &id003 !!python/tuple [a1]
-    : !!python/tuple []: 0.0009970029989999993
-      *id001: 0.918066014002
-      *id002: 0.08093698299899998
+    : !!python/tuple []: 0.0
+      *id001: 1.0
+      *id002: 0.0
     ? &id004 !!python/tuple [a2]
     : !!python/tuple []: 0.0
       *id001: 0.001000999000000058
@@ -49,11 +49,11 @@ hmm:
       *id004: 0.8333333333333334
   true_positive:
     ? !!python/tuple [a1, oA]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a1, oB]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a1, oC]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a2, oA]
     : 1.0
     ? !!python/tuple [a2, oB]
@@ -66,7 +66,7 @@ results:
     a2: {first: '2020-01-01 05:00:00', last: '2020-01-01 10:00:00', stop: '2020-01-01
         11:00:00'}
   goals: {}
-  objective: -13.864137945650425
+  objective: -13.864137945650409
   schedule:
     a1: {pre: true}
     a2: {first: 5, last: 10}

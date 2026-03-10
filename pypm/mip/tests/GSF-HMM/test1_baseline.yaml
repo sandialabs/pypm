@@ -26,9 +26,9 @@ hmm:
       *id001: 0.0
       *id002: 1.0
     ? &id004 !!python/tuple [a2]
-    : !!python/tuple []: 0.009980009999999996
-      *id001: 0.1798399799999999
-      *id002: 0.8101800100000001
+    : !!python/tuple []: 0.0
+      *id001: 0.0
+      *id002: 1.0
   false_emission: {rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.8
@@ -53,16 +53,16 @@ hmm:
     ? !!python/tuple [a1, rC]
     : 1.0
     ? !!python/tuple [a2, rB]
-    : 0.9
+    : 1.0
     ? !!python/tuple [a2, rC]
-    : 0.9
+    : 1.0
 results:
 - datetime_schedule:
     a1: {first: '2020-01-01 00:00:00', last: '2020-01-01 07:00:00', stop: '2020-01-01
         08:00:00'}
     a2: {post: '2020-01-02 05:00:00'}
   goals: {}
-  objective: -14.05142271304352
+  objective: -14.05142271304355
   schedule:
     a1: {first: 0, last: 7}
     a2: {post: true}
