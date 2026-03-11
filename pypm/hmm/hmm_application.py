@@ -19,7 +19,7 @@ class PypmHMMApplication:
 
     def initialize(self, config):
         self._config = config
-        self.data_wrapper = create_data_wrapper(config=config)
+        self.data_wrapper = create_data_wrapper(config=config, quiet=config.quiet)
         if hasattr(config, "features"):
             self.data_wrapper.features = getattr(config, "features", {})
         self.transition_params = None

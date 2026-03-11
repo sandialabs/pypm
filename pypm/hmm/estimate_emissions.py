@@ -308,6 +308,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         else:
             if debug or not quiet:
                 print("SAEM_step - Algebraic inference")
+                config.debug = debug
+                config.quiet = quiet
             # Configure the PypmHMMApplication object with the current estimate of true_positive
             config.hmm_app._emission_probs = Munch(
                 true_positive=self._true_positive, false_emission=self._false_emission
