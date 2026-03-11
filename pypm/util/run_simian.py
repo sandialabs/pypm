@@ -79,8 +79,9 @@ def create_data_wrapper(**kwds):
 
             if "obs" in config:
                 # There are a couple of ways you could do this
-                for val in config["obs"]["observations"].keys():
+                for val in config["obs"]["observations"]:
                     self.num_time_steps = len(config["obs"]["observations"][val])
+                    break
 
                 self.features = list(sorted(config["obs"]["observations"].keys()))
 
@@ -99,20 +100,56 @@ def create_data_wrapper(**kwds):
             if num_time_steps is not None:
                 self.num_time_steps = num_time_steps
 
-            if (
-                hasattr(config, "known_process_features")
-                and config.known_process_features is not None
-            ):
-                self.known_process_features = config.known_process_features
+            if getattr(config, "labeling_restrictions", None) is not None:
+                feature_set = set(self.features)
+                kpf = {activity:set() for activity in config.pm}
+                ppf = {activity:set() for activity in config.pm}
+                for activity in config.pm:
+                    for resource in config.pm[activity]['resources']:
+                        for feature in config.labeling_restrictions.get(resource,{}).get('required',[]):
+                            if feature in feature_set:
+                                kpf[activity].add(feature)
+                            else:
+                                print(f"WARNING: unexpected required feature - {feature} {activity=} {resource=}")
+                        for feature in config.labeling_restrictions.get(resource,{}).get('optional',[]):
+                            if feature in feature_set:
+                                ppf[activity].add(feature)
+                            else:
+                                print(f"WARNING: unexpected optional feature - {feature} {activity=} {resource=}")
+                self.known_process_features = kpf
+                self.possible_process_features = ppf
+
+                if False:
+                    print(f"{len(feature_set)=} {len(self.observed_states)=} {len(self.observation)=}")
+                    for t,obs in enumerate(self.observation):
+                        if t == 0:
+                            continue
+                        print(f"{t=}\n\tAdded:\t{set(obs) - set(self.observation[t-1])}\n\tRemoved:\t{set(self.observation[t-1]) - set(obs)}")
+                    import pprint; pprint.pprint(sorted(self.observation))
+                    for activity in config.pm:
+                        print(f"  {activity=} {len(self.features)} {len(kpf[activity]) + len(ppf[activity])}")
+                    sys.exit(0)
+
             else:
-                self.known_process_features = {}
-            if (
-                hasattr(config, "possible_process_features")
-                and config.possible_process_features is not None
-            ):
-                self.possible_process_features = config.possible_process_features
-            else:
-                self.possible_process_features = {}
+                if (
+                    hasattr(config, "known_process_features")
+                    and config.known_process_features is not None
+                ):
+                    self.known_process_features = config.known_process_features
+                else:
+                    self.known_process_features = {}
+                if (
+                    hasattr(config, "possible_process_features")
+                    and config.possible_process_features is not None
+                ):
+                    self.possible_process_features = config.possible_process_features
+                else:
+                    self.possible_process_features = {}
+            if len(self.known_process_features) > 0:
+                print(f"Known process features:",sum(len(self.known_process_features[a]) for a in config.pm))
+                print(f"Possible process features:",sum(len(self.possible_process_features[a]) for a in config.pm))
+                print(f"Total true_positive options",len(self.features)*len(config.pm))
+                
 
             if seed is not None:
                 config.seed = seed

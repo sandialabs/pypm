@@ -87,11 +87,12 @@ def estimate_emission_parameters(
             max_iterations=max_iterations,
             num_solutions_per_step=num_solutions_per_step,
             quiet=quiet,
+            debug=debug,
         )
         if debug or not quiet:
             print(f"Randomized iteration {i}")
-            print(ans.true_positive)
-            print(ans.value)
+            print("true_positive", ans_.true_positive)
+            print("value", ans_.value)
         if ans_.value is None:
             continue
         if ans.value is None or ans_.value > ans.value:
@@ -100,8 +101,8 @@ def estimate_emission_parameters(
     if debug or not quiet:
         print("Estimating emission parameters - STOP")
         print("Final emission parameters")
-        print(ans.true_positive)
-        print(ans.value)
+        print("true_positive",ans.true_positive)
+        print("value", ans.value)
     return ans
 
 
@@ -613,25 +614,32 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             model.pprint()
             model.display()
 
-        # Could also probably just use
-        new_true_positive = {key: lb for key in self._true_positive}
+        if False:
+            # Could also probably just use
+            new_true_positive = {key: lb for key in self._true_positive}
 
-        for o in self._observable_states:
-            for h in self._processes:
-                if (h, o) in new_true_positive:
-                    if pe.value(model.p[h, o]) < lb:
-                        new_true_positive[h, o] = lb
-                    else:
-                        new_true_positive[h, o] = min(pe.value(model.p[h, o]), ub)
+            for o in self._observable_states:
+                for h in self._processes:
+                    if (h, o) in new_true_positive:
+                        if pe.value(model.p[h, o]) < lb:
+                            new_true_positive[h, o] = lb
+                        else:
+                            new_true_positive[h, o] = min(pe.value(model.p[h, o]), ub)
 
-        # Underweight as we go. This makes everything more numerically stable
-        for o in self._observable_states:
-            for h in self._processes:
-                if (h, o) in new_true_positive:
-                    new_true_positive[h, o] = (
-                        new_true_positive[h, o] / iteration
-                        + self._true_positive[h, o] * (iteration - 1) / iteration
-                    )
+            # Underweight as we go. This makes everything more numerically stable
+            for o in self._observable_states:
+                for h in self._processes:
+                    if (h, o) in new_true_positive:
+                        new_true_positive[h, o] = (
+                            new_true_positive[h, o] / iteration
+                            + self._true_positive[h, o] * (iteration - 1) / iteration
+                        )
+        else:
+            #
+            # WEH - Numerical stability seems not a big deal.  But we're doing extra work if we're
+            #       resolving with the same hidden states
+            #
+            new_true_positive = {key: min(max(lb,pe.value(model.p[key])),ub) for key in model.p}
 
         self.update_statistical_models(
             false_emission=self._false_emission, true_positive=new_true_positive

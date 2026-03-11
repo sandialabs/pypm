@@ -38,6 +38,7 @@ def run(
         num_simulations=num_simulations,
         seed=123456789,
         quiet=quiet,
+        debug=debug,
     )
 
     app.learn_emission_parameters(
