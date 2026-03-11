@@ -16,41 +16,37 @@ data:
 hmm:
   emission_mat:
     !!python/tuple []:
-      !!python/tuple []: 0.997002999
-      ? &id001 !!python/tuple [_other_]
-      : 0.001998001000000027
-      ? &id002 !!python/tuple [rA]
-      : 0.000998001000000001
-      ? &id003 !!python/tuple [rB, rC]
-      : 9.990000000000018e-07
-    ? &id004 !!python/tuple [a1]
-    : !!python/tuple []: 0.0
-      *id001: 0.001000999000000058
-      *id002: 0.0
-      *id003: 0.9989990009999999
-    ? &id005 !!python/tuple [a2]
-    : !!python/tuple []: 0.5987994022526915
-      *id001: 0.002000394801603411
-      *id002: 0.3991996017463065
-      *id003: 6.011993986533742e-07
+      !!python/tuple []: 0.9989990000010011
+      ? &id001 !!python/tuple [rA]
+      : 0.000999998999000002
+      ? &id002 !!python/tuple [rB, rC]
+      : 1.000999998999002e-06
+    ? &id003 !!python/tuple [a1]
+    : !!python/tuple []: 1.001002002000999e-12
+      *id001: 1.001002002000999e-12
+      *id002: 0.999999999997998
+    ? &id004 !!python/tuple [a2]
+    : !!python/tuple []: 0.5999996384103314
+      *id001: 0.39999975918522324
+      *id002: 6.024044453743639e-07
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.84
-    *id004: 0.16
-    *id005: 0.0
+    *id003: 0.16
+    *id004: 0.0
   transition_mat:
     !!python/tuple []:
       !!python/tuple []: 0.6594059405940594
-      *id004: 0.16633663366336635
-      *id005: 0.17425742574257425
-    *id004:
+      *id003: 0.16633663366336635
+      *id004: 0.17425742574257425
+    *id003:
       !!python/tuple []: 0.176
-      *id004: 0.8
-      *id005: 0.024
-    *id005:
+      *id003: 0.8
+      *id004: 0.024
+    *id004:
       !!python/tuple []: 0.2
-      *id004: 0.0
-      *id005: 0.8
+      *id003: 0.0
+      *id004: 0.8
   true_positive:
     ? !!python/tuple [a1, rA]
     : 1.0e-06
@@ -71,7 +67,7 @@ results:
     a2: {first: '2020-01-01 12:00:00', last: '2020-01-01 16:00:00', stop: '2020-01-01
         17:00:00'}
   goals: {}
-  objective: -66.76397531079861
+  objective: -66.70896302027778
   schedule:
     a1: {first: 7, last: 11}
     a2: {first: 12, last: 16}

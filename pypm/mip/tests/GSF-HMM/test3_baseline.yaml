@@ -16,41 +16,37 @@ data:
 hmm:
   emission_mat:
     !!python/tuple []:
-      !!python/tuple []: 0.997002999
-      ? &id001 !!python/tuple [_other_]
-      : 0.001998001000000027
-      ? &id002 !!python/tuple [rA]
-      : 0.000998001000000001
-      ? &id003 !!python/tuple [rB, rC]
-      : 9.990000000000018e-07
-    ? &id004 !!python/tuple [a1]
-    : !!python/tuple []: 0.0
-      *id001: 0.001000999000000058
-      *id002: 0.0
-      *id003: 0.9989990009999999
-    ? &id005 !!python/tuple [a2]
-    : !!python/tuple []: 0.0
-      *id001: 0.00200099600100212
-      *id002: 0.9979990039989979
-      *id003: 0.0
+      !!python/tuple []: 0.9989990000010011
+      ? &id001 !!python/tuple [rA]
+      : 0.000999998999000002
+      ? &id002 !!python/tuple [rB, rC]
+      : 1.000999998999002e-06
+    ? &id003 !!python/tuple [a1]
+    : !!python/tuple []: 1.001002002000999e-12
+      *id001: 1.001002002000999e-12
+      *id002: 0.999999999997998
+    ? &id004 !!python/tuple [a2]
+    : !!python/tuple []: 1.002005008012012e-12
+      *id001: 0.999999999997996
+      *id002: 1.002005008012012e-12
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.8
-    *id004: 0.2
-    *id005: 0.0
+    *id003: 0.2
+    *id004: 0.0
   transition_mat:
     !!python/tuple []:
       !!python/tuple []: 0.6439232409381663
-      *id004: 0.17057569296375266
-      *id005: 0.18550106609808104
-    *id004:
+      *id003: 0.17057569296375266
+      *id004: 0.18550106609808104
+    *id003:
       !!python/tuple []: 0.14262295081967213
-      *id004: 0.8360655737704918
-      *id005: 0.021311475409836064
-    *id005:
+      *id003: 0.8360655737704918
+      *id004: 0.021311475409836064
+    *id004:
       !!python/tuple []: 0.2
-      *id004: 0.0
-      *id005: 0.8
+      *id003: 0.0
+      *id004: 0.8
   true_positive:
     ? !!python/tuple [a1, rA]
     : 1.0e-06
@@ -71,7 +67,7 @@ results:
     a2: {first: '2020-01-01 13:00:00', last: '2020-01-01 17:00:00', stop: '2020-01-01
         18:00:00'}
   goals: {}
-  objective: -15.873955469540018
+  objective: -15.82092996988461
   schedule:
     a1: {first: 5, last: 11}
     a2: {first: 13, last: 17}

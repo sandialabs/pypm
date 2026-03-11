@@ -16,57 +16,49 @@ data:
 hmm:
   emission_mat:
     !!python/tuple []:
-      !!python/tuple []: 0.997002999
-      ? &id001 !!python/tuple [_other_]
-      : 0.002996002000000053
-      ? &id002 !!python/tuple [oA, oB]
-      : 9.990000000000018e-07
-    ? &id003 !!python/tuple [a1]
-    : !!python/tuple []: 0.0
-      *id001: 1.0
-      *id002: 0.0
-    ? &id004 !!python/tuple [a2]
-    : !!python/tuple []: 0.0
-      *id001: 0.001000999000000058
-      *id002: 0.9989990009999999
-  false_emission: {oA: 0.001, oB: 0.001, oC: 0.001}
+      !!python/tuple []: 0.999998997998
+      ? &id001 !!python/tuple [oA, oB]
+      : 1.002001999995994e-06
+    ? &id002 !!python/tuple [a1]
+    : !!python/tuple []: 9.99999999999e-13
+      *id001: 0.9999999999989999
+    ? &id003 !!python/tuple [a2]
+    : !!python/tuple []: 9.99999999999e-13
+      *id001: 0.9999999999989999
+  false_emission: {oA: 0.001, oB: 0.001}
   start_prob:
     !!python/tuple []: 0.84
-    *id003: 0.16
-    *id004: 0.0
+    *id002: 0.16
+    *id003: 0.0
   transition_mat:
     !!python/tuple []:
       !!python/tuple []: 0.6594059405940594
-      *id003: 0.16633663366336635
-      *id004: 0.17425742574257425
-    *id003:
+      *id002: 0.16633663366336635
+      *id003: 0.17425742574257425
+    *id002:
       !!python/tuple []: 0.176
-      *id003: 0.8
-      *id004: 0.024
-    *id004:
+      *id002: 0.8
+      *id003: 0.024
+    *id003:
       !!python/tuple []: 0.16666666666666666
-      *id003: 0.0
-      *id004: 0.8333333333333334
+      *id002: 0.0
+      *id003: 0.8333333333333334
   true_positive:
     ? !!python/tuple [a1, oA]
     : 1.0
     ? !!python/tuple [a1, oB]
     : 1.0
-    ? !!python/tuple [a1, oC]
-    : 1.0
     ? !!python/tuple [a2, oA]
     : 1.0
     ? !!python/tuple [a2, oB]
     : 1.0
-    ? !!python/tuple [a2, oC]
-    : 1.0e-06
 results:
 - datetime_schedule:
     a1: {pre: '2020-01-01 00:00:00'}
     a2: {first: '2020-01-01 05:00:00', last: '2020-01-01 10:00:00', stop: '2020-01-01
         11:00:00'}
   goals: {}
-  objective: -13.864137945650425
+  objective: -13.786116967693959
   schedule:
     a1: {pre: true}
     a2: {first: 5, last: 10}

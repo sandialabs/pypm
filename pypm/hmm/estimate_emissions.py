@@ -72,7 +72,7 @@ def estimate_emission_parameters(
         if i == 0:
             # Perturb the initial true_positive values
             for k in emission_params.true_positive:
-                emission_params.true_positive[k] *= random.uniform(0.9,1.0)
+                emission_params.true_positive[k] *= random.uniform(0.9, 1.0)
         else:
             # Generate random true_positive values
             for k in emission_params.true_positive:
@@ -101,7 +101,7 @@ def estimate_emission_parameters(
     if debug or not quiet:
         print("Estimating emission parameters - STOP")
         print("Final emission parameters")
-        print("true_positive",ans.true_positive)
+        print("true_positive", ans.true_positive)
         print("value", ans.value)
     return ans
 
@@ -178,8 +178,8 @@ def _estimate_emission_parameters_iter(
                     )
         if debug or not quiet:
             print(f"Error {error}, iteration {num_it}")
+        _true_positive = hmm_app._true_positive
         if error < eps:
-            _true_positive = hmm_app._true_positive
             break
 
     if debug or not quiet:
@@ -323,10 +323,10 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             hidden_vec = []
             for res in results["results"]:
                 hidden = [set() for _ in range(T)]
-                for h,val in res['schedule'].items():
-                    if 'pre' in val or 'post' in val:
+                for h, val in res["schedule"].items():
+                    if "pre" in val or "post" in val:
                         continue
-                    for t in range(val['first'], val['last']+1):
+                    for t in range(val["first"], val["last"] + 1):
                         hidden[t].add(h)
                 hidden_vec.append(hidden)
 
@@ -603,8 +603,14 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
             # Add terms for true_positive variables that are not added in the log-likelihood
             # This biases their value to 1.0
-            tmp = {(h,o) for t in range(num_time_steps) for h in hidden[t] for o in B if (h,o) in self._true_positive}
-            val += sum(m.p[h,o] for (h,o) in self._true_positive if (h,o) not in tmp)
+            tmp = {
+                (h, o)
+                for t in range(num_time_steps)
+                for h in hidden[t]
+                for o in B
+                if (h, o) in self._true_positive
+            }
+            val += sum(m.p[h, o] for (h, o) in self._true_positive if (h, o) not in tmp)
             return val
 
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
@@ -616,7 +622,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             model.pprint()
             model.display()
 
-        if False:
+        if True:
             # Could also probably just use
             new_true_positive = {key: lb for key in self._true_positive}
 
@@ -641,7 +647,9 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             # WEH - Numerical stability seems not a big deal.  But we're doing extra work if we're
             #       resolving with the same hidden states
             #
-            new_true_positive = {key: min(max(lb,pe.value(model.p[key])),ub) for key in model.p}
+            new_true_positive = {
+                key: min(max(lb, pe.value(model.p[key])), ub) for key in model.p
+            }
 
         self.update_statistical_models(
             false_emission=self._false_emission, true_positive=new_true_positive

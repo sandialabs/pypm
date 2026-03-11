@@ -16,37 +16,33 @@ data:
 hmm:
   emission_mat:
     !!python/tuple []:
-      !!python/tuple []: 0.998001
-      ? &id001 !!python/tuple [_other_]
-      : 0.0019979999999999443
-      ? &id002 !!python/tuple [rB, rC]
-      : 1.0000000000000019e-06
-    ? &id003 !!python/tuple [a1]
-    : !!python/tuple []: 0.0
-      *id001: 0.0
-      *id002: 1.0
-    ? &id004 !!python/tuple [a2]
-    : !!python/tuple []: 0.0
-      *id001: 0.0
-      *id002: 1.0
+      !!python/tuple []: 0.999998997998
+      ? &id001 !!python/tuple [rB, rC]
+      : 1.002001999995994e-06
+    ? &id002 !!python/tuple [a1]
+    : !!python/tuple []: 9.99999999999e-13
+      *id001: 0.9999999999989999
+    ? &id003 !!python/tuple [a2]
+    : !!python/tuple []: 9.99999999999e-13
+      *id001: 0.9999999999989999
   false_emission: {rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.8
-    *id003: 0.2
-    *id004: 0.0
+    *id002: 0.2
+    *id003: 0.0
   transition_mat:
     !!python/tuple []:
       !!python/tuple []: 0.6439232409381663
-      *id003: 0.17057569296375266
-      *id004: 0.18550106609808104
-    *id003:
+      *id002: 0.17057569296375266
+      *id003: 0.18550106609808104
+    *id002:
       !!python/tuple []: 0.11298701298701298
-      *id003: 0.8701298701298701
-      *id004: 0.016883116883116882
-    *id004:
+      *id002: 0.8701298701298701
+      *id003: 0.016883116883116882
+    *id003:
       !!python/tuple []: 0.2
-      *id003: 0.0
-      *id004: 0.8
+      *id002: 0.0
+      *id003: 0.8
   true_positive:
     ? !!python/tuple [a1, rB]
     : 1.0
@@ -62,7 +58,7 @@ results:
         08:00:00'}
     a2: {post: '2020-01-02 05:00:00'}
   goals: {}
-  objective: -14.05142271304355
+  objective: -14.007422742428927
   schedule:
     a1: {first: 0, last: 7}
     a2: {post: true}

@@ -14,7 +14,7 @@ num_simulations = 10
 
 
 def config(**kwds):
-    kwds['quiet'] = quiet
+    kwds["quiet"] = quiet
     return munch.DefaultMunch(None, **kwds)
 
 
@@ -213,11 +213,13 @@ def test11():
     obs = [("oA",)] * 20
     ans = ex7_app(obs, True, debug=False, schedule_all_activities=False)
     assert ans.false_emission == {"oA": 0.001}
-    assert ans.true_positive == pytest.approx({
-        ("a1", "oA"): 1.0,
-        ("a2", "oA"): 1.0,
-        ("a3", "oA"): 1.0,
-        ("a4", "oA"): 1.0,
-        ("a5", "oA"): 1.0,
-        ("a6", "oA"): 1.0,
-    })
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oA"): 1.0,
+            ("a2", "oA"): 1.0,
+            ("a3", "oA"): 1.0,
+            ("a4", "oA"): 1.0,
+            ("a5", "oA"): 1.0,
+            ("a6", "oA"): 1.0,
+        }
+    )

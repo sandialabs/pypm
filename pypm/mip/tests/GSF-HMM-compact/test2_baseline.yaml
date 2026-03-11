@@ -16,41 +16,37 @@ data:
 hmm:
   emission_mat:
     !!python/tuple []:
-      !!python/tuple []: 0.997002999
-      ? &id001 !!python/tuple [_other_]
-      : 0.001998001000000027
-      ? &id002 !!python/tuple [rA]
-      : 0.000998001000000001
-      ? &id003 !!python/tuple [rB, rC]
-      : 9.990000000000018e-07
-    ? &id004 !!python/tuple [a1]
-    : !!python/tuple []: 0.1598398402398844
-      *id001: 0.4803603596798621
-      *id002: 0.0001601598400800536
-      *id003: 0.3596396402401734
-    ? &id005 !!python/tuple [a2]
-    : !!python/tuple []: 0.0
-      *id001: 0.001000999000000058
-      *id002: 0.0
-      *id003: 0.9989990009999999
+      !!python/tuple []: 0.9989990000010011
+      ? &id001 !!python/tuple [rA]
+      : 0.000999998999000002
+      ? &id002 !!python/tuple [rB, rC]
+      : 1.000999998999002e-06
+    ? &id003 !!python/tuple [a1]
+    : !!python/tuple []: 0.30759747301304957
+      *id001: 0.000308213284077756
+      *id002: 0.6920943137028727
+    ? &id004 !!python/tuple [a2]
+    : !!python/tuple []: 1.001002002000999e-12
+      *id001: 1.001002002000999e-12
+      *id002: 0.999999999997998
   false_emission: {rA: 0.001, rB: 0.001, rC: 0.001}
   start_prob:
     !!python/tuple []: 0.8
-    *id004: 0.2
-    *id005: 0.0
+    *id003: 0.2
+    *id004: 0.0
   transition_mat:
     !!python/tuple []:
       !!python/tuple []: 0.6439232409381663
-      *id004: 0.17057569296375266
-      *id005: 0.18550106609808104
-    *id004:
+      *id003: 0.17057569296375266
+      *id004: 0.18550106609808104
+    *id003:
       !!python/tuple []: 0.14262295081967213
-      *id004: 0.8360655737704918
-      *id005: 0.021311475409836064
-    *id005:
+      *id003: 0.8360655737704918
+      *id004: 0.021311475409836064
+    *id004:
       !!python/tuple []: 0.2
-      *id004: 0.0
-      *id005: 0.8
+      *id003: 0.0
+      *id004: 0.8
   true_positive:
     ? !!python/tuple [a1, rA]
     : 1.0e-06
@@ -71,7 +67,7 @@ results:
     a2: {first: '2020-01-01 05:00:00', last: '2020-01-01 09:00:00', stop: '2020-01-01
         10:00:00'}
   goals: {}
-  objective: -55.17662554833698
+  objective: -53.163758932931636
   schedule:
     a1: {first: 0, last: 4}
     a2: {first: 5, last: 9}
@@ -180,7 +176,7 @@ results:
       ? !!python/tuple [9, 2, 2]
       : 1.0
       ? !!python/tuple [10, 2, 0]
-      : 1.0
+      : 0.999999999999999
       ? !!python/tuple [11, 0, 0]
       : 1.0
       ? !!python/tuple [12, 0, 0]
@@ -220,7 +216,7 @@ results:
       ? !!python/tuple [29, 0, 0]
       : 1.0
       ? !!python/tuple [30, 0, -2]
-      : 1.0
+      : 0.999999999999998
     z:
       ? !!python/tuple [a1, 0]
       : 1.0

@@ -80,13 +80,25 @@ def create_hmm(
     # We have to renormalize since the observed sequence may not include all possible observed states
     #
     emission_probs = {}
-    for h in transition_params.hidden_states:
-        total = 0
-        for o in observed_states:
-            tmp = emission_probs[h, o] = sparse_emission_probs[h, o]
-            total += tmp
-        assert total <= 1.0, "Unexpected emission probabilities greater than 1.0"
-        emission_probs[h, ("_other_",)] = 1 - total
+    if False:
+        for h in transition_params.hidden_states:
+            total = 0
+            for o in observed_states:
+                tmp = emission_probs[h, o] = sparse_emission_probs[h, o]
+                total += tmp
+            emission_probs[h, ("_other_",)] = 1 - total
+    else:
+        #
+        # Renormalize emission probabilities
+        #
+        for h in transition_params.hidden_states:
+            total = 0
+            for o in observed_states:
+                tmp = max(1e-12, sparse_emission_probs[h, o])
+                emission_probs[h, o] = tmp
+                total += tmp
+            for o in observed_states:
+                emission_probs[h, o] /= total
 
     hmm = conin.hmm.HiddenMarkovModel()
     hmm.load_model(
