@@ -111,6 +111,8 @@ class BaseModel(object):
     def perform_optimization(self):
         if not self.config.quiet:
             print("Optimizing model")
+        if self.config.debug:  # pragma:nocover
+            self.M.pprint()
         opt = pe.SolverFactory(self.config.solver)
         if self.config.tee:  # pragma: no cover
             print("-- Solver Output Begins --")
@@ -123,7 +125,6 @@ class BaseModel(object):
         if self.config.tee:  # pragma: no cover
             print("-- Solver Output Ends --")
         if self.config.debug:  # pragma:nocover
-            self.M.pprint()
             self.M.display()
         if results.solver.termination_condition not in {
             tc.optimal,
