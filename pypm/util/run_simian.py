@@ -129,6 +129,7 @@ def create_data_wrapper(**kwds):
                     for activity in config.pm:
                         print(f"  {activity=} {len(self.features)} {len(kpf[activity]) + len(ppf[activity])}")
                     sys.exit(0)
+
             else:
                 if (
                     hasattr(config, "known_process_features")
@@ -144,6 +145,11 @@ def create_data_wrapper(**kwds):
                     self.possible_process_features = config.possible_process_features
                 else:
                     self.possible_process_features = {}
+            if len(self.known_process_features) > 0:
+                print(f"Known process features:",sum(len(self.known_process_features[a]) for a in config.pm))
+                print(f"Possible process features:",sum(len(self.possible_process_features[a]) for a in config.pm))
+                print(f"Total true_positive options",len(self.features)*len(config.pm))
+                
 
             if seed is not None:
                 config.seed = seed
