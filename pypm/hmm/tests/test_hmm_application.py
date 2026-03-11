@@ -20,6 +20,7 @@ num_simulations = 10
 
 
 def config(**kwds):
+    kwds['quiet'] = quiet
     return munch.DefaultMunch(None, **kwds)
 
 

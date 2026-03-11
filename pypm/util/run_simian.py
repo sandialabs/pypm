@@ -45,7 +45,7 @@ def create_data_wrapper(**kwds):
         """
 
         def __init__(
-            self, *, num_time_steps=None, config=None, pm=None, seed=None, features=None
+            self, *, num_time_steps=None, config=None, pm=None, seed=None, features=None, quiet=True
         ):
             if config is None:
                 config = munch.DefaultMunch(None, pm=pm)
@@ -93,6 +93,8 @@ def create_data_wrapper(**kwds):
                             self.observation[t].add(feature)
                 self.observation = [tuple(sorted(val)) for val in self.observation]
                 self.observed_states = {val for val in self.observation}
+                features = {f for o in self.observed_states for f in o}
+                self.features = list(sorted(features))
             else:
                 features = [] if features is None else features
                 self.features = list(sorted(features))
@@ -145,9 +147,9 @@ def create_data_wrapper(**kwds):
                     self.possible_process_features = config.possible_process_features
                 else:
                     self.possible_process_features = {}
-            if len(self.known_process_features) > 0:
-                print(f"Known process features:",sum(len(self.known_process_features[a]) for a in config.pm))
-                print(f"Possible process features:",sum(len(self.possible_process_features[a]) for a in config.pm))
+            if not quiet:
+                print(f"Known process features:",sum(len(val) for val in self.known_process_features.values()))
+                print(f"Possible process features:",sum(len(val) for val in self.possible_process_features.values()))
                 print(f"Total true_positive options",len(self.features)*len(config.pm))
                 
 
