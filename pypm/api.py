@@ -9,6 +9,75 @@ from .hmm import initialize_hmm_application
 from .unsup.run_labeling import run_tabu_labeling
 
 
+def process_labeling_restrictions(config):
+    #
+    # Process the labeling restrictions file
+    #
+    if config.labeling_restrictions:
+        for activity in config.pm:
+            dummyname = "dummy " + activity
+            config.pm.resources.add(dummyname, 1)
+
+        if not os.path.exists(config.labeling_restrictions):
+            raise RuntimeError(
+                "Unknown labeling restrictions file: {}".format(
+                    config.labeling_restrictions
+                )
+            )
+
+        tmp = {}
+        with open(config.labeling_restrictions, "r") as INPUT:
+            restrictions = yaml.load(INPUT, Loader=yaml.Loader)
+            for r in restrictions:
+                assert (
+                    "resourceName" in r
+                ), "Missing data field 'resourceName' in {}-th labeling restriction declared in {}".format(
+                    i, config.labeling_restrictions
+                )
+                name = r["resourceName"]
+                assert (
+                    name in config.pm.resources
+                ), "Missing resource {} in process resource list".format(name)
+                assert name not in tmp, "Resource {} declared twice in {}".format(
+                    name, config.labeling_restrictions
+                )
+                tmp[name] = dict(required=[], optional=[])
+
+                assert (
+                    "like" in r or "knownFeature" in r
+                ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
+                    name, config.labeling_restrictions
+                )
+                assert (
+                    "like" in r or "possibleFeature" in r
+                ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
+                    name, config.labeling_restrictions
+                )
+                if "knownFeature" in r:
+                    for f in r["knownFeature"]:
+                        assert (
+                            f in config.obs["observations"]
+                        ), "Missing feature {} in data observations (known features for resource {})".format(
+                            f, name
+                        )
+                        tmp[name]["required"].append(f)
+                if "possibleFeature" in r:
+                    for f in r["possibleFeature"]:
+                        assert (
+                            f in config.obs["observations"]
+                        ), "Missing feature {} in data observations (possible features for resource {})".format(
+                            f, name
+                        )
+                        tmp[name]["optional"].append(f)
+
+            for r in restrictions:
+                name = r["resourceName"]
+                if "like" in r:
+                    tmp[name] = tmp[r["like"]]
+
+        config.labeling_restrictions = tmp
+
+
 class MatchingResults(object):
     """
     This class contains results generated from the :any:`SupervisedMIP` optimizer.
@@ -463,6 +532,7 @@ class StatisticalModel(SupervisedMIP):
             quiet=PYPM.options.quiet,
             index=0,
         )
+        process_labeling_restrictions(self.config)
 
         self.config.hmm_app = initialize_hmm_application(self.model)
         self.config.hmm_app.initialize(self.config)
@@ -665,72 +735,7 @@ class TabuLabeling(object):
             index=0,
         )
         self.config.model = "tabu"
-        #
-        # Process the labeling restrictions file
-        #
-        if self.config.labeling_restrictions:
-            for activity in self.activities():
-                dummyname = "dummy " + activity
-                self.config.pm.resources.add(dummyname, 1)
-
-            if not os.path.exists(self.config.labeling_restrictions):
-                raise RuntimeError(
-                    "Unknown labeling restrictions file: {}".format(
-                        self.config.labeling_restrictions
-                    )
-                )
-
-            tmp = {}
-            with open(self.config.labeling_restrictions, "r") as INPUT:
-                restrictions = yaml.load(INPUT, Loader=yaml.Loader)
-                for r in restrictions:
-                    assert (
-                        "resourceName" in r
-                    ), "Missing data field 'resourceName' in {}-th labeling restriction declared in {}".format(
-                        i, self.config.labeling_restrictions
-                    )
-                    name = r["resourceName"]
-                    assert (
-                        name in self.config.pm.resources
-                    ), "Missing resource {} in process resource list".format(name)
-                    assert name not in tmp, "Resource {} declared twice in {}".format(
-                        name, self.config.labeling_restrictions
-                    )
-                    tmp[name] = dict(required=[], optional=[])
-
-                    assert (
-                        "like" in r or "knownFeature" in r
-                    ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
-                        name, self.config.labeling_restrictions
-                    )
-                    assert (
-                        "like" in r or "possibleFeature" in r
-                    ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
-                        name, self.config.labeling_restrictions
-                    )
-                    if "knownFeature" in r:
-                        for f in r["knownFeature"]:
-                            assert (
-                                f in self.config.obs["observations"]
-                            ), "Missing feature {} in data observations (known features for resource {})".format(
-                                f, name
-                            )
-                            tmp[name]["required"].append(f)
-                    if "possibleFeature" in r:
-                        for f in r["possibleFeature"]:
-                            assert (
-                                f in self.config.obs["observations"]
-                            ), "Missing feature {} in data observations (possible features for resource {})".format(
-                                f, name
-                            )
-                            tmp[name]["optional"].append(f)
-
-                for r in restrictions:
-                    name = r["resourceName"]
-                    if "like" in r:
-                        tmp[name] = tmp[r["like"]]
-
-            self.config.labeling_restrictions = tmp
+        process_labeling_restrictions(self.config)
 
     def generate_labeling_and_schedule(self, nworkers=None, debug=None, setup_ray=True):
         """
