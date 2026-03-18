@@ -42,6 +42,10 @@ def initial_emission_parameters(
             for feature in data_wrapper.features:
                 true_positive[name, feature] = known_positive
 
+    # TODO - delete
+    # for k in true_positive:
+    #    true_positive[k] *= random.uniform(0.9, 1.0)
+
     return Munch(true_positive=true_positive, false_emission=false_emission)
 
 
