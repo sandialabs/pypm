@@ -45,7 +45,7 @@ def create_data_wrapper(**kwds):
         """
 
         def __init__(
-            self, *, num_time_steps=None, config=None, pm=None, seed=None, features=None, quiet=True
+            self, *, num_time_steps=None, config=None, pm=None, seed=None, features=None, quiet=True, obs_threshold=0.1,
         ):
             if config is None:
                 config = munch.DefaultMunch(None, pm=pm)
@@ -89,7 +89,7 @@ def create_data_wrapper(**kwds):
                 self.observation = [set() for t in range(self.num_time_steps)]
                 for feature, feature_list in unformatted_observation.items():
                     for t, val in enumerate(feature_list):
-                        if val > 0.5:
+                        if val > obs_threshold:
                             self.observation[t].add(feature)
                 self.observation = [tuple(sorted(val)) for val in self.observation]
                 self.observed_states = {val for val in self.observation}
