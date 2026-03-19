@@ -59,8 +59,9 @@ class PypmHMMApplication:
         observed,
         false_emission_probability=1e-3,
         constrained=True,
+        learn_with_simulations=True,
         schedule_all_activities=True,
-        num_random_restarts=3,
+        num_random_restarts=2,
         max_iterations=None,
         num_solutions_per_step=None,
         debug=False,
@@ -83,6 +84,7 @@ class PypmHMMApplication:
         self.emission_params = estimate_emission_parameters(
             config=config,
             observed=observed,
+            simulations=self.simulations if learn_with_simulations else [],
             data_wrapper=self.data_wrapper,
             emission_params=self.emission_params,
             transition_params=self.transition_params,

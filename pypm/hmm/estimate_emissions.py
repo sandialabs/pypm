@@ -1,3 +1,4 @@
+import math
 import sys
 import random
 import time
@@ -10,6 +11,7 @@ from munch import Munch
 import pyomo.environ as pe
 import conin.hmm
 from pypm.hmm.matrix import Sparse_Emissions_Matrix
+from pypm.hmm.create_hmm import create_hmm
 
 
 def initial_emission_parameters(
@@ -55,6 +57,7 @@ def estimate_emission_parameters(
     data_wrapper,
     transition_params,
     emission_params,
+    simulations=[],
     config=None,
     constraints=[],
     max_iterations=None,
@@ -84,6 +87,7 @@ def estimate_emission_parameters(
         ans_ = _estimate_emission_parameters_iter(
             observed=observed,
             config=config,
+            simulations=simulations,
             data_wrapper=data_wrapper,
             transition_params=transition_params,
             emission_params=emission_params,
@@ -117,6 +121,7 @@ def _estimate_emission_parameters_iter(
     data_wrapper,
     transition_params,
     emission_params,
+    simulations=[],
     constraints=[],
     max_iterations=None,
     num_solutions_per_step=None,
@@ -129,7 +134,7 @@ def _estimate_emission_parameters_iter(
     From this sequence, it updates the parameters of each emission mat while keeping the start probs and transition mat the same
     """
     # TODO figure out a better way to deal with these
-    eps = 0.01
+    eps = 1e-3
     if max_iterations is None:
         max_iterations = 100
     if num_solutions_per_step is None:
@@ -161,6 +166,7 @@ def _estimate_emission_parameters_iter(
         status = hmm_app.SAEM_step(
             observation=observed,  # data_wrapper.observation
             config=config,
+            simulations=simulations,
             num_solutions=num_solutions_per_step,
             iteration=num_it,
             debug=debug,
@@ -293,6 +299,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         observation,
         config,
         iteration,
+        simulations=[],
         num_solutions=1,
         debug=False,
         quiet=True,
@@ -303,13 +310,32 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         NOTE: this does not update the start probs and transition_probs
         This is because we assume they are already well-described by the Simian simulations
         """
-        if config is None:
+        #
+        # E-step
+        #
+        weights = None
+        if len(simulations) > 0:
+            if debug or not quiet:
+                print("SAEM_step - Reweighted simulations")
+
+            self.update_statistical_models(
+                false_emission=self._false_emission, true_positive=self._true_positive
+            )
+            weights, hidden_vec = self.reweighted_simulations(
+                observation=observation, simulations=simulations, debug=debug
+            )
+
+        elif config is None:
             if debug or not quiet:
                 print("SAEM_step - Oracle inference")
             hidden_vec = self.oracle_inference(
                 observation=observation, num_solutions=num_solutions, debug=debug
             )
+
         else:
+            assert (
+                config is not None
+            ), "Expecting a config object when solving SAEM with algebraic E-steps"
             if debug or not quiet:
                 print("SAEM_step - Algebraic inference")
                 config.debug = debug
@@ -334,19 +360,65 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
                         hidden[t].add(h)
                 hidden_vec.append(hidden)
 
+        if weights is None:
+            weights = [1 / len(hidden_vec)] * len(hidden_vec)
+        #
+        # Stop if there were errors in the E-step
+        #
         if len(hidden_vec) == 0:
             return Munch(error=True)
+
+        #
+        # M-step
+        #
         if debug or not quiet:
             print("SAEM_step - M_step optimization")
         value = self._M_step(
             observation=observation,
             hidden_vec=hidden_vec,
+            weights=weights,
             iteration=iteration,
             debug=debug,
         )
         if debug or not quiet:
             print("SAEM_step - DONE")
         return Munch(error=False, value=value)
+
+    def reweighted_simulations(self, *, observation, simulations, debug):
+
+        hmm = create_hmm(
+            transition_params=Munch(
+                hidden_states=self._hidden_states,
+                start_probs=self._start_probs,
+                transition_probs=self._transition_probs,
+            ),
+            emission_params=Munch(
+                true_positive=self._true_positive, false_emission=self._false_emission
+            ),
+            observed_states={o for o in observation},
+        )
+
+        hidden_vec = []
+        T = len(observation)
+        for sim in simulations:
+            if len(sim) > T:
+                hidden_vec.append([state[1] for state in sim[:T]])
+            else:
+                hidden_vec.append(
+                    [state[1] for state in sim] + [tuple()] * (T - len(sim))
+                )
+            assert len(hidden_vec[-1]) == T
+        weights = [
+            math.exp(hmm.log_probability(observation, vec)) for vec in hidden_vec
+        ]
+        weights = [0 if w < 1e-7 else w for w in weights]
+        total = sum(weights)
+        if total == 0.0:
+            weights = None
+        else:
+            weights = [w / total for w in weights]
+
+        return weights, hidden_vec
 
     def oracle_inference(
         self,
@@ -543,7 +615,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         return [output[i].hidden for i in range(len(output))]
 
-    def _M_step(self, *, observation, hidden_vec, iteration, debug=False):
+    def _M_step(self, *, observation, hidden_vec, weights, iteration, debug=False):
         """
         Does the maximize step of the SAEM algorithm
 
@@ -572,6 +644,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             print(f"{self._observable_states=}")
             print(f"{num_time_steps=}")
             print(f"{hidden_vec=}")
+            print(f"{weights=}")
 
         model = pe.ConcreteModel()
 
@@ -586,24 +659,27 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         def log_prob(m):
             val = 0
-            for hidden in hidden_vec:
-                for t in range(num_time_steps):
-                    for o in B:
-                        tp = [
-                            m.p[h, o]
-                            for h in hidden[t]
-                            if (h, o) in self._true_positive
-                        ]
-                        if len(tp) == 0:
-                            continue  # Empty list, so this term is constant
+            for i, hidden in enumerate(hidden_vec):
+                if weights[i] > 0:
+                    total = 0
+                    for t in range(num_time_steps):
+                        for o in B:
+                            tp = [
+                                m.p[h, o]
+                                for h in hidden[t]
+                                if (h, o) in self._true_positive
+                            ]
+                            if len(tp) == 0:
+                                continue  # Empty list, so this term is constant
 
-                        temp = 1 - self._false_emission[o]
-                        for p in tp:
-                            temp *= 1 - p
-                        if o in observation[t]:
-                            temp = 1 - temp
+                            temp = 1 - self._false_emission[o]
+                            for p in tp:
+                                temp *= 1 - p
+                            if o in observation[t]:
+                                temp = 1 - temp
 
-                        val += pe.log(temp)
+                            total += pe.log(temp)
+                    val += weights[i] * total
 
             # Add terms for true_positive variables that are not added in the log-likelihood
             # This biases their value to 1.0
@@ -626,34 +702,25 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             model.pprint()
             model.display()
 
-        if True:
-            # Could also probably just use
-            new_true_positive = {key: lb for key in self._true_positive}
+        # Could also probably just use
+        new_true_positive = {key: lb for key in self._true_positive}
 
-            for o in self._observable_states:
-                for h in self._processes:
-                    if (h, o) in new_true_positive:
-                        if pe.value(model.p[h, o]) < lb:
-                            new_true_positive[h, o] = lb
-                        else:
-                            new_true_positive[h, o] = min(pe.value(model.p[h, o]), ub)
+        for o in self._observable_states:
+            for h in self._processes:
+                if (h, o) in new_true_positive:
+                    if pe.value(model.p[h, o]) < lb:
+                        new_true_positive[h, o] = lb
+                    else:
+                        new_true_positive[h, o] = min(pe.value(model.p[h, o]), ub)
 
-            # Underweight as we go. This makes everything more numerically stable
-            for o in self._observable_states:
-                for h in self._processes:
-                    if (h, o) in new_true_positive:
-                        new_true_positive[h, o] = (
-                            new_true_positive[h, o] / iteration
-                            + self._true_positive[h, o] * (iteration - 1) / iteration
-                        )
-        else:
-            #
-            # WEH - Numerical stability seems not a big deal.  But we're doing extra work if we're
-            #       resolving with the same hidden states
-            #
-            new_true_positive = {
-                key: min(max(lb, pe.value(model.p[key])), ub) for key in model.p
-            }
+        # Underweight as we go. This makes everything more numerically stable
+        for o in self._observable_states:
+            for h in self._processes:
+                if (h, o) in new_true_positive:
+                    new_true_positive[h, o] = (
+                        new_true_positive[h, o] / iteration
+                        + self._true_positive[h, o] * (iteration - 1) / iteration
+                    )
 
         self.update_statistical_models(
             false_emission=self._false_emission, true_positive=new_true_positive

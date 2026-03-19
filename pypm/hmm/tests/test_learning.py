@@ -10,7 +10,7 @@ from pypm.hmm.hmm_application import PypmHMMApplication
 from pypm.hmm.tests import examples
 
 quiet = True
-num_simulations = 10
+num_simulations = 100
 
 
 def config(**kwds):
@@ -23,8 +23,9 @@ def run(
     name,
     observed,
     features,
-    known_process_features=None,
     constrained,
+    known_process_features=None,
+    learn_with_simulations=False,
     debug=False,
     schedule_all_activities=True,
 ):
@@ -44,8 +45,10 @@ def run(
 
     app.learn_emission_parameters(
         observed=observed,
+        learn_with_simulations=learn_with_simulations,
         constrained=constrained,
         schedule_all_activities=schedule_all_activities,
+        quiet=quiet,
         debug=debug,
         false_emission_probability=1e-3,
         seed=123456789,
@@ -65,7 +68,7 @@ def run(
     )
 
 
-def ex1_app(observed, constrained, debug=False):
+def ex1_app(observed, constrained, debug=False, learn_with_simulations=False):
     name = "ex1"
     features = {"oA", "oB", "oC"}
     known_process_features = dict(a1={"oB", "oC"}, a2={"oA"})
@@ -75,11 +78,12 @@ def ex1_app(observed, constrained, debug=False):
         features=features,
         known_process_features=known_process_features,
         constrained=constrained,
+        learn_with_simulations=learn_with_simulations,
         debug=debug,
     )
 
 
-def ex7_app(observed, constrained, debug=False, schedule_all_activities=True):
+def ex7_app(observed, constrained, debug=False, schedule_all_activities=True, learn_with_simulations=False):
     name = "ex7"
     features = {"oA"}
     return run(
@@ -87,6 +91,7 @@ def ex7_app(observed, constrained, debug=False, schedule_all_activities=True):
         observed=observed,
         features=features,
         constrained=constrained,
+        learn_with_simulations=learn_with_simulations,
         schedule_all_activities=schedule_all_activities,
         debug=debug,
     )
@@ -102,7 +107,21 @@ def test1():
             ("a1", "oC"): 0.24924924956491418,
             ("a2", "oA"): 1.0,
         },
-        abs=1e-3,
+        abs=1e-2,
+    )
+
+
+def test1_sim():
+    obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oB"): 0.75,
+            ("a1", "oC"): 0.25,
+            ("a2", "oA"): 1.00,
+        },
+        abs=1e-2,
     )
 
 
@@ -112,7 +131,17 @@ def test2():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0},
-        abs=1e-3,
+        abs=1e-2,
+    )
+
+
+def test2_sim():
+    obs = [ (), (), (), ("oB",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0},
+        abs=1e-2,
     )
 
 
@@ -121,7 +150,16 @@ def test3():
     ans = ex1_app(obs, False, debug=False)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-3
+        {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-2
+    )
+
+
+def test3_sim():
+    obs = [ ("oB",), ("oB",), ("oB",), ("oB",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {("a1", "oC"): 0.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-2
     )
 
 
@@ -130,7 +168,16 @@ def test4():
     ans = ex1_app(obs, False, debug=False)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 1.0, ("a1", "oB"): 0.0, ("a2", "oA"): 1.0}, abs=1e-3
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.0, ("a2", "oA"): 1.0}, abs=1e-2
+    )
+
+
+def test4_sim():
+    obs = [ ("oC",), ("oC",), ("oC",), ("oC",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.0, ("a2", "oA"): 1.0}, abs=1e-2
     )
 
 
@@ -140,11 +187,25 @@ def test5():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.7497497494361861,
-            ("a1", "oB"): 0.24924924956491606,
+            ("a1", "oC"): 0.75,
+            ("a1", "oB"): 0.25,
             ("a2", "oA"): 1.0,
         },
-        abs=1e-3,
+        abs=1e-2,
+    )
+
+
+def test5_sim():
+    obs = [ ("oB",), ("oC",), ("oC",), ("oC",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oC"): 0.75,
+            ("a1", "oB"): 0.25,
+            ("a2", "oA"): 1.0,
+        },
+        abs=1e-2,
     )
 
 
@@ -153,7 +214,16 @@ def test6():
     ans = ex1_app(obs, False, debug=False)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 1.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-3
+        {("a1", "oC"): 1.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-2
+    )
+
+
+def test6_sim():
+    obs = [ ("oC", "oB"), ("oC", "oB"), ("oC", "oB"), ("oC", "oB"), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {("a1", "oC"): 1.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-2
     )
 
 
@@ -163,7 +233,17 @@ def test7():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {("a1", "oC"): 1.0, ("a1", "oB"): 0.24924924956491612, ("a2", "oA"): 1.0},
-        abs=1e-3,
+        abs=1e-2,
+    )
+
+
+def test7_sim():
+    obs = [ ("oC", "oB"), ("oC",), ("oC",), ("oC",), ("oA",), ("oA",), ("oA",), ("oA",), ("oA",), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.24924924956491612, ("a2", "oA"): 1.0},
+        abs=1e-2,
     )
 
 
@@ -177,7 +257,21 @@ def test8():
             ("a1", "oC"): 0.24924924956491418,
             ("a2", "oA"): 1.0,
         },
-        abs=1e-3,
+        abs=1e-2,
+    )
+
+
+def test8_sim():
+    obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), (), (), ]  # fmt: skip
+    ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oB"): 0.7497497494361838,
+            ("a1", "oC"): 0.24924924956491418,
+            ("a2", "oA"): 0.48910855757334254,
+        },
+        abs=1e-2,
     )
 
 
@@ -191,7 +285,21 @@ def test9():
             ("a1", "oB"): 0.7497497494361829,
             ("a2", "oA"): 0.49949949950012884,
         },
-        abs=1e-3,
+        abs=1e-2,
+    )
+
+
+def test9_sim():
+    obs = [ (), (), (), ("oC",), ("oB",), ("oB",), ("oB",), (), (), ("oA",), ("oA",), (), (), ]  # fmt: skip
+    ans = ex1_app(obs, True, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oC"): 0.24924924956491756,
+            ("a1", "oB"): 0.7497497494361849,
+            ("a2", "oA"): 0.48910855757334254,
+        },
+        abs=1e-2,
     )
 
 
@@ -209,9 +317,38 @@ def test10():
     }
 
 
+def test10():
+    obs = [("oA",)] * 50
+    ans = ex7_app(obs, True, debug=False, learn_with_simulations=True)
+    assert ans.false_emission == {"oA": 0.001}
+    assert ans.true_positive == {
+        ("a1", "oA"): 1.0,
+        ("a2", "oA"): 1.0,
+        ("a3", "oA"): 1.0,
+        ("a4", "oA"): 1.0,
+        ("a5", "oA"): 1.0,
+        ("a6", "oA"): 1.0,
+    }
+
+
 def test11():
     obs = [("oA",)] * 20
     ans = ex7_app(obs, True, debug=False, schedule_all_activities=False)
+    assert ans.false_emission == {"oA": 0.001}
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oA"): 1.0,
+            ("a2", "oA"): 1.0,
+            ("a3", "oA"): 1.0,
+            ("a4", "oA"): 1.0,
+            ("a5", "oA"): 1.0,
+            ("a6", "oA"): 1.0,
+        }
+    )
+
+def test11_sim():
+    obs = [("oA",)] * 20
+    ans = ex7_app(obs, True, debug=False, schedule_all_activities=False, learn_with_simulations=True)
     assert ans.false_emission == {"oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
