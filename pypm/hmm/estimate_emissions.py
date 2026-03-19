@@ -411,7 +411,6 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         weights = [
             math.exp(hmm.log_probability(observation, vec)) for vec in hidden_vec
         ]
-        weights = [0 if w < 1e-7 else w for w in weights]
         total = sum(weights)
         if total == 0.0:
             weights = None
@@ -644,7 +643,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             print(f"{self._observable_states=}")
             print(f"{num_time_steps=}")
             print(f"{hidden_vec=}")
-            print(f"{weights=}")
+            print(f"filtered weights {[w if w > 1e-4 else 0 for w in weights]}")
 
         model = pe.ConcreteModel()
 
@@ -660,7 +659,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         def log_prob(m):
             val = 0
             for i, hidden in enumerate(hidden_vec):
-                if weights[i] > 0:
+                if weights[i] > 1e-4:
                     total = 0
                     for t in range(num_time_steps):
                         for o in B:
@@ -696,10 +695,12 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
 
         solver = pe.SolverFactory("ipopt")
-        solver.solve(model, tee=debug)
         if debug:
             print("Pyomo model information")
             model.pprint()
+        solver.solve(model, tee=debug)
+        if debug:
+            print("Pyomo model values")
             model.display()
 
         # Could also probably just use
