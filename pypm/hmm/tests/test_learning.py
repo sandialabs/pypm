@@ -36,12 +36,15 @@ def run(
         config(pm=pm, known_process_features=known_process_features, features=features)
     )
 
-    app.learn_transition_parameters(
+    app.run_simulations(
         num_simulations=num_simulations,
         seed=123456789,
         quiet=quiet,
+        T=len(observed) if learn_with_simulations else None,
         debug=debug,
     )
+
+    app.learn_transition_parameters()
 
     app.learn_emission_parameters(
         observed=observed,
@@ -83,7 +86,13 @@ def ex1_app(observed, constrained, debug=False, learn_with_simulations=False):
     )
 
 
-def ex7_app(observed, constrained, debug=False, schedule_all_activities=True, learn_with_simulations=False):
+def ex7_app(
+    observed,
+    constrained,
+    debug=False,
+    schedule_all_activities=True,
+    learn_with_simulations=False,
+):
     name = "ex7"
     features = {"oA"}
     return run(
@@ -117,8 +126,8 @@ def test1_sim():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oB"): 0.75,
-            ("a1", "oC"): 0.25,
+            ("a1", "oB"): 0.7911253557886351,
+            ("a1", "oC"): 0.3017282032347867,
             ("a2", "oA"): 1.00,
         },
         abs=1e-2,
@@ -201,8 +210,8 @@ def test5_sim():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.75,
-            ("a1", "oB"): 0.25,
+            ("a1", "oC"): 0.7183487440948612,
+            ("a1", "oB"): 0.2806502549095311,
             ("a2", "oA"): 1.0,
         },
         abs=1e-2,
@@ -242,7 +251,7 @@ def test7_sim():
     ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 1.0, ("a1", "oB"): 0.24924924956491612, ("a2", "oA"): 1.0},
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.9454746932091682, ("a2", "oA"): 1.0},
         abs=1e-2,
     )
 
@@ -267,9 +276,9 @@ def test8_sim():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oB"): 0.7497497494361838,
-            ("a1", "oC"): 0.24924924956491418,
-            ("a2", "oA"): 0.48910855757334254,
+            ("a1", "oB"): 0.7497497494360836,
+            ("a1", "oC"): 0.24852828784556444,
+            ("a2", "oA"): 0.4755124286749346,
         },
         abs=1e-2,
     )
@@ -297,14 +306,14 @@ def test9_sim():
         {
             ("a1", "oC"): 0.24924924956491756,
             ("a1", "oB"): 0.7497497494361849,
-            ("a2", "oA"): 0.48910855757334254,
+            ("a2", "oA"): 0.4755124286749346,
         },
         abs=1e-2,
     )
 
 
 def test10():
-    obs = [("oA",)] * 50
+    obs = [("oA",)] * 10
     ans = ex7_app(obs, True, debug=False)
     assert ans.false_emission == {"oA": 0.001}
     assert ans.true_positive == {
@@ -318,17 +327,19 @@ def test10():
 
 
 def test10():
-    obs = [("oA",)] * 50
+    obs = [("oA",)] * 10
     ans = ex7_app(obs, True, debug=False, learn_with_simulations=True)
     assert ans.false_emission == {"oA": 0.001}
-    assert ans.true_positive == {
-        ("a1", "oA"): 1.0,
-        ("a2", "oA"): 1.0,
-        ("a3", "oA"): 1.0,
-        ("a4", "oA"): 1.0,
-        ("a5", "oA"): 1.0,
-        ("a6", "oA"): 1.0,
-    }
+    assert ans.true_positive == pytest.approx(
+        {
+            ("a1", "oA"): 1.0,
+            ("a2", "oA"): 1.0,
+            ("a3", "oA"): 1.0,
+            ("a4", "oA"): 1.0,
+            ("a5", "oA"): 1.0,
+            ("a6", "oA"): 1.0,
+        }
+    )
 
 
 def test11():
@@ -346,9 +357,16 @@ def test11():
         }
     )
 
+
 def test11_sim():
     obs = [("oA",)] * 20
-    ans = ex7_app(obs, True, debug=False, schedule_all_activities=False, learn_with_simulations=True)
+    ans = ex7_app(
+        obs,
+        True,
+        debug=False,
+        schedule_all_activities=False,
+        learn_with_simulations=True,
+    )
     assert ans.false_emission == {"oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {

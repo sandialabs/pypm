@@ -178,7 +178,11 @@ def ex6_simulations(ex6_pm):
 
 def test_ex1_transition_params(ex1_simulations):
     params = estimate_transition_parameters(simulations=ex1_simulations)
-    assert params.start_probs == {(): 0.9, ("a1",): 0.1, ("a2",): 0.0}
+    assert params.start_probs == {
+        (): 0.8999100089991001,
+        ("a1",): 0.09999000099990002,
+        ("a2",): 9.999000099990002e-05,
+    }
     assert params.transition_probs == {
         ((), ()): 0.7288135593220338,
         ((), ("a1",)): 0.15254237288135594,
@@ -195,9 +199,9 @@ def test_ex1_transition_params(ex1_simulations):
 def test_ex1_nodelay_transition_params(ex1_nodelay_simulations):
     params = estimate_transition_parameters(simulations=ex1_nodelay_simulations)
     assert params.start_probs == {
-        (): 0.0009990009990009992,
-        ("a1",): 0.9990009990009991,
-        ("a2",): 0.0,
+        (): 9.998000399920017e-05,
+        ("a1",): 0.9998000399920016,
+        ("a2",): 9.998000399920017e-05,
     }
     assert params.transition_probs == {
         ((), ()): 0.3333333333333333,
@@ -215,11 +219,11 @@ def test_ex1_nodelay_transition_params(ex1_nodelay_simulations):
 def test_ex2_transition_params(ex2_simulations):
     params = estimate_transition_parameters(simulations=ex2_simulations)
     assert params.start_probs == {
-        (): 0.8,
-        ("a1",): 0.2,
-        ("a2",): 0.0,
-        ("a2", "a3"): 0.0,
-        ("a3",): 0.0,
+        (): 0.7997600719784066,
+        ("a1",): 0.19994001799460165,
+        ("a2",): 9.997000899730082e-05,
+        ("a2", "a3"): 9.997000899730082e-05,
+        ("a3",): 9.997000899730082e-05,
     }
     assert params.transition_probs == {
         ((), ()): 0.6326530612244898,
@@ -253,11 +257,11 @@ def test_ex2_transition_params(ex2_simulations):
 def test_ex3_transition_params(ex3_simulations):
     params = estimate_transition_parameters(simulations=ex3_simulations)
     assert params.start_probs == {
-        (): 0.7,
-        ("a1",): 0.1,
-        ("a1", "a3"): 0.0,
-        ("a2",): 0.0,
-        ("a3",): 0.2,
+        (): 0.6998600279944011,
+        ("a1",): 0.09998000399920016,
+        ("a1", "a3"): 9.998000399920017e-05,
+        ("a2",): 9.998000399920017e-05,
+        ("a3",): 0.19996000799840033,
     }
     assert params.transition_probs == {
         ((), ()): 0.6326530612244898,
@@ -291,12 +295,12 @@ def test_ex3_transition_params(ex3_simulations):
 def test_ex4_transition_params(ex4_simulations):
     params = estimate_transition_parameters(simulations=ex4_simulations)
     assert params.start_probs == {
-        (): 0.7,
-        ("a1",): 0.3,
-        ("a2",): 0.0,
-        ("a2", "a4"): 0.0,
-        ("a3",): 0.0,
-        ("a4",): 0.0,
+        (): 0.6997201119552179,
+        ("a1",): 0.2998800479808077,
+        ("a2",): 9.996001599360257e-05,
+        ("a2", "a4"): 9.996001599360257e-05,
+        ("a3",): 9.996001599360257e-05,
+        ("a4",): 9.996001599360257e-05,
     }
     assert params.transition_probs == pytest.approx(
         {
@@ -343,12 +347,12 @@ def test_ex4_transition_params(ex4_simulations):
 def test_ex5_transition_params(ex5_simulations):
     params = estimate_transition_parameters(simulations=ex5_simulations)
     assert params.start_probs == {
-        (): 0.7,
-        ("a1",): 0.3,
-        ("a2",): 0.0,
-        ("a2", "a4"): 0.0,
-        ("a3",): 0.0,
-        ("a4",): 0.0,
+        (): 0.6997201119552179,
+        ("a1",): 0.2998800479808077,
+        ("a2",): 9.996001599360257e-05,
+        ("a2", "a4"): 9.996001599360257e-05,
+        ("a3",): 9.996001599360257e-05,
+        ("a4",): 9.996001599360257e-05,
     }
     assert params.transition_probs == {
         ((), ()): 0.7619047619047619,
@@ -393,12 +397,12 @@ def test_ex5_transition_params(ex5_simulations):
 def test_ex6_transition_params(ex6_simulations):
     params = estimate_transition_parameters(simulations=ex6_simulations)
     assert params.start_probs == {
-        (): 0.7,
-        ("a1",): 0.3,
-        ("a2",): 0.0,
-        ("a2", "a4"): 0.0,
-        ("a3",): 0.0,
-        ("a4",): 0.0,
+        (): 0.6997201119552179,
+        ("a1",): 0.2998800479808077,
+        ("a2",): 9.996001599360257e-05,
+        ("a2", "a4"): 9.996001599360257e-05,
+        ("a3",): 9.996001599360257e-05,
+        ("a4",): 9.996001599360257e-05,
     }
     assert params.transition_probs == {
         ((), ()): 0.8137931034482758,
@@ -676,7 +680,11 @@ def test_ex1_create_hmm(ex1_pm, ex1_simulations):
         [0.175, 0.75, 0.075],
         [0.2, 0.0, 0.8],
     ]
-    assert hmm.start_vec == [0.9, 0.1, 0.0]
+    assert hmm.start_vec == [
+        0.8999100089991001,
+        0.09999000099990002,
+        9.999000099990002e-05,
+    ]
     assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
 
     E = {
@@ -736,7 +744,13 @@ def test_ex2_create_hmm(ex2_pm, ex2_simulations):
         [0.0, 0.0, 0.4, 0.5, 0.1],
         [0.2, 0.0, 0.1, 0.1, 0.6],
     ]
-    assert hmm.start_vec == [0.8, 0.2, 0.0, 0.0, 0.0]
+    assert hmm.start_vec == [
+        0.7997600719784066,
+        0.19994001799460165,
+        9.997000899730082e-05,
+        9.997000899730082e-05,
+        9.997000899730082e-05,
+    ]
     assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
 
     E = {

@@ -108,12 +108,13 @@ def ex1_application(ex1_pm):
         )
     )
 
-    app.learn_transition_parameters(
+    app.run_simulations(
         num_simulations=num_simulations,
         max_delay_before=5,
         seed=123456789,
         quiet=quiet,
     )
+    app.learn_transition_parameters()
 
     app.create_hmm(observed_states=observed_states)
 
@@ -129,7 +130,11 @@ def test_ex1_application(ex1_application):
         [0.175, 0.75, 0.075],
         [0.2, 0.0, 0.8],
     ]
-    assert hmm.start_vec == [0.9, 0.1, 0.0]
+    assert hmm.start_vec == [
+        0.8999100089991001,
+        0.09999000099990002,
+        9.999000099990002e-05,
+    ]
     assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
 
     E = {
@@ -174,12 +179,13 @@ def ex2_application(ex2_pm):
         )
     )
 
-    app.learn_transition_parameters(
+    app.run_simulations(
         num_simulations=num_simulations,
         max_delay_before=5,
         seed=123456789,
         quiet=quiet,
     )
+    app.learn_transition_parameters()
 
     app.create_hmm(observed_states=observed_states)
 
@@ -203,7 +209,13 @@ def test_ex2_application(ex2_application):
         [0.0, 0.0, 0.4, 0.5, 0.1],
         [0.2, 0.0, 0.1, 0.1, 0.6],
     ]
-    assert hmm.start_vec == [0.8, 0.2, 0.0, 0.0, 0.0]
+    assert hmm.start_vec == [
+        0.7997600719784066,
+        0.19994001799460165,
+        9.997000899730082e-05,
+        9.997000899730082e-05,
+        9.997000899730082e-05,
+    ]
     assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
 
     E = {
@@ -260,7 +272,11 @@ def test_ex1_application_read(ex1_application):
     baseline = os.path.join(currdir, "ex1_app_baseline.json")
     app.read(baseline)
 
-    assert app.transition_params.start_probs == {(): 0.9, ("a1",): 0.1, ("a2",): 0.0}
+    assert app.transition_params.start_probs == {
+        (): 0.8999100089991001,
+        ("a1",): 0.09999000099990002,
+        ("a2",): 9.999000099990002e-05,
+    }
     assert app.transition_params.transition_probs == {
         ((), ()): 0.7288135593220338,
         ((), ("a1",)): 0.15254237288135594,
@@ -288,7 +304,11 @@ def test_ex1_application_read(ex1_application):
         [0.175, 0.75, 0.075],
         [0.2, 0, 0.8],
     ]
-    assert hmm.start_vec == [0.9, 0.1, 0.0]
+    assert hmm.start_vec == [
+        0.8999100089991001,
+        0.09999000099990002,
+        9.999000099990002e-05,
+    ]
     assert hmm.observed_states == [(), ("oA",), ("oB",), ("oC",)]
     E = {
         h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
