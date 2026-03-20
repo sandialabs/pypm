@@ -15,6 +15,45 @@ def initialize_hmm_application(name):
     return PypmHMMApplication()
 
 
+def add_simulation_offsets(T, simulations):
+    if T <= 8:
+        return simulations
+
+    def offsets(T, tau):
+        if tau >= T:
+            yield -T // 2
+            k = 0
+            while tau > k + T // 2:
+                yield k
+                k += T // 2
+        else:
+            yield tau // 2
+            k = 0
+            while T > k + tau // 2:
+                yield -k
+                k += tau // 2
+
+    tmp = []
+    for sim in simulations:
+        # print(f"{sim=}")
+        tau = len(sim)
+        # print(f"{T=} {tau=} {list(offsets(T, tau))}")
+        for offset in offsets(T, tau):
+            newsim = []
+            for t in range(T):
+                if t + offset >= 0 and t + offset < tau:
+                    newsim.append(
+                        (t, sim[t + offset][1])
+                    )  # Get the simulation value, not the time step
+                else:
+                    newsim.append((t, tuple()))
+            # print(f"{newsim=}")
+            tmp.append(newsim)
+        # print()
+
+    return tmp
+
+
 class PypmHMMApplication:
 
     def initialize(self, config):
@@ -28,10 +67,11 @@ class PypmHMMApplication:
         self.data = munch.Munch()
         self.false_emission_probability = 1e-3
 
-    def learn_transition_parameters(
+    def run_simulations(
         self,
         *,
         num_simulations,
+        T=None,
         seed,
         max_delay_before=5,
         quiet=True,
@@ -44,13 +84,19 @@ class PypmHMMApplication:
             max_delay_before=max_delay_before,
             quiet=quiet,
         )
-        self.transition_params = estimate_transition_parameters(
-            simulations=self.simulations
-        )
-        self.data.options_learn_transition_parameters = dict(
+        if T is not None:
+            self.simulations = add_simulation_offsets(T, self.simulations)
+
+        self.data.options_simulation_parameters = dict(
             num_simulations=num_simulations,
             max_delay_before=max_delay_before,
             debug=debug,
+        )
+
+    def learn_transition_parameters(self):
+        assert self.simulations is not None
+        self.transition_params = estimate_transition_parameters(
+            simulations=self.simulations
         )
 
     def learn_emission_parameters(
