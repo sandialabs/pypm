@@ -27,11 +27,16 @@ def _esimate_transition_and_start_probabilities(hidden_states, simulations):
         start_tolerance=0,
     )
 
-    # Ensure that we have a non-zero probability of starting with an empty observation
+    #
+    # Ensure that we have a non-zero probability for all hidden states
+    # This is necessary to ensure that learn works, since the simulations can start at an
+    # arbitrary part of a process
+    #
     start_probs = hmm.get_start_probs()
-    if start_probs[()] == 0.0:
-        start_probs[()] = 1e-3
-        start_probs = Util.normalize_dictionary(start_probs)
+    for h in hidden_states:
+        if start_probs[h] == 0.0:
+            start_probs[h] = 1e-4
+    start_probs = Util.normalize_dictionary(start_probs)
 
     return start_probs, hmm.get_transition_probs()
 
