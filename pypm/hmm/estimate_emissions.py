@@ -74,6 +74,8 @@ def estimate_emission_parameters(
     if debug or not quiet:
         print("Estimating emission parameters - START")
 
+    simulations = [[state[1] for state in sim] for sim in simulations]
+
     ans = Munch(true_positive=None, value=None)
     for i in range(num_random_restarts):
         if i == 0:
@@ -103,6 +105,8 @@ def estimate_emission_parameters(
             print("value", ans_.value)
         if ans_.value is None:
             continue
+        # TODO - maybe only accept a new solution if its value is
+        #           sufficiently improving?
         if ans.value is None or ans_.value > ans.value:
             ans = ans_
 
@@ -398,18 +402,8 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             observed_states={o for o in observation},
         )
 
-        hidden_vec = []
-        T = len(observation)
-        for sim in simulations:
-            if len(sim) > T:
-                hidden_vec.append([state[1] for state in sim[:T]])
-            else:
-                hidden_vec.append(
-                    [state[1] for state in sim] + [tuple()] * (T - len(sim))
-                )
-            assert len(hidden_vec[-1]) == T
         weights = [
-            math.exp(hmm.log_probability(observation, vec)) for vec in hidden_vec
+            math.exp(hmm.log_probability(observation, vec)) for vec in simulations
         ]
         total = sum(weights)
         if total == 0.0:
@@ -417,7 +411,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         else:
             weights = [w / total for w in weights]
 
-        return weights, hidden_vec
+        return weights, simulations
 
     def oracle_inference(
         self,
@@ -642,8 +636,10 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             print(f"{self._false_emission=}")
             print(f"{self._observable_states=}")
             print(f"{num_time_steps=}")
-            print(f"{hidden_vec=}")
-            print(f"filtered weights {[w if w > 1e-4 else 0 for w in weights]}")
+            for i, vec in enumerate(hidden_vec):
+                if weights[i] < 1e-4:
+                    continue
+                print(f"{i=} {weights[i]} {vec}")
 
         model = pe.ConcreteModel()
 
