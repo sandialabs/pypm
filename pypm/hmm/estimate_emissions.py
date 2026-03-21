@@ -690,6 +690,44 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
 
+        if False:
+            #
+            # Constrain values of the emission matrix to be > 10^-6
+            #
+            # This isn't strictly necessary because we renormalize the emission
+            # matrix values to be > 10^-6 when we create the HMM.
+            #
+            Hidden = list(sorted(self._hidden_states))
+            Observable = list(sorted(set(observation)))
+
+            def E_rule_(m, i, j):
+                hidden_state = Hidden[i]
+                observed_state = Observable[j]
+
+                total = 0.0
+                for o in B:
+                    tp = [
+                        m.p[h, o] for h in hidden_state if (h, o) in self._true_positive
+                    ]
+                    if len(tp) == 0:
+                        continue  # Empty list, so this term is constant
+
+                    temp = 1 - self._false_emission[o]
+                    for p in tp:
+                        temp *= 1 - p
+                    if o in observed_state:
+                        temp = 1 - temp
+
+                    total += pe.log(temp)
+
+                if type(total) is float:
+                    return pe.Constraint.Skip
+                return total >= -6.0
+
+            model.E = pe.Constraint(
+                list(range(len(Hidden))), list(range(len(Observable))), rule=E_rule_
+            )
+
         solver = pe.SolverFactory("ipopt")
         if debug:
             print("Pyomo model information")

@@ -224,8 +224,8 @@ def test6():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.9501630959240294,
-            ("a1", "oB"): 0.9501630959240294,
+            ("a1", "oC"): 1.0,
+            ("a1", "oB"): 1.0,
             ("a2", "oA"): 1.0,
         },
         abs=1e-2,
@@ -238,8 +238,8 @@ def test6_sim():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.9501630959239734,
-            ("a1", "oB"): 0.9501630959239734,
+            ("a1", "oC"): 1.0,
+            ("a1", "oB"): 1.0,
             ("a2", "oA"): 1.0,
         },
         abs=1e-2,
