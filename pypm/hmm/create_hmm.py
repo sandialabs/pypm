@@ -82,7 +82,13 @@ def create_hmm(
     #
     # Create a dense emission matrix
     #
-    # We have to renormalize since the observed sequence may not include all possible observed states
+    # Add the empty observed state, which may not have been observed.  This ensures that the renormalization
+    # does not rescale noise terms to 1.0
+    #
+    if tuple() not in observed_states:
+        observed_states.add( tuple() )
+    #
+    # We renormalize because the observed sequence may not include all possible observed states
     #
     emission_probs = {}
     if False:
