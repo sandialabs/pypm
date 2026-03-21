@@ -28,7 +28,7 @@ def run(testname, dirname, debug=False, verify=False):
 
     if "HMM" in dirname:
         driver.learn_transition_parameters(num_simulations=100, quiet=not debug)
-        driver.learn_emission_parameters(debug=debug, num_random_restarts=10) #, false_emission_probability=0)
+        driver.learn_emission_parameters(debug=debug, quiet=not debug, num_random_restarts=10) #, false_emission_probability=0)
         driver.create_hmm()
 
     results = driver.generate_schedule()
@@ -199,7 +199,7 @@ def test302_GSF_compact():
 
 
 def test1_GSF_HMM():
-    run("test1", "GSF-HMM")
+    run("test1", "GSF-HMM", debug=False)
 
 
 def test2_GSF_HMM():
@@ -255,7 +255,7 @@ def test106_GSF_HMM():
 
 
 def test107_GSF_HMM():
-    run("test107", "GSF-HMM")
+    run("test107", "GSF-HMM", debug=False)
 
 
 def test108_GSF_HMM():
