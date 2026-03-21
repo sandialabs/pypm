@@ -86,7 +86,7 @@ def create_hmm(
     # does not rescale noise terms to 1.0
     #
     if tuple() not in observed_states:
-        observed_states.add( tuple() )
+        observed_states.add(tuple())
     #
     # We renormalize because the observed sequence may not include all possible observed states
     #
