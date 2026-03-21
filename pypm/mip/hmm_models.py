@@ -108,9 +108,9 @@ class GSF_HMM(Z_Repn_Model):
         ), f"You need to create an HMM before generating a schedule with GSF_HMM."
 
         chmm = ConstrainedHiddenMarkovModel(hmm=self.config.hmm_app.hmm)
-        chmm.initialize_chmm("pyomo")
+        chmm.initialize_chmm("pyomo", x_binary=False, y_binary=True)
         M = chmm.chmm.generate_unconstrained_model(
-            observed=self.config.hmm_app.data_wrapper.observation
+            observed=self.config.hmm_app.data_wrapper.observation, Tmax=self.data.Tmax,
         )
 
         tmp = M.hmm.o

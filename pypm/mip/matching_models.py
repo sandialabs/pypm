@@ -1,3 +1,4 @@
+import math
 import datetime
 import pyomo.environ as pe
 from pyomo.opt import TerminationCondition as tc
@@ -11,7 +12,7 @@ def get_nonzero_variables(M):
     for v in M.component_objects(pe.Var, active=True):
         ans[v.name] = {}
         for index in v:
-            if pe.value(v[index]) > 1e-7:
+            if math.fabs(pe.value(v[index])) > 1e-7:
                 ans[v.name][index] = pe.value(v[index])
     return ans
 
@@ -30,7 +31,10 @@ class ProcessModelData(object):
         pm = data.pm
         Kall = list(sorted(name for name in pm.resources))
 
-        self.Tmax = data.obs.timesteps
+        if data.inference_timesteps:
+            self.Tmax = data.inference_timesteps
+        else:
+            self.Tmax = data.obs.timesteps
         self.T = list(range(self.Tmax))
 
         self.O = data.obs.observations

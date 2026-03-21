@@ -155,6 +155,7 @@ def load_config(
     solver_options = munchify(options.get("solver_options", {}))
     count_data = set(options.get("count_data", []))
     search_strategy = options.get("search_strategy", "mip")
+    inference_timesteps = options.get("inference_timesteps",None)
 
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
@@ -198,6 +199,7 @@ def load_config(
         max_stall_count=max_stall_count,
         tabu_model=tabu_model,
         dirname=dirname,
+        inference_timesteps=inference_timesteps,
     )
 
 
