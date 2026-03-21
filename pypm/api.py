@@ -580,13 +580,15 @@ class StatisticalModel(SupervisedMIP):
             debug = self.config.debug
         if quiet is None:
             quiet = self.config.quiet
-        self.config.hmm_app.learn_transition_parameters(
+        self.config.hmm_app.run_simulations(
             num_simulations=num_simulations,
             seed=seed,
             max_delay_before=max_delay_before,
+            T=len(self.config.hmm_app.data_wrapper.observation),
             debug=debug,
             quiet=quiet,
         )
+        self.config.hmm_app.learn_transition_parameters()
 
     def learn_emission_parameters(
         self,
