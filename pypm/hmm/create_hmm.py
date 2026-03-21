@@ -105,7 +105,7 @@ def create_hmm(
         for h in transition_params.hidden_states:
             total = 0
             for o in observed_states:
-                tmp = max(1e-12, sparse_emission_probs[h, o])
+                tmp = max(1e-6, sparse_emission_probs[h, o])
                 emission_probs[h, o] = tmp
                 total += tmp
             for o in observed_states:
