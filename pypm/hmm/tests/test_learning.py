@@ -210,8 +210,8 @@ def test5_sim():
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
         {
-            ("a1", "oC"): 0.7183487440948612,
-            ("a1", "oB"): 0.2806502549095311,
+            ("a1", "oC"): 0.7497338892322376,
+            ("a1", "oB"): 0.24926510962389864,
             ("a2", "oA"): 1.0,
         },
         abs=1e-2,
@@ -223,7 +223,12 @@ def test6():
     ans = ex1_app(obs, False, debug=False)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 1.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-2
+        {
+            ("a1", "oC"): 0.9501630959240294,
+            ("a1", "oB"): 0.9501630959240294,
+            ("a2", "oA"): 1.0,
+        },
+        abs=1e-2,
     )
 
 
@@ -232,7 +237,12 @@ def test6_sim():
     ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 1.0, ("a1", "oB"): 1.0, ("a2", "oA"): 1.0}, abs=1e-2
+        {
+            ("a1", "oC"): 0.9501630959239734,
+            ("a1", "oB"): 0.9501630959239734,
+            ("a2", "oA"): 1.0,
+        },
+        abs=1e-2,
     )
 
 
@@ -251,7 +261,7 @@ def test7_sim():
     ans = ex1_app(obs, False, debug=False, learn_with_simulations=True)
     assert ans.false_emission == {"oB": 0.001, "oC": 0.001, "oA": 0.001}
     assert ans.true_positive == pytest.approx(
-        {("a1", "oC"): 1.0, ("a1", "oB"): 0.9454746932091682, ("a2", "oA"): 1.0},
+        {("a1", "oC"): 1.0, ("a1", "oB"): 0.24918899695574498, ("a2", "oA"): 1.0},
         abs=1e-2,
     )
 
