@@ -71,6 +71,7 @@ class PypmHMMApplication:
         self,
         *,
         num_simulations,
+        shift_simulations=True,
         T=None,
         seed,
         max_delay_before=5,
@@ -84,7 +85,7 @@ class PypmHMMApplication:
             max_delay_before=max_delay_before,
             quiet=quiet,
         )
-        if T is not None:
+        if shift_simulations and T is not None:
             self.simulations = add_simulation_offsets(T, self.simulations)
 
         self.data.options_simulation_parameters = dict(
