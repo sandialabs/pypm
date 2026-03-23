@@ -654,16 +654,17 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         def log_prob(m):
             val = 0
+            seen_states = set()
             for i, hidden in enumerate(hidden_vec):
                 if weights[i] > 1e-4:
                     total = 0
                     for t in range(num_time_steps):
                         for o in B:
-                            tp = [
-                                m.p[h, o]
-                                for h in hidden[t]
-                                if (h, o) in self._true_positive
-                            ]
+                            tp = []
+                            for h in hidden[t]:
+                                if (h, o) in self._true_positive:
+                                    tp.append( m.p[h, o] )
+                                    seen_states.add( (h,o) )
                             if len(tp) == 0:
                                 continue  # Empty list, so this term is constant
 
@@ -678,14 +679,10 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
             # Add terms for true_positive variables that are not added in the log-likelihood
             # This biases their value to 1.0
-            tmp = {
-                (h, o)
-                for t in range(num_time_steps)
-                for h in hidden[t]
-                for o in B
-                if (h, o) in self._true_positive
-            }
-            val += sum(m.p[h, o] for (h, o) in self._true_positive if (h, o) not in tmp)
+            for key in self._true_positive:
+                if key not in seen_states:
+                    print(f"WARNING: true_positive key {key} not seen. {num_time_steps=}")
+            val += sum(m.p[h, o] for (h, o) in self._true_positive if (h, o) not in seen_states)
             return val
 
         model.obj = pe.Objective(rule=log_prob, sense=pe.maximize)
