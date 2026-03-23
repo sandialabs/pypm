@@ -571,8 +571,15 @@ class StatisticalModel(SupervisedMIP):
     def load_statistical_model(self, filename):
         self.config.hmm_app.read(filename)
 
-    def learn_transition_parameters(
-        self, *, num_simulations, max_delay_before=5, seed=None, debug=None, quiet=None
+    def run_simulations(
+        self,
+        *,
+        num_simulations,
+        max_delay_before=5,
+        shift_simulations=False,
+        seed=None,
+        debug=None,
+        quiet=None,
     ):
         if seed is None:
             seed = self.config.seed
@@ -583,11 +590,14 @@ class StatisticalModel(SupervisedMIP):
         self.config.hmm_app.run_simulations(
             num_simulations=num_simulations,
             seed=seed,
+            shift_simulations=shift_simulations,
             max_delay_before=max_delay_before,
             T=len(self.config.hmm_app.data_wrapper.observation),
             debug=debug,
             quiet=quiet,
         )
+
+    def learn_transition_parameters(self):
         self.config.hmm_app.learn_transition_parameters()
 
     def learn_emission_parameters(
