@@ -592,7 +592,7 @@ class StatisticalModel(SupervisedMIP):
             seed=seed,
             shift_simulations=shift_simulations,
             max_delay_before=max_delay_before,
-            T=len(self.config.hmm_app.data_wrapper.observation),
+            T=self.config.hmm_app.num_time_steps(),
             debug=debug,
             quiet=quiet,
         )
