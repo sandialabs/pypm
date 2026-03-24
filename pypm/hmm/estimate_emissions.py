@@ -383,6 +383,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
             weights=weights,
             iteration=iteration,
             debug=debug,
+            quiet=quiet,
         )
         if debug or not quiet:
             print("SAEM_step - DONE")
@@ -608,7 +609,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
 
         return [output[i].hidden for i in range(len(output))]
 
-    def _M_step(self, *, observation, hidden_vec, weights, iteration, debug=False):
+    def _M_step(self, *, observation, hidden_vec, weights, iteration, debug=False, quiet=True):
         """
         Does the maximize step of the SAEM algorithm
 
@@ -729,7 +730,7 @@ class Process_Matching_HMM(conin.hmm.HMMApplication):
         if debug:
             print("Pyomo model information")
             model.pprint()
-        solver.solve(model, tee=debug)
+        solver.solve(model, tee=not quiet)
         if debug:
             print("Pyomo model values")
             model.display()
