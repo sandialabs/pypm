@@ -544,6 +544,7 @@ class StatisticalModel(SupervisedMIP):
         #        self.config.pm.resources.add(dummyname, 1)
 
     def generate_schedule(self):
+        self.config.hmm_app.initialize_data_wrapper()
         results = super().generate_schedule()
 
         hmm = self.config.hmm_app.hmm

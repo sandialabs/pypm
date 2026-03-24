@@ -66,14 +66,16 @@ class PypmHMMApplication:
         self.false_emission_probability = 1e-3
 
     def num_time_steps(self):
-        if self.data_wrapper is None:
-            self._initialize_data_wrapper()
+        self.initialize_data_wrapper()
         return len(self.data_wrapper.observation)
 
-    def _initialize_data_wrapper(self):
-        self.data_wrapper = create_data_wrapper(config=self._config, quiet=self._config.quiet)
-        if hasattr(self._config, "features"):
-            self.data_wrapper.features = getattr(self._config, "features", {})
+    def initialize_data_wrapper(self):
+        if self.data_wrapper is None:
+            self.data_wrapper = create_data_wrapper(
+                config=self._config, quiet=self._config.quiet
+            )
+            if hasattr(self._config, "features"):
+                self.data_wrapper.features = getattr(self._config, "features", {})
 
     def run_simulations(
         self,
@@ -86,8 +88,7 @@ class PypmHMMApplication:
         quiet=True,
         debug=False,
     ):
-        if self.data_wrapper is None:
-            self._initialize_data_wrapper()
+        self.initialize_data_wrapper()
 
         self.simulations = run_simian(
             data_wrapper=self.data_wrapper,
