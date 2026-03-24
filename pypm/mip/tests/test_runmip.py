@@ -34,7 +34,7 @@ def run(model, example, sim, supervised):
 
     results = driver.generate_schedule()
     outputfile = join(datadir, "{}_{}_{}_results.yaml".format(example, sim, supervised))
-    results.write(outputfile, verbose=True)
+    results.write(outputfile, verbose=False)
 
     baselinefile = join(
         datadir, "{}_{}_{}_baseline.yaml".format(example, sim, supervised)

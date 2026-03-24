@@ -3,7 +3,6 @@
 
 import datetime
 import yaml
-import pprint
 import csv
 import sys
 from munch import Munch, munchify
@@ -12,11 +11,9 @@ from os.path import join
 import os.path
 from pypm.util.load import load_process
 from pypm.mip.models import create_model
-import pyomo.environ as pe
-from pyomo.opt import TerminationCondition as tc
 
 
-def load_observations(*, data, dirname, index, count_data, strict=False):
+def _load_observations(*, data, dirname, index, count_data, strict=False):
     observations_ = {}
     header = []
     if type(data) is list:
@@ -123,28 +120,6 @@ def load_observations(*, data, dirname, index, count_data, strict=False):
     )
 
 
-def perform_optimization(*, M, solver, options, tee, debug):
-    opt = pe.SolverFactory(solver)
-    if tee:  # pragma: no cover
-        print("-- Solver Output Begins --")
-    if options:
-        results = opt.solve(M.M, options=options, tee=tee)
-    else:
-        results = opt.solve(M.M, tee=tee)
-    if tee:  # pragma: no cover
-        print("-- Solver Output Ends --")
-    if debug:  # pragma:nocover
-        M.M.pprint()
-        M.M.display()
-    if results.solver.termination_condition not in {
-        tc.optimal,
-        tc.locallyOptimal,
-        tc.feasible,
-    }:
-        return None
-    return M.summarize()
-
-
 def load_config(
     *,
     datafile=None,
@@ -157,7 +132,7 @@ def load_config(
     debug=None,
     verbose=None,
     quiet=None,
-    seed=123456789237498
+    seed=123456789237498,
 ):
     if data is None:
         assert datafile is not None
@@ -180,6 +155,7 @@ def load_config(
     solver_options = munchify(options.get("solver_options", {}))
     count_data = set(options.get("count_data", []))
     search_strategy = options.get("search_strategy", "mip")
+    inference_timesteps = options.get("inference_timesteps",None)
 
     if dirname is None and datafile is not None:
         dirname = os.path.dirname(os.path.abspath(datafile))
@@ -194,7 +170,7 @@ def load_config(
     max_stall_count = options.get("max_stall_count", None)
     tabu_model = options.get("tabu_model", None)
 
-    obs = load_observations(
+    obs = _load_observations(
         data=data["data"], dirname=dirname, index=index, count_data=count_data
     )
 
@@ -223,30 +199,24 @@ def load_config(
         max_stall_count=max_stall_count,
         tabu_model=tabu_model,
         dirname=dirname,
+        inference_timesteps=inference_timesteps,
     )
 
 
 def runmip(config, constraints=[]):
     if not config.quiet:
         print("Creating model")
-    M = create_model(config.model)
+    M = create_model(name=config.model, config=config, constraints=constraints)
     if M is None:  # pragma: no cover
-        print(
-            'ERROR: using deprecated model "'
-            + config.model
-            + '".  Use the old_runmip() function.'
-        )
+        print(f'ERROR: using unexpected model "{config.model}"')
         sys.exit(0)
-    M(config, constraints=constraints)
 
     #
     # Save the optimization formulation.  This is used for
     # debugging.
     #
     if config.savefile:  # pragma: no cover
-        if not config.quiet:
-            print("Writing file:", config.savefile)
-        M.M.write(config.savefile, io_options=dict(symbolic_solver_labels=True))
+        M.write_model(config.savefile)
         return dict()
     #
     # Setup results YAML data
@@ -260,27 +230,13 @@ def runmip(config, constraints=[]):
             timesteps=config.obs.timesteps,
             indicators=config.obs.header,
             index=config.index,
+            datetime=config.obs.datetime,
         ),
         results=[],
     )
-    res["data"]["datetime"] = config.obs.datetime
 
     if config.search_strategy == "mip":
-        if not config.quiet:
-            print("Optimizing model")
-        #
-        # Perform optimization
-        #
-        results = perform_optimization(
-            M=M,
-            solver=config.solver,
-            options=config.solver_options,
-            tee=config.tee,
-            debug=config.debug,
-        )
-        #
-        # Append results to YAML data
-        #
+        results = M.perform_optimization()
         res["results"].append(results)
 
     return res

@@ -150,7 +150,7 @@ def create_gannt_chart(
             color="Match Score",
             width=width,
             height=height,
-            utc=True
+            utc=True,
         )
         fig.layout.xaxis.type = "linear"
         df["delta"] = df["Stop"] - df["Start"]

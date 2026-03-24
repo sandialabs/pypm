@@ -5,7 +5,77 @@ import os.path
 from munch import Munch
 import pprint
 from .mip.runmip import load_config, runmip
+from .hmm import initialize_hmm_application
 from .unsup.run_labeling import run_tabu_labeling
+
+
+def process_labeling_restrictions(config):
+    #
+    # Process the labeling restrictions file
+    #
+    if config.labeling_restrictions:
+        for activity in config.pm:
+            dummyname = "dummy " + activity
+            config.pm.resources.add(dummyname, 1)
+
+        if not os.path.exists(config.labeling_restrictions):
+            raise RuntimeError(
+                "Unknown labeling restrictions file: {}".format(
+                    config.labeling_restrictions
+                )
+            )
+
+        tmp = {}
+        with open(config.labeling_restrictions, "r") as INPUT:
+            restrictions = yaml.load(INPUT, Loader=yaml.Loader)
+            for r in restrictions:
+                assert (
+                    "resourceName" in r
+                ), "Missing data field 'resourceName' in {}-th labeling restriction declared in {}".format(
+                    i, config.labeling_restrictions
+                )
+                name = r["resourceName"]
+                assert (
+                    name in config.pm.resources
+                ), "Missing resource {} in process resource list".format(name)
+                assert name not in tmp, "Resource {} declared twice in {}".format(
+                    name, config.labeling_restrictions
+                )
+                tmp[name] = dict(required=[], optional=[])
+
+                assert (
+                    "like" in r or "knownFeature" in r
+                ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
+                    name, config.labeling_restrictions
+                )
+                assert (
+                    "like" in r or "possibleFeature" in r
+                ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
+                    name, config.labeling_restrictions
+                )
+                if "knownFeature" in r:
+                    for f in r["knownFeature"]:
+                        assert (
+                            f in config.obs["observations"]
+                        ), "Missing feature {} in data observations (known features for resource {})".format(
+                            f, name
+                        )
+                        tmp[name]["required"].append(f)
+                if "possibleFeature" in r:
+                    for f in r["possibleFeature"]:
+                        assert (
+                            f in config.obs["observations"]
+                        ), "Missing feature {} in data observations (possible features for resource {})".format(
+                            f, name
+                        )
+                        tmp[name]["optional"].append(f)
+
+            for r in restrictions:
+                name = r["resourceName"]
+                if "like" in r:
+                    tmp[name] = tmp[r["like"]]
+
+        config.labeling_restrictions = tmp
 
 
 class MatchingResults(object):
@@ -79,11 +149,11 @@ class SupervisedMIP(object):
     find a feasible schedule of process activities that best aligns with data observations.
     """
 
-    def __init__(self, model=None):
+    def __init__(self, model=None, objective="total_match_score"):
         self.model = model
         self.config = Munch()
         self.constraints = []
-        self.objective = Munch(goal="total_match_score")
+        self.objective = Munch(goal=objective)
         self.solver_options = Munch(name=None, show_solver_output=None)
 
     def activities(self):
@@ -129,23 +199,27 @@ class SupervisedMIP(object):
         -------
         :any:`pypm.api.MatchingResults`
         """
-        #
-        # Setup the self.config data using class data
-        #
-        if self.model is None:
-            if self.config.model is None:
-                if self.objective.goal == "total_match_score":
-                    if len(self.config.count_data) > 0:
-                        self.config.model = "GSF-ED"  # model13
-                    else:
-                        self.config.model = "UnrestrictedMatches_VariableLengthActivities"  # model11 OR GSF
-                elif self.objective.goal == "minimize_makespan":
-                    self.config.model = "GSF-makespan"
-                else:
-                    print("Unknown objecive: {}".format(self.objective.goal))
-                    return None
-        else:
+        # Use the specified model type
+        if self.model is not None:
             self.config.model = self.model
+
+        elif self.config.model is None:
+            # Infer the model type from the objective goal
+            if self.objective.goal == "total_match_score":
+                if len(self.config.count_data) > 0:
+                    self.config.model = "GSF-ED"  # model13
+                else:
+                    self.config.model = (
+                        "UnrestrictedMatches_VariableLengthActivities"  # model11 OR GSF
+                    )
+            elif self.objective.goal == "minimize_makespan":
+                self.config.model = "GSF-makespan"
+            elif self.objective.goal == "log_likelihood":
+                self.config.model = "HMM_UnrestrictedMatches_VariableLengthActivities"
+            else:
+                print("Unknown objective: {}".format(self.objective.goal))
+                return None
+
         if self.solver_options.name is not None:
             self.config.solver = self.solver_options.name
         if self.solver_options.show_solver_output is not None:
@@ -406,6 +480,7 @@ class SupervisedMIP(object):
     #
     # total_match_score
     # total_separation_score
+    # log_likelihood
     #
 
     def maximize_total_match_score(self):
@@ -425,6 +500,134 @@ class SupervisedMIP(object):
         Set the scheduling objective to minimize the start time of the latest activity
         """
         self.objective = Munch(goal="minimize_makespan")
+
+    def maximize_log_likelihood(self):
+        """
+        Set the scheduling objective to maximize log-likelihood for all activities
+        """
+        self.objective = Munch(goal="log_likelihood")
+
+
+class StatisticalModel(SupervisedMIP):
+    """
+    This class contains coordinates the execution of an integer programming optimizer to
+    infer the most likely feasible schedule of process activities given a hidden Markov model of the process.
+    """
+
+    def __init__(self, model=None):
+        super().__init__(model, "log_likelihood")
+
+    def load_config(self, yamlfile):
+        """
+        Load a YAML configuration file.
+
+        Arguments
+        ---------
+        yamlfile: `str`
+            The filename of the YAML configuration file.
+        """
+        self.config = load_config(
+            datafile=yamlfile,
+            verbose=PYPM.options.verbose,
+            quiet=PYPM.options.quiet,
+            index=0,
+        )
+        process_labeling_restrictions(self.config)
+
+        self.config.hmm_app = initialize_hmm_application(self.model)
+        self.config.hmm_app.initialize(self.config)
+
+        # TODO - Are labeling restrictions relevant for HMM models?
+        # if self.config.labeling_restrictions:
+        #    for activity in self.activities():
+        #        dummyname = "dummy " + activity
+        #        self.config.pm.resources.add(dummyname, 1)
+
+    def generate_schedule(self):
+        self.config.hmm_app.initialize_data_wrapper()
+        results = super().generate_schedule()
+
+        hmm = self.config.hmm_app.hmm
+        T = {
+            h: {h_: hmm.transition_mat[i][j] for j, h_ in enumerate(hmm.hidden_states)}
+            for i, h in enumerate(hmm.hidden_states)
+        }
+        E = {
+            h: {o: hmm.emission_mat[i][j] for j, o in enumerate(hmm.observed_states)}
+            for i, h in enumerate(hmm.hidden_states)
+        }
+        results["hmm"] = dict(
+            true_positive=self.config.hmm_app.emission_params.true_positive,
+            false_emission=self.config.hmm_app.emission_params.false_emission,
+            start_prob=hmm.get_start_probs(),
+            emission_mat=E,
+            transition_mat=T,
+        )
+
+        return results
+
+    def save_statistical_model(self, filename):
+        self.config.hmm_app.write(filename)
+
+    def load_statistical_model(self, filename):
+        self.config.hmm_app.read(filename)
+
+    def run_simulations(
+        self,
+        *,
+        num_simulations,
+        max_delay_before=5,
+        shift_simulations=False,
+        seed=None,
+        debug=None,
+        quiet=None,
+    ):
+        if seed is None:
+            seed = self.config.seed
+        if debug is None:
+            debug = self.config.debug
+        if quiet is None:
+            quiet = self.config.quiet
+        self.config.hmm_app.run_simulations(
+            num_simulations=num_simulations,
+            seed=seed,
+            shift_simulations=shift_simulations,
+            max_delay_before=max_delay_before,
+            T=self.config.hmm_app.num_time_steps(),
+            debug=debug,
+            quiet=quiet,
+        )
+
+    def learn_transition_parameters(self):
+        self.config.hmm_app.learn_transition_parameters()
+
+    def learn_emission_parameters(
+        self,
+        *,
+        false_emission_probability=1e-3,
+        num_random_restarts=3,
+        debug=False,
+        quiet=True,
+        schedule_all_activities=False,
+        seed=None,
+    ):
+        if seed is None:
+            seed = self.config.seed
+        self.config.hmm_app._api = self
+        self.config.hmm_app.learn_emission_parameters(
+            observed=self.config.hmm_app.data_wrapper.observation,
+            debug=debug,
+            quiet=quiet,
+            num_random_restarts=num_random_restarts,
+            constrained=True,
+            schedule_all_activities=schedule_all_activities,
+            false_emission_probability=false_emission_probability,
+            seed=seed,
+        )
+        self.config.hmm_app._api = None
+
+    def create_hmm(self):
+        self.config.hmm_app.create_hmm()
 
 
 class UnsupervisedMIP(SupervisedMIP):
@@ -545,72 +748,7 @@ class TabuLabeling(object):
             index=0,
         )
         self.config.model = "tabu"
-        #
-        # Process the labeling restrictions file
-        #
-        if self.config.labeling_restrictions:
-            for activity in self.activities():
-                dummyname = "dummy " + activity
-                self.config.pm.resources.add(dummyname, 1)
-
-            if not os.path.exists(self.config.labeling_restrictions):
-                raise RuntimeError(
-                    "Unknown labeling restrictions file: {}".format(
-                        self.config.labeling_restrictions
-                    )
-                )
-
-            tmp = {}
-            with open(self.config.labeling_restrictions, "r") as INPUT:
-                restrictions = yaml.load(INPUT, Loader=yaml.Loader)
-                for r in restrictions:
-                    assert (
-                        "resourceName" in r
-                    ), "Missing data field 'resourceName' in {}-th labeling restriction declared in {}".format(
-                        i, self.config.labeling_restrictions
-                    )
-                    name = r["resourceName"]
-                    assert (
-                        name in self.config.pm.resources
-                    ), "Missing resource {} in process resource list".format(name)
-                    assert name not in tmp, "Resource {} declared twice in {}".format(
-                        name, self.config.labeling_restrictions
-                    )
-                    tmp[name] = dict(required=[], optional=[])
-
-                    assert (
-                        "like" in r or "knownFeature" in r
-                    ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
-                        name, self.config.labeling_restrictions
-                    )
-                    assert (
-                        "like" in r or "possibleFeature" in r
-                    ), "Missing data field 'knownFeature' for resource {} declared in {}".format(
-                        name, self.config.labeling_restrictions
-                    )
-                    if "knownFeature" in r:
-                        for f in r["knownFeature"]:
-                            assert (
-                                f in self.config.obs["observations"]
-                            ), "Missing feature {} in data observations (known features for resource {})".format(
-                                f, name
-                            )
-                            tmp[name]["required"].append(f)
-                    if "possibleFeature" in r:
-                        for f in r["possibleFeature"]:
-                            assert (
-                                f in self.config.obs["observations"]
-                            ), "Missing feature {} in data observations (possible features for resource {})".format(
-                                f, name
-                            )
-                            tmp[name]["optional"].append(f)
-
-                for r in restrictions:
-                    name = r["resourceName"]
-                    if "like" in r:
-                        tmp[name] = tmp[r["like"]]
-
-            self.config.labeling_restrictions = tmp
+        process_labeling_restrictions(self.config)
 
     def generate_labeling_and_schedule(self, nworkers=None, debug=None, setup_ray=True):
         """
@@ -911,6 +1049,15 @@ class PYPM_api(object):
         :any:`pypm.api.SupervisedMIP`
         """
         return SupervisedMIP()
+
+    def statistical_model(self):
+        """Initialize a solver interface for labeled inference using a hidden Markov model.
+
+        Returns
+        -------
+        :any:`pypm.api.StatisticalModel`
+        """
+        return StatisticalModel()
 
     def unsupervised_mip(self):
         return UnsupervisedMIP()
